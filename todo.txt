@@ -1,0 +1,13 @@
+TO-DO:
+
+* second version: balanced
+
+* third version: least skill-xp needed
+
+* create error messages
+
+* better output messages
+
+* restructure code for better readability
+
+* increase number of possible skills
