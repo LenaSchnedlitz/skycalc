@@ -9,5 +9,3 @@ TO-DO:
 * increase number of possible skills
 
 * find better names for versions
-
-* replace times_leveled variables with something else - dict?
