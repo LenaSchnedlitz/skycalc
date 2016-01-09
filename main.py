@@ -16,48 +16,254 @@ while len(skills) < 3:
 
 #fewest skill level-ups:
 
-min_xp = 0
-min_times_leveled1 = 0
-min_skill1 = skills[0]
+apple_xp = 0
+apple_times_leveled = 0
+apple_times_leveled1 = 0
+apple_times_leveled2 = 0
+apple_levels = list(skills)
 
 while True:
-    min_times_leveled1 += 1
-    min_skill1 += 1
-    min_xp += min_skill1
-    if min_xp >= needed_xp and min_skill1 <= 100:
-        print "\n>current Level: %d, train %dx; final level: %d\n\n" % (skills[0], min_times_leveled1, min_skill1)
+    if apple_levels[0] == 100:
+        apple_levels[0] = 15
+    apple_times_leveled += 1
+    apple_levels[0] += 1
+    apple_xp += apple_levels[0]
+    if apple_xp >= needed_xp:
+        print "\n>current Level: %d, train %dx; final level: %d\n\n" % (skills[0], apple_times_leveled, apple_levels[0])
         break
-    elif min_skill1 == 100 and skills[1] == 0:
-        min_skill1 = 15
-    elif min_skill1 == 100 and skills[1] != 0:
-        min_skill2 = skills[1]
-        min_times_leveled2 = 0
+    elif apple_levels[0] == 100 and skills[1] != 0:
 
         while True:
-            min_times_leveled2 += 1
-            min_skill2 += 1
-            min_xp += min_skill2
-            if min_xp >= needed_xp and min_skill2 <= 100:
-                print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], min_times_leveled1, min_skill1)
-                print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[1], min_times_leveled2, min_skill2)
+            if apple_levels[1] == 100:
+                apple_levels[1] = 15
+            apple_times_leveled1 += 1
+            apple_levels[1] += 1
+            apple_xp += apple_levels[1]
+            if apple_xp >= needed_xp:
+                print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], apple_times_leveled, apple_levels[0])
+                print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[1], apple_times_leveled1, apple_levels[1])
                 break
-            elif min_skill2 == 100 and skills[2] == 0:
-                min_skill2 = 15
-            elif min_skill2 == 100 and skills [2] != 0:
-                min_skill3 = skills[2]
-                min_times_leveled3 = 0
+            elif apple_levels[1] == 100 and skills[2] != 0:
 
                 while True:
-                    min_times_leveled3 += 1
-                    min_skill3 += 1
-                    min_xp += min_skill3
-                    if min_xp >= needed_xp and min_skill3 <= 100:
-                        print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], min_times_leveled1, min_skill1)
-                        print ">current Level: %d, train %dx; final level: %d" % (skills[1], min_times_leveled2, min_skill2)
-                        print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], min_times_leveled3, min_skill3)
+                    if apple_levels[2] == 100:
+                        apple_levels[2] = 15
+                    apple_times_leveled2 += 1
+                    apple_levels[2] += 1
+                    apple_xp += apple_levels[2]
+                    if apple_xp >= needed_xp:
+                        print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], apple_times_leveled, apple_levels[0])
+                        print ">current Level: %d, train %dx; final level: %d" % (skills[1], apple_times_leveled1, apple_levels[1])
+                        print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], apple_times_leveled2, apple_levels[2])
                         break
-                    elif min_skill3 == 100:
-                        min_skill3 = 15
                 break
         break
 
+
+#least skill xp needed - easiest level-ups:
+
+pear_xp = 0
+pear_times_leveled = 0
+pear_times_leveled1 = 0
+pear_times_leveled2 = 0
+reversed_skills = list(reversed(skills))
+pear_levels = list(reversed_skills)
+
+if reversed_skills[0] != 0:
+
+    while True:
+        if pear_levels[0] == 100:
+            pear_levels[0] = 15
+        pear_times_leveled += 1
+        pear_levels[0] += 1
+        pear_xp += pear_levels[0]
+        if pear_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+            break
+        elif pear_levels[0] >= pear_levels[1]:
+
+            while True:
+                if pear_levels[1] == 100:
+                    pear_levels[1] = 15
+                pear_times_leveled1 += 1
+                pear_levels[1] += 1
+                pear_xp += pear_levels[1]
+                if pear_xp >= needed_xp:
+                    print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+                    print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                    break
+
+                elif pear_levels[0] == 100:
+                    pear_levels[0] = 15
+                pear_times_leveled += 1
+                pear_levels[0] += 1
+                pear_xp += pear_levels[0]
+                if pear_xp >= needed_xp:
+                    print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+                    print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                    break
+                
+                elif pear_levels [0] >= pear_levels[2]:
+
+                    while True:
+                        if pear_levels[2] == 100:
+                            pear_levels[2] = 15
+                        pear_times_leveled2 += 1
+                        pear_levels[2] += 1
+                        pear_xp += pear_levels[2]
+                        if pear_xp >= needed_xp:
+                            print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+                            print ">current Level: %d, train %dx; final level: %d" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                            print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+                            break
+
+                        elif pear_levels[1] == 100:
+                            pear_levels[1] = 15
+                        pear_times_leveled1 += 1
+                        pear_levels[1] += 1
+                        pear_xp += pear_levels[1]
+                        if pear_xp >= needed_xp:
+                            print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+                            print ">current Level: %d, train %dx; final level: %d" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                            print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+                            break
+
+                        elif pear_levels[0] == 100:
+                            pear_levels[0] = 15
+                        pear_times_leveled += 1
+                        pear_levels[0] += 1
+                        pear_xp += pear_levels[0]
+                        if pear_xp >= needed_xp:
+                            print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[0], pear_times_leveled, pear_levels[0])
+                            print ">current Level: %d, train %dx; final level: %d" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                            print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+                            break
+                    break
+            break
+
+elif reversed_skills[0] == 0 and reversed_skills[1] != 0:
+
+    while True:
+        if pear_levels[1] == 100:
+            pear_levels[1] = 15
+        pear_times_leveled1 += 1
+        pear_levels[1] += 1
+        pear_xp += pear_levels[1]
+        if pear_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+            break
+        elif pear_levels[1] >= pear_levels[2]:
+
+            while True:
+                if pear_levels[2] == 100:
+                    pear_levels[2] = 15
+                pear_times_leveled2 += 1
+                pear_levels[2] += 1
+                pear_xp += pear_levels[2]
+                if pear_xp >= needed_xp:
+                    print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                    print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+                    break
+
+                elif pear_levels[1] == 100:
+                    pear_levels[1] = 15
+                pear_times_leveled1 += 1
+                pear_levels[1] += 1
+                pear_xp += pear_levels[1]
+                if pear_xp >= needed_xp:
+                    print "\n\n>current Level: %d, train %dx; final level: %d" % (reversed_skills[1], pear_times_leveled1, pear_levels[1])
+                    print ">current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+                    break
+            break
+
+else:
+
+    while True:
+        if pear_levels[2] == 100:
+            pear_levels[2] = 15
+        pear_times_leveled2 += 1
+        pear_levels[2] += 1
+        pear_xp += pear_levels[2]
+        if pear_xp >= needed_xp and pear_levels[2] <= 100:
+            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (reversed_skills[2], pear_times_leveled2, pear_levels[2])
+            break
+
+
+#balanced:
+
+banana_xp = 0
+banana_times_leveled = 0
+banana_times_leveled1 = 0
+banana_times_leveled2 = 0
+banana_levels = list(skills)
+
+if skills[1] != 0 and skills[2] != 0:
+
+    while True:
+        if banana_levels[0] == 100:
+            banana_levels[0] = 15
+        banana_times_leveled += 1
+        banana_levels[0] += 1
+        banana_xp += banana_levels[0]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            print ">current Level: %d, train %dx; final level: %d" % (skills[1], banana_times_leveled1, banana_levels[1])
+            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], banana_times_leveled2, banana_levels[2])
+            break
+
+        elif banana_levels[1] == 100:
+            banana_levels[1] = 15
+        banana_times_leveled1 += 1
+        banana_levels[1] += 1
+        banana_xp += banana_levels[1]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            print ">current Level: %d, train %dx; final level: %d" % (skills[1], banana_times_leveled1, banana_levels[1])
+            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], banana_times_leveled2, banana_levels[2])
+            break
+
+        elif banana_levels[2] == 100:
+            banana_levels[2] = 15
+        banana_times_leveled2 += 1
+        banana_levels[2] += 1
+        banana_xp += banana_levels[2]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            print ">current Level: %d, train %dx; final level: %d" % (skills[1], banana_times_leveled1, banana_levels[1])
+            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], banana_times_leveled2, banana_levels[2])
+            break
+
+elif skills[1] != 0:
+
+    while True:
+        if banana_levels[0] == 100:
+            banana_levels[0] = 15
+        banana_times_leveled += 1
+        banana_levels[0] += 1
+        banana_xp += banana_levels[0]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            print ">current Level: %d, train %dx; final level: %d" % (skills[1], banana_times_leveled1, banana_levels[1])
+            break
+
+        elif banana_levels[1] == 100:
+            banana_levels[1] = 15
+        banana_times_leveled1 += 1
+        banana_levels[1] += 1
+        banana_xp += banana_levels[1]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            print ">current Level: %d, train %dx; final level: %d" % (skills[1], banana_times_leveled1, banana_levels[1])
+            break
+
+else:
+
+    while True:
+        if banana_levels[0] == 100:
+            banana_levels[0] = 15
+        banana_times_leveled += 1
+        banana_levels[0] += 1
+        banana_xp += banana_levels[0]
+        if banana_xp >= needed_xp:
+            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], banana_times_leveled, banana_levels[0])
+            break
