@@ -6,8 +6,6 @@ TO-DO:
 
 * replace duplicate code
 
-* increase number of possible skills
-
 * find better names for versions
 
 * find better balanced method

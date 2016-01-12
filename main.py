@@ -1,18 +1,16 @@
-print "\n\n>Hello. I'd like to calulate a few things for you.\n"
+print "\n\n\n\nHello. I'd like to calulate a few things for you.\n"
 
-current = int(raw_input(">What's your current character level? "))
-goal = int(raw_input(">What level do you want to reach? "))
+current = int(raw_input("What's your current character level? "))
+goal = int(raw_input("What level do you want to reach? "))
 
 needed_xp = 12.5 * (goal ** 2 - current ** 2) + 62.5 * (goal - current)
 
-print "\n>Please enter the current levels of the skills you would like to train.\n" \
-    " You can enter up to 3 values, but you need to seperate them with commas (\",\").\n"
+print "\nPlease enter the current levels of the skills you would like to train.\n" \
+    "You can enter as many values as you like, but you need to seperate them with commas (\",\").\n"
 
 skills = raw_input().split(",")
 skills = [int(x) for x in skills]
 skills = list(reversed(sorted(skills)))
-while len(skills) < 3:
-    skills.append(0)
 
 
 gained_xp = {
@@ -21,13 +19,16 @@ gained_xp = {
     "bananas" : 0
     }
 
+print "\n\n\n\nHere are your results:\n\n"
+
+
 
 #fewest skill level-ups:
 
-
 def apple_wrapper():
-    times_leveled = [0,0,0]
     new_levels = list(skills)
+    skill_count = len(new_levels)
+    times_leveled = [0] * skill_count
 
     def make_skills_legendary(i):
         if new_levels[i] == 100:
@@ -39,15 +40,10 @@ def apple_wrapper():
         gained_xp["apples"] += new_levels[i]
 
     def print_results():
-        if times_leveled[2] != 0:
-            print "\n\n>current Level: %d, trainl %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d" % (skills[1], times_leveled[1], new_levels[1])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], times_leveled[2], new_levels[2])
-        elif times_leveled[1] != 0:
-            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[1], times_leveled[1], new_levels[1])
-        else:
-            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (skills[0], times_leveled[0], new_levels[0])
+        print "\n  LOWEST NUMBER OF SKILL LEVEL-UPS - ideal for trainers:\n"
+        for i in range(0, skill_count):
+            print "  current Level: %d, train %dx; final level: %d" % (skills[i], times_leveled[i], new_levels[i])
+        print "\n\n\n----------------------------------------------------------------\n\n"
 
 
     def apples(i):
@@ -56,7 +52,7 @@ def apple_wrapper():
             train_skills(i)
             if gained_xp["apples"] >= needed_xp:
                 break
-            elif new_levels[i] == 100 and i+1 < len(skills):
+            elif new_levels[i] == 100 and i+1 < len(new_levels):
                 apples(i+1)
                 break
 
@@ -70,9 +66,9 @@ apple_wrapper()
 
 #least skill xp needed - easiest level-ups:
 def pear_wrapper():
-    times_leveled = [0,0,0]
     new_levels = list(skills)
-    length = len(list(skills))
+    skill_count = len(new_levels)
+    times_leveled = [0] * skill_count
 
     def make_skills_legendary(i):
         if new_levels[i] == 100:
@@ -83,21 +79,17 @@ def pear_wrapper():
         new_levels[i] += 1
         gained_xp["pears"] += new_levels[i]
 
-    def print_pears():
-        if times_leveled[2] != 0:
-            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d" % (skills[1], times_leveled[1], new_levels[1])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], times_leveled[2], new_levels[2])
-        elif times_leveled[1] != 0:
-            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[1], times_leveled[1], new_levels[1])
-        else:
-            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (skills[0], times_leveled[0], new_levels[0])
+    def print_results():
+        print "\n  LEAST SKILL XP NEEDED - easiest level-ups:\n"
+        for i in range(0, skill_count):
+            print "  current Level: %d, train %dx; final level: %d" % (skills[i], times_leveled[i], new_levels[i])
+        print "\n\n\n----------------------------------------------------------------\n\n"
+
 
     def pears(index):
         if index > 0:
             while new_levels[index] < new_levels[index-1] and gained_xp["pears"] < needed_xp:
-                for j in range(index, length):
+                for j in range(index, skill_count):
                     make_skills_legendary(j)
                     train_skills(j)
                     if gained_xp["pears"] >= needed_xp:
@@ -106,24 +98,27 @@ def pear_wrapper():
             pears(index)
         else:
             while gained_xp["pears"] < needed_xp:
-                for j in range(length):
+                for j in range(skill_count):
                     make_skills_legendary(j)
                     train_skills(j)
                     if gained_xp["pears"] >= needed_xp:
                         break
 
-    pears(length-1)
-    print_pears()
+    pears(skill_count-1)
+    print_results()
 
 pear_wrapper()
 
 
+
+
 #balanced - realistic progress:
 
-
 def banana_wrapper():
-    times_leveled = [0,0,0]
+
     new_levels = list(skills)
+    skill_count = len(new_levels)
+    times_leveled = [0] * skill_count
 
     def make_skills_legendary(i):
         if new_levels[i] == 100:
@@ -134,27 +129,22 @@ def banana_wrapper():
         new_levels[i] += 1
         gained_xp["bananas"] += new_levels[i]
 
-    def print_bananas():
-        if times_leveled[2] != 0:
-            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d" % (skills[1], times_leveled[1], new_levels[1])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[2], times_leveled[2], new_levels[2])
-        elif times_leveled[1] != 0:
-            print "\n\n>current Level: %d, train %dx; final level: %d" % (skills[0], times_leveled[0], new_levels[0])
-            print ">current Level: %d, train %dx; final level: %d\n\n" % (skills[1], times_leveled[1], new_levels[1])
-        else:
-            print "\n\n>current Level: %d, train %dx; final level: %d\n\n" % (skills[0], times_leveled[0], new_levels[0])
+    def print_results():
+        print "\n  BALANCED PROGRESSION - train all skills equally:\n"
+        for i in range(0, skill_count):
+            print "  current Level: %d, train %dx; final level: %d" % (skills[i], times_leveled[i], new_levels[i])
+        print "\n\n\n----------------------------------------------------------------\n\n"
 
 
     def bananas():
         while gained_xp["bananas"] < needed_xp:
-            for j in range(3):
+            for j in range(skill_count):
                 make_skills_legendary(j)
                 train_skills(j)
                 if gained_xp["bananas"] >= needed_xp:
                     break
 
     bananas()
-    print_bananas()
+    print_results()
 
 banana_wrapper()
