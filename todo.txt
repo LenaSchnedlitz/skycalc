@@ -9,3 +9,11 @@ TO-DO:
 * increase number of possible skills
 
 * find better names for versions
+
+* find better balanced method
+
+* make user interface
+
+* consider differences in skill difficulty
+
+* put legendary check into training function
