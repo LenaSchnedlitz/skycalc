@@ -2,10 +2,6 @@ TO-DO:
 
 * create error messages
 
-* write better output messages
-
-* replace duplicate code
-
 * find better names for versions
 
 * find better balanced method
@@ -13,5 +9,3 @@ TO-DO:
 * make user interface
 
 * consider differences in skill difficulty
-
-* put legendary check into training function
