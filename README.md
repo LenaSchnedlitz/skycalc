@@ -1,1 +1,1 @@
-# dreamlike-skyrim-calculator
+# skyrim-calculator
