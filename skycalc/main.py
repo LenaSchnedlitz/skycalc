@@ -45,7 +45,7 @@ class ToggleButton(tk.Button):
 
 
 class Races(tk.Frame):
-    """ Main races frame (IIa) """
+    """ Main race selection frame (IIa) """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="red")
         self.parent = parent
@@ -68,13 +68,45 @@ class Races(tk.Frame):
         ToggleButton(self, line="Khajiit").grid(row=2, column=2)
 
 
+class Skills(tk.Frame):
+    """ Main skill selection frame (III) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="green")
+        self.parent = parent
+
+        # initialize content
+        Headline(self, line="Magic").grid(row=0, column=0)
+        ToggleButton(self, line="Illusion").grid(row=1, column=0)
+        ToggleButton(self, line="Conjuration").grid(row=2, column=0)
+        ToggleButton(self, line="Destruction").grid(row=3, column=0)
+        ToggleButton(self, line="Restoration").grid(row=4, column=0)
+        ToggleButton(self, line="Alteration").grid(row=5, column=0)
+        ToggleButton(self, line="Enchanting").grid(row=6, column=0)
+
+        Headline(self, line="Combat").grid(row=0, column=1)
+        ToggleButton(self, line="Smithing").grid(row=1, column=1)
+        ToggleButton(self, line="Heavy Armor").grid(row=2, column=1)
+        ToggleButton(self, line="Block").grid(row=3, column=1)
+        ToggleButton(self, line="Two-handed").grid(row=4, column=1)
+        ToggleButton(self, line="One-handed").grid(row=5, column=1)
+        ToggleButton(self, line="Archery").grid(row=6, column=1)
+
+        Headline(self, line="Stealth").grid(row=0, column=2)
+        ToggleButton(self, line="Light Armor").grid(row=1, column=2)
+        ToggleButton(self, line="Sneak").grid(row=2, column=2)
+        ToggleButton(self, line="Lockpicking").grid(row=3, column=2)
+        ToggleButton(self, line="Pickpocket").grid(row=4, column=2)
+        ToggleButton(self, line="Speech").grid(row=5, column=2)
+        ToggleButton(self, line="Alchemy").grid(row=6, column=2)
+
+
 class ContentWrapper(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="blue")
         self.parent = parent
 
         Header(self, "Title", "At vero eos et accusam et justo duo dolores et ea rebum.").pack(fill="x")
-        Races(self).pack(fill="x")
+        Skills(self).pack(fill="x")
         Footer(self).pack(fill="x", side="bottom")
 
 
