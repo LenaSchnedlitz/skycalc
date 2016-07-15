@@ -26,6 +26,8 @@ class Footer(tk.Frame):
     """ Default footer containing a 'previous'- and a 'next'-button """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="gray", height=200)
+        self.parent = parent
+
         NavButton(self, color="white", line="PREVIOUS").pack(side="left")
         NavButton(self, color="pink", line="NEXT").pack(side="right")
 
@@ -42,6 +44,16 @@ class ToggleButton(tk.Button):
     def __init__(self, parent, line):
         tk.Button.__init__(self, parent, text=line)
         self.parent = parent
+
+
+class InputField(tk.Frame):
+    """ Default style for input fields with description """
+    def __init__(self, parent, line):
+        tk.Frame.__init__(self, parent, bg="white", width=200, height=150)
+        self.parent = parent
+
+        tk.Label(self, text=line).pack()
+        tk.Entry(self).pack()
 
 
 class Races(tk.Frame):
@@ -66,6 +78,28 @@ class Races(tk.Frame):
         Headline(self, line="Beast").grid(row=0, column=2)
         ToggleButton(self, line="Argonian").grid(row=1, column=2)
         ToggleButton(self, line="Khajiit").grid(row=2, column=2)
+
+
+class LevelFields(tk.Frame):
+    """ Frame where current and goal level are entered (IIb) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="red")
+        self.parent = parent
+
+        center = tk.Frame(self, bg="aqua")
+        center.pack(expand=1)
+
+        InputField(center, "Your Level:").pack(side="left")
+        InputField(center, "Your Goal:").pack(side="left")
+
+
+class GoalLevelField(tk.Frame):
+    """ Frame where goal level is entered (IVa) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="red")
+        self.parent = parent
+
+        InputField(self, "Your Goal:").pack()
 
 
 class Skills(tk.Frame):
@@ -106,7 +140,7 @@ class ContentWrapper(tk.Frame):
         self.parent = parent
 
         Header(self, "Title", "At vero eos et accusam et justo duo dolores et ea rebum.").pack(fill="x")
-        Skills(self).pack(fill="x")
+        GoalLevelField(self).pack(fill="x")
         Footer(self).pack(fill="x", side="bottom")
 
 
