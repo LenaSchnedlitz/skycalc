@@ -66,28 +66,61 @@ class SmallField(tk.Frame):
         tk.Entry(self).pack(side="left")
 
 
+class SortButton(tk.Button):
+    """ 'Sort alphabetically/by category'-Buttons """
+    def __init__(self, parent, label):
+        tk.Button.__init__(self, parent, text=label)
+        self.parent = parent
+
+
 class Races(tk.Frame):
     """ Main race selection frame (IIa) """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="red")
         self.parent = parent
 
-        # initialize content
-        Headline(self, line="Human").grid(row=0, column=0)
-        ToggleButton(self, label="Breton").grid(row=1, column=0)
-        ToggleButton(self, label="Nord").grid(row=2, column=0)
-        ToggleButton(self, label="Imperial").grid(row=3, column=0)
-        ToggleButton(self, label="Redguard").grid(row=4, column=0)
+        SortButton(self, label="Sort alphabetically").pack(anchor="ne")
 
-        Headline(self, line="Mer").grid(row=0, column=1)
-        ToggleButton(self, label="Altmer").grid(row=1, column=1)
-        ToggleButton(self, label="Bosmer").grid(row=2, column=1)
-        ToggleButton(self, label="Dunmer").grid(row=3, column=1)
-        ToggleButton(self, label="Orc").grid(row=4, column=1)
+        center = tk.Frame(self)
+        center.pack(expand=1)
+        Headline(center, line="Human").grid(row=0, column=0)
+        ToggleButton(center, label="Breton").grid(row=1, column=0)
+        ToggleButton(center, label="Nord").grid(row=2, column=0)
+        ToggleButton(center, label="Imperial").grid(row=3, column=0)
+        ToggleButton(center, label="Redguard").grid(row=4, column=0)
 
-        Headline(self, line="Beast").grid(row=0, column=2)
-        ToggleButton(self, label="Argonian").grid(row=1, column=2)
-        ToggleButton(self, label="Khajiit").grid(row=2, column=2)
+        Headline(center, line="Mer").grid(row=0, column=1)
+        ToggleButton(center, label="Altmer").grid(row=1, column=1)
+        ToggleButton(center, label="Bosmer").grid(row=2, column=1)
+        ToggleButton(center, label="Dunmer").grid(row=3, column=1)
+        ToggleButton(center, label="Orc").grid(row=4, column=1)
+
+        Headline(center, line="Beast").grid(row=0, column=2)
+        ToggleButton(center, label="Argonian").grid(row=1, column=2)
+        ToggleButton(center, label="Khajiit").grid(row=2, column=2)
+
+
+class RacesSorted(tk.Frame):
+    """ Alternative (alphabetically sorted) race selection frame (IIa) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="red")
+        self.parent = parent
+
+        SortButton(self, label="Sort by category").pack(anchor="ne")
+
+        center = tk.Frame(self)
+        center.pack(expand=1)
+        ToggleButton(center, label="Altmer").grid(row=0, column=0)
+        ToggleButton(center, label="Argonian").grid(row=1, column=0)
+        ToggleButton(center, label="Breton").grid(row=2, column=0)
+        ToggleButton(center, label="Bosmer").grid(row=3, column=0)
+        ToggleButton(center, label="Dunmer").grid(row=4, column=0)
+
+        ToggleButton(center, label="Imperial").grid(row=0, column=1)
+        ToggleButton(center, label="Khajiit").grid(row=1, column=1)
+        ToggleButton(center, label="Nord").grid(row=2, column=1)
+        ToggleButton(center, label="Orc").grid(row=3, column=1)
+        ToggleButton(center, label="Redguard").grid(row=4, column=1)
 
 
 class CharLevelSelection(tk.Frame):
@@ -108,30 +141,63 @@ class Skills(tk.Frame):
         tk.Frame.__init__(self, parent, bg="green")
         self.parent = parent
 
-        # initialize content
-        Headline(self, line="Magic").grid(row=0, column=0)
-        ToggleButton(self, label="Illusion").grid(row=1, column=0)
-        ToggleButton(self, label="Conjuration").grid(row=2, column=0)
-        ToggleButton(self, label="Destruction").grid(row=3, column=0)
-        ToggleButton(self, label="Restoration").grid(row=4, column=0)
-        ToggleButton(self, label="Alteration").grid(row=5, column=0)
-        ToggleButton(self, label="Enchanting").grid(row=6, column=0)
+        SortButton(self, label="Sort alphabetically").pack(anchor="ne")
 
-        Headline(self, line="Combat").grid(row=0, column=1)
-        ToggleButton(self, label="Smithing").grid(row=1, column=1)
-        ToggleButton(self, label="Heavy Armor").grid(row=2, column=1)
-        ToggleButton(self, label="Block").grid(row=3, column=1)
-        ToggleButton(self, label="Two-handed").grid(row=4, column=1)
-        ToggleButton(self, label="One-handed").grid(row=5, column=1)
-        ToggleButton(self, label="Archery").grid(row=6, column=1)
+        center = tk.Frame(self)
+        center.pack(expand=1)
+        Headline(center, line="Magic").grid(row=0, column=0)
+        ToggleButton(center, label="Illusion").grid(row=1, column=0)
+        ToggleButton(center, label="Conjuration").grid(row=2, column=0)
+        ToggleButton(center, label="Destruction").grid(row=3, column=0)
+        ToggleButton(center, label="Restoration").grid(row=4, column=0)
+        ToggleButton(center, label="Alteration").grid(row=5, column=0)
+        ToggleButton(center, label="Enchanting").grid(row=6, column=0)
 
-        Headline(self, line="Stealth").grid(row=0, column=2)
-        ToggleButton(self, label="Light Armor").grid(row=1, column=2)
-        ToggleButton(self, label="Sneak").grid(row=2, column=2)
-        ToggleButton(self, label="Lockpicking").grid(row=3, column=2)
-        ToggleButton(self, label="Pickpocket").grid(row=4, column=2)
-        ToggleButton(self, label="Speech").grid(row=5, column=2)
-        ToggleButton(self, label="Alchemy").grid(row=6, column=2)
+        Headline(center, line="Combat").grid(row=0, column=1)
+        ToggleButton(center, label="Smithing").grid(row=1, column=1)
+        ToggleButton(center, label="Heavy Armor").grid(row=2, column=1)
+        ToggleButton(center, label="Block").grid(row=3, column=1)
+        ToggleButton(center, label="Two-handed").grid(row=4, column=1)
+        ToggleButton(center, label="One-handed").grid(row=5, column=1)
+        ToggleButton(center, label="Archery").grid(row=6, column=1)
+
+        Headline(center, line="Stealth").grid(row=0, column=2)
+        ToggleButton(center, label="Light Armor").grid(row=1, column=2)
+        ToggleButton(center, label="Sneak").grid(row=2, column=2)
+        ToggleButton(center, label="Lockpicking").grid(row=3, column=2)
+        ToggleButton(center, label="Pickpocket").grid(row=4, column=2)
+        ToggleButton(center, label="Speech").grid(row=5, column=2)
+        ToggleButton(center, label="Alchemy").grid(row=6, column=2)
+
+
+class SkillsSorted(tk.Frame):
+    """ Alternative (alphabetically sorted) skill selection frame (III) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="green")
+        self.parent = parent
+
+        SortButton(self, label="Sort by category").pack(anchor="ne")
+
+        center = tk.Frame(self)
+        center.pack(expand=1)
+        ToggleButton(center, label="Alchemy").grid(row=0, column=0)
+        ToggleButton(center, label="Alteration").grid(row=1, column=0)
+        ToggleButton(center, label="Archery").grid(row=2, column=0)
+        ToggleButton(center, label="Block").grid(row=3, column=0)
+        ToggleButton(center, label="Conjuration").grid(row=4, column=0)
+        ToggleButton(center, label="Destruction").grid(row=5, column=0)
+        ToggleButton(center, label="Enchanting").grid(row=0, column=1)
+        ToggleButton(center, label="Heavy Armor").grid(row=1, column=1)
+        ToggleButton(center, label="Illusion").grid(row=2, column=1)
+        ToggleButton(center, label="Light Armor").grid(row=3, column=1)
+        ToggleButton(center, label="Lockpicking").grid(row=4, column=1)
+        ToggleButton(center, label="One-handed").grid(row=5, column=1)
+        ToggleButton(center, label="Pickpocket").grid(row=0, column=2)
+        ToggleButton(center, label="Restoration").grid(row=1, column=2)
+        ToggleButton(center, label="Smithing").grid(row=2, column=2)
+        ToggleButton(center, label="Sneak").grid(row=3, column=2)
+        ToggleButton(center, label="Speech").grid(row=4, column=2)
+        ToggleButton(center, label="Two-handed").grid(row=5, column=2)
 
 
 class GoalLevelSelection(tk.Frame):
@@ -161,7 +227,7 @@ class ContentWrapper(tk.Frame):
         self.parent = parent
 
         Header(self, "Title", "At vero eos et accusam et justo duo dolores et ea rebum.").pack(fill="x")
-        SkillLevelSelection(self).pack(fill="x")
+        SkillsSorted(self).pack(fill="x")
         Footer(self).pack(fill="x", side="bottom")
 
 
