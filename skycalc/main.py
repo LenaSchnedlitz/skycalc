@@ -17,8 +17,8 @@ class Header(tk.Frame):
 
 class NavButton(tk.Button):
     """ Standard layout for 'previous'- & 'next'-button """
-    def __init__(self, parent, color, line):
-        tk.Button.__init__(self, parent, bg=color, text=line)
+    def __init__(self, parent, color, label):
+        tk.Button.__init__(self, parent, bg=color, text=label)
         self.parent = parent
 
 
@@ -28,8 +28,8 @@ class Footer(tk.Frame):
         tk.Frame.__init__(self, parent, bg="gray", height=200)
         self.parent = parent
 
-        NavButton(self, color="white", line="PREVIOUS").pack(side="left")
-        NavButton(self, color="pink", line="NEXT").pack(side="right")
+        NavButton(self, "white", "PREVIOUS").pack(side="left")
+        NavButton(self, color="pink", label="NEXT").pack(side="right")
 
 
 class Headline(tk.Label):
@@ -41,19 +41,29 @@ class Headline(tk.Label):
 
 class ToggleButton(tk.Button):
     """ Default style for buttons without borders / selectable text """
-    def __init__(self, parent, line):
-        tk.Button.__init__(self, parent, text=line)
+    def __init__(self, parent, label):
+        tk.Button.__init__(self, parent, text=label)
         self.parent = parent
 
 
-class InputField(tk.Frame):
-    """ Default style for input fields with description """
-    def __init__(self, parent, line):
+class BigField(tk.Frame):
+    """ Default style for character level input fields with description """
+    def __init__(self, parent, label):
         tk.Frame.__init__(self, parent, bg="white", width=200, height=150)
         self.parent = parent
 
-        tk.Label(self, text=line).pack()
+        tk.Label(self, text=label).pack()
         tk.Entry(self).pack()
+
+
+class SmallField(tk.Frame):
+    """ Default style for skill level input fields with description """
+    def __init__(self, parent, label):
+        tk.Frame.__init__(self, parent)
+        self.parent = parent
+
+        tk.Label(self, text=label).pack(side="left")
+        tk.Entry(self).pack(side="left")
 
 
 class Races(tk.Frame):
@@ -64,23 +74,23 @@ class Races(tk.Frame):
 
         # initialize content
         Headline(self, line="Human").grid(row=0, column=0)
-        ToggleButton(self, line="Breton").grid(row=1, column=0)
-        ToggleButton(self, line="Nord").grid(row=2, column=0)
-        ToggleButton(self, line="Imperial").grid(row=3, column=0)
-        ToggleButton(self, line="Redguard").grid(row=4, column=0)
+        ToggleButton(self, label="Breton").grid(row=1, column=0)
+        ToggleButton(self, label="Nord").grid(row=2, column=0)
+        ToggleButton(self, label="Imperial").grid(row=3, column=0)
+        ToggleButton(self, label="Redguard").grid(row=4, column=0)
 
         Headline(self, line="Mer").grid(row=0, column=1)
-        ToggleButton(self, line="Altmer").grid(row=1, column=1)
-        ToggleButton(self, line="Bosmer").grid(row=2, column=1)
-        ToggleButton(self, line="Dunmer").grid(row=3, column=1)
-        ToggleButton(self, line="Orc").grid(row=4, column=1)
+        ToggleButton(self, label="Altmer").grid(row=1, column=1)
+        ToggleButton(self, label="Bosmer").grid(row=2, column=1)
+        ToggleButton(self, label="Dunmer").grid(row=3, column=1)
+        ToggleButton(self, label="Orc").grid(row=4, column=1)
 
         Headline(self, line="Beast").grid(row=0, column=2)
-        ToggleButton(self, line="Argonian").grid(row=1, column=2)
-        ToggleButton(self, line="Khajiit").grid(row=2, column=2)
+        ToggleButton(self, label="Argonian").grid(row=1, column=2)
+        ToggleButton(self, label="Khajiit").grid(row=2, column=2)
 
 
-class LevelFields(tk.Frame):
+class CharLevelSelection(tk.Frame):
     """ Frame where current and goal level are entered (IIb) """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="red")
@@ -88,18 +98,8 @@ class LevelFields(tk.Frame):
 
         center = tk.Frame(self, bg="aqua")
         center.pack(expand=1)
-
-        InputField(center, "Your Level:").pack(side="left")
-        InputField(center, "Your Goal:").pack(side="left")
-
-
-class GoalLevelField(tk.Frame):
-    """ Frame where goal level is entered (IVa) """
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg="red")
-        self.parent = parent
-
-        InputField(self, "Your Goal:").pack()
+        BigField(center, label="Your Level:").pack(side="left")
+        BigField(center, label="Your Goal:").pack(side="left")
 
 
 class Skills(tk.Frame):
@@ -110,37 +110,58 @@ class Skills(tk.Frame):
 
         # initialize content
         Headline(self, line="Magic").grid(row=0, column=0)
-        ToggleButton(self, line="Illusion").grid(row=1, column=0)
-        ToggleButton(self, line="Conjuration").grid(row=2, column=0)
-        ToggleButton(self, line="Destruction").grid(row=3, column=0)
-        ToggleButton(self, line="Restoration").grid(row=4, column=0)
-        ToggleButton(self, line="Alteration").grid(row=5, column=0)
-        ToggleButton(self, line="Enchanting").grid(row=6, column=0)
+        ToggleButton(self, label="Illusion").grid(row=1, column=0)
+        ToggleButton(self, label="Conjuration").grid(row=2, column=0)
+        ToggleButton(self, label="Destruction").grid(row=3, column=0)
+        ToggleButton(self, label="Restoration").grid(row=4, column=0)
+        ToggleButton(self, label="Alteration").grid(row=5, column=0)
+        ToggleButton(self, label="Enchanting").grid(row=6, column=0)
 
         Headline(self, line="Combat").grid(row=0, column=1)
-        ToggleButton(self, line="Smithing").grid(row=1, column=1)
-        ToggleButton(self, line="Heavy Armor").grid(row=2, column=1)
-        ToggleButton(self, line="Block").grid(row=3, column=1)
-        ToggleButton(self, line="Two-handed").grid(row=4, column=1)
-        ToggleButton(self, line="One-handed").grid(row=5, column=1)
-        ToggleButton(self, line="Archery").grid(row=6, column=1)
+        ToggleButton(self, label="Smithing").grid(row=1, column=1)
+        ToggleButton(self, label="Heavy Armor").grid(row=2, column=1)
+        ToggleButton(self, label="Block").grid(row=3, column=1)
+        ToggleButton(self, label="Two-handed").grid(row=4, column=1)
+        ToggleButton(self, label="One-handed").grid(row=5, column=1)
+        ToggleButton(self, label="Archery").grid(row=6, column=1)
 
         Headline(self, line="Stealth").grid(row=0, column=2)
-        ToggleButton(self, line="Light Armor").grid(row=1, column=2)
-        ToggleButton(self, line="Sneak").grid(row=2, column=2)
-        ToggleButton(self, line="Lockpicking").grid(row=3, column=2)
-        ToggleButton(self, line="Pickpocket").grid(row=4, column=2)
-        ToggleButton(self, line="Speech").grid(row=5, column=2)
-        ToggleButton(self, line="Alchemy").grid(row=6, column=2)
+        ToggleButton(self, label="Light Armor").grid(row=1, column=2)
+        ToggleButton(self, label="Sneak").grid(row=2, column=2)
+        ToggleButton(self, label="Lockpicking").grid(row=3, column=2)
+        ToggleButton(self, label="Pickpocket").grid(row=4, column=2)
+        ToggleButton(self, label="Speech").grid(row=5, column=2)
+        ToggleButton(self, label="Alchemy").grid(row=6, column=2)
+
+
+class GoalLevelSelection(tk.Frame):
+    """ Frame where goal level is entered (IVa) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="red")
+        self.parent = parent
+
+        BigField(self, label="Your Goal:").pack()
+
+
+class SkillLevelSelection(tk.Frame):
+    """ Frame where skill levels can be entered (IVb) """
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg="red")
+        self.parent = parent
+
+        # dummy data
+        SmallField(self, label="Alchemy").pack()
+        SmallField(self, label="Destruction").pack()
 
 
 class ContentWrapper(tk.Frame):
+    """ Contains all necessary parts of a view """
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="blue")
         self.parent = parent
 
         Header(self, "Title", "At vero eos et accusam et justo duo dolores et ea rebum.").pack(fill="x")
-        GoalLevelField(self).pack(fill="x")
+        SkillLevelSelection(self).pack(fill="x")
         Footer(self).pack(fill="x", side="bottom")
 
 
