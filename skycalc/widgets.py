@@ -19,6 +19,10 @@ class ModeButton(tk.Button):
         tk.Button.__init__(self, parent, text=line)
         self.parent = parent
 
+    def __init__(self, parent, line):
+        tk.Button.__init__(self, parent, text=line, command=print("test"))
+        self.parent = parent
+
 
 class NavButton(tk.Button):
     """Standard layout for 'previous'- & 'next'-button.
