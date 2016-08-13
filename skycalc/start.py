@@ -1,6 +1,5 @@
 import tkinter as tk
-import widgets as w
-
+import elements as w
 
 
 class Start(tk.Frame):
@@ -10,6 +9,7 @@ class Start(tk.Frame):
     Attributes:
         parent (Tk): window that contains this frame
     """
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg="white")
         self.parent = parent
@@ -19,9 +19,9 @@ class Start(tk.Frame):
 
         w.Title(self, line="Welcome!").pack(expand=1)
         w.Text(self, wrap=700,
-            line="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
-                 "sed diam nonumy eirmod tempor invidunt ut labore et dolore "
-                 "magna aliquyam erat, sed diam voluptua.").pack(expand=1)
+               line="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
+                    "sed diam nonumy eirmod tempor invidunt ut labore et dolore "
+                    "magna aliquyam erat, sed diam voluptua.").pack(expand=1)
 
         wrapper = tk.Frame(self, bg="red", width=300, height=100)
         wrapper.pack(expand=1)
