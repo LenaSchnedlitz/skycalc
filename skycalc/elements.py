@@ -20,36 +20,57 @@ class ViewManager(tk.Frame):
         tk.Frame.__init__(self, parent, bg="blue")
         self.parent = parent
         self.content = content
-        self.current = 0
+        self.i = 0  # number of current view/page
 
-        self.header = Header(self, self.content[0][self.TITLE],
-                             self.content[0][self.INSTRUCTION])
-        self.header.pack(fill="x")
+        self.header = self.build_header()
+        self.view = self.build_view()
+        self.view.update()
+        self.footer = self.build_footer()
+        self.update_footer()
 
-        self.view = tk.Frame(self)
-        self.view.pack(fill="x")
+    def build_header(self):
+        header = Header(self, self.content[self.i][self.TITLE],
+                        self.content[self.i][self.INSTRUCTION])
+        header.pack(fill="x")
+        return header
 
-        self.footer = Footer(self)
-        self.set_footer(0)
-        self.footer.pack(fill="x", side="bottom")
+    def build_view(self):
+        view = tk.Frame(self)
+        view.pack(fill="x")
+        return view
 
-    def set_header(self, i):
-        self.header.set(self.content[i][self.TITLE],
-                        self.content[i][self.INSTRUCTION])
+    def build_footer(self):
+        footer = Footer(self)
+        footer.pack(fill="x", side="bottom")
+        return footer
 
-    def set_footer(self, i):
-        if i == len(self.content):
+    def update(self):
+        self.update_header()
+        self.update_view()
+        self.update_footer()
+
+    def update_header(self):
+        self.header.set(self.content[self.i][self.TITLE],
+                        self.content[self.i][self.INSTRUCTION])
+
+    def update_view(self):
+        print("a")
+
+    def update_footer(self):
+        if self.i == len(self.content):
             self.footer.set("< Back", "Get Results >")
         else:
             self.footer.set("< Back", "Next >")
 
     def show_next(self):
-        if self.current + 1 < len(self.content):
-            self.current += 1
+        if self.i + 1 < len(self.content):
+            self.i += 1
+            self.update()
 
     def show_prev(self):
-        if self.current - 1 >= 0:
-            self.current -= 1
+        if self.i - 1 >= 0:
+            self.i -= 1
+            self.update()
 
 
 class Header(tk.Frame):
@@ -91,11 +112,11 @@ class Footer(tk.Frame):
         self.parent = manager
 
         self.left = NavButton(self, "")
-        self.left.config(command=self.show_prev())
+        self.left.config(command=lambda: self.show_prev())
         self.left.pack(side="left")
 
         self.right = NavButton(self, "")
-        self.right.config()
+        self.right.config(command=lambda: self.show_next())
         self.right.pack(side="right")
 
     def show_next(self):
