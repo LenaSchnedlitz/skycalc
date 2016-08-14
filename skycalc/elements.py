@@ -3,13 +3,27 @@
 import tkinter as tk
 
 
+def configure_window(self):
+    """Set window title, size, minsize and position"""
+
+    self.title("Skyrim Calculator")
+
+    width = 800
+    height = 600
+    self.minsize(width, height)
+
+    x_pos = (self.winfo_screenwidth() - width) / 2
+    y_pos = (self.winfo_screenheight() - height) / 2
+    self.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
+
+
 class ViewManager(tk.Frame):
     """Contain and manage all views of a branch.
 
     Attributes:
         parent (Tk): window that contains this frame
-        content: 2 dimensional; each entry is of length 3 consisting of a frame
-                [0], a title [1] and an instruction [2]
+        content: 2 dimensional tuple; each entry is of length 3 consisting of a
+                frame [0], a title [1] and an instruction [2]
     """
 
     VIEW = 0
@@ -23,8 +37,9 @@ class ViewManager(tk.Frame):
         self.i = 0  # number of current view/page
 
         self.header = self.build_header()
-        self.view = self.build_view()
-        self.view.update()
+        self.view_container = self.build_view_container()
+        self.views = self.build_views()
+        self.update_view()
         self.footer = self.build_footer()
         self.update_footer()
 
@@ -34,10 +49,20 @@ class ViewManager(tk.Frame):
         header.pack(fill="x")
         return header
 
-    def build_view(self):
-        view = tk.Frame(self)
-        view.pack(fill="x")
-        return view
+    def build_view_container(self):
+        container = tk.Frame(self)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        container.pack(fill="both", expand=True)
+        return container
+
+    def build_views(self):
+        views = {}
+        for i in range(len(self.content)):
+            view = self.content[i][self.VIEW](self.view_container)
+            views[i] = view
+            view.grid(row=0, column=0, sticky="nsew")
+        return views
 
     def build_footer(self):
         footer = Footer(self)
@@ -54,10 +79,11 @@ class ViewManager(tk.Frame):
                         self.content[self.i][self.INSTRUCTION])
 
     def update_view(self):
-        print("a")
+        frame = self.views[self.i]
+        frame.tkraise()
 
     def update_footer(self):
-        if self.i == len(self.content):
+        if self.i + 1 == len(self.content):
             self.footer.set("< Back", "Get Results >")
         else:
             self.footer.set("< Back", "Next >")
@@ -90,10 +116,10 @@ class Header(tk.Frame):
         tk.Frame(self, bg="orange", height=30).pack(fill="x")
 
         self.title = ViewTitle(self, title)
-        self.title.pack(expand=1)
+        self.title.pack(expand=True)
 
         self.text = Instruction(self, instruction)
-        self.text.pack(expand=1)
+        self.text.pack(expand=True)
 
     def set(self, title, instruction):
         self.title.config(text=title)
