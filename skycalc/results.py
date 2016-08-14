@@ -1,5 +1,5 @@
 import tkinter as tk
-import widgets as w
+import elements as elem
 
 
 class Results(tk.Frame):
@@ -14,17 +14,16 @@ class Results(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
 
-        w.Title(self, "Results").pack()
+        elem.Title(self, "Results").pack()
         sel_container = tk.Frame(self)
         sel_container.pack(expand=1)
-        w.TabButton(sel_container, line="a tab").pack(side="left")
-        w.TabButton(sel_container, line="b tab").pack(side="left")
-        w.TabButton(sel_container, line="c tab").pack(side="left")
+        elem.TabButton(sel_container, "a tab").pack(side="left")
+        elem.TabButton(sel_container, "b tab").pack(side="left")
+        elem.TabButton(sel_container, "c tab").pack(side="left")
         res_container = tk.Frame(self)
         res_container.pack(expand=1)
-        w.Headline(res_container, line="Variant").pack()
-        w.Text(res_container, wrap=700,
-               line="Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack()
+        elem.Headline(res_container, "Variant").pack()
+        elem.Text(res_container, "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack()
 
 
 def configure_window(self):

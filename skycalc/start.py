@@ -1,5 +1,5 @@
 import tkinter as tk
-import elements as w
+import elements as elem
 
 
 class Start(tk.Frame):
@@ -17,16 +17,15 @@ class Start(tk.Frame):
         # image placeholder
         tk.Frame(self, bg="gray", width=150, height=150).pack(expand=1)
 
-        w.Title(self, line="Welcome!").pack(expand=1)
-        w.Text(self, wrap=700,
-               line="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
-                    "sed diam nonumy eirmod tempor invidunt ut labore et dolore "
-                    "magna aliquyam erat, sed diam voluptua.").pack(expand=1)
+        elem.Title(self, "Welcome!").pack(expand=1)
+        elem.Text(self,
+                  "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack(
+            expand=1)
 
         wrapper = tk.Frame(self, bg="red", width=300, height=100)
         wrapper.pack(expand=1)
-        w.ModeButton(wrapper, line="NEW").pack(side="left")
-        w.ModeButton(wrapper, line="EXISTING").pack(side="right")
+        elem.BranchSelectionButton(wrapper, "NEW").pack(side="left")
+        elem.BranchSelectionButton(wrapper, "EXISTING").pack(side="right")
 
 
 def configure_window(self):
