@@ -155,22 +155,13 @@ class GoalLevelSelection(tk.Frame):
         elem.BigField(self, line="Your Goal:").pack()
 
 
-class ContentWrapper(tk.Frame):
-    """Contain all necessary parts of a view.
-
-    Attributes:
-        parent (Tk): window that contains this frame
-    """
-
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg="blue")
-        self.parent = parent
-
-        elem.Header(self, title="Title",
-                    instruction="At vero eos et accusam et justo duo dolores et ea rebum.").pack(
-            fill="x")
-        Races(self).pack(fill="x")
-        elem.Footer(self).pack(fill="x", side="bottom")
+def create_content():
+    content = [
+        [Races, "Races", "Select a race!"],
+        [Skills, "Skills", "Select some skills!"],
+        [GoalLevelSelection, "Level", "Enter your goal level!"]
+    ]
+    return content
 
 
 def configure_window(self):
@@ -192,5 +183,6 @@ def configure_window(self):
 if __name__ == "__main__":
     root = tk.Tk()
     configure_window(root)
-    content = ContentWrapper(root).pack(fill="both", expand=1)
+    view_manager = elem.ViewManager(root, create_content())
+    view_manager.pack(fill="both", expand=1)
     root.mainloop()

@@ -29,7 +29,7 @@ class ViewManager(tk.Frame):
         self.view = tk.Frame(self)
         self.view.pack(fill="x")
 
-        self.footer = Footer(self.parent)
+        self.footer = Footer(self)
         self.set_footer(0)
         self.footer.pack(fill="x", side="bottom")
 
@@ -91,7 +91,7 @@ class Footer(tk.Frame):
         self.parent = manager
 
         self.left = NavButton(self, "")
-        self.left.config()
+        self.left.config(command=self.show_prev())
         self.left.pack(side="left")
 
         self.right = NavButton(self, "")
