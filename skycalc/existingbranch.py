@@ -10,9 +10,10 @@ class CharLevelSelection(tk.Frame):
         parent (Frame): frame that contains this frame
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg="red")
         self.parent = parent
+        self.data = data
 
         container = tk.Frame(self, bg="aqua")
         container.pack(expand=True)
@@ -22,17 +23,16 @@ class CharLevelSelection(tk.Frame):
         self.goal_level = elem.BigField(container, "Your Goal:")
         self.goal_level.pack(side="left")
 
-    def get(self):
-        return self.current_level.get(), self.goal_level.get()
-
-    @staticmethod
-    def is_valid(input_):
+    def can_use_input(self):
         try:
-            current = int(input_[0])
-            goal = int(input_[1])
+            current = int(self.current_level.get())
+            goal = int(self.goal_level.get())
         except ValueError:
             return False
-        return 0 < current < goal and 0 < goal < 500  # arbitrary cap
+        if 0 < current < goal and 0 < goal < 500:  # arbitrary cap
+            self.data.set_char_levels((current, goal))
+            return True
+        return False
 
 
 class Skills(tk.Frame):
@@ -43,9 +43,10 @@ class Skills(tk.Frame):
         parent (Frame): frame that contains this frame
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg="green")
         self.parent = parent
+        self.data = data
 
         elem.SortButton(self, "Sort alphabetically").pack(anchor="ne")
 
@@ -90,16 +91,15 @@ class Skills(tk.Frame):
             else:
                 row_ += 1
 
-    def get(self):
+    def can_use_input(self):
         selected = []
         for skill in self.skills:
             if skill.get_value():
                 selected.append(skill)
-        return selected
-
-    @staticmethod
-    def is_valid(input_):
-        return len(input_) > 0
+        if len(selected) > 0:
+            self.data.set_selected_skills(selected)
+            return True
+        return False
 
     def update(self):
         pass  # needed for view manager
@@ -150,35 +150,39 @@ class SkillLevelSelection(tk.Frame):
         parent (Frame): frame that contains this frame
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg="red")
         self.parent = parent
+        self.data = data
 
-        container = tk.Frame(self)
-        container.pack(expand=True)
+        self.container = tk.Frame(self)
+        self.container.pack(expand=True)
 
-        self.skill_levels = []
+        self.selected_skills = []
 
-        # dummy data
-        elem.SmallField(container, "Alchemy").pack()
-        elem.SmallField(container, "Destruction").pack()
-
-    def get(self):
-        return self.skill_levels
-
-    @staticmethod
-    def is_valid(input_):
-        for skill_level in input_:
+    def can_use_input(self):
+        skill_levels = {}
+        for skill in self.selected_skills:
             try:
-                level = int(skill_level)
+                level = int(skill.get())
             except ValueError:
                 return False
-            if 15 > level or level > 100:
+            if 15 <= level <= 100:
+                skill_levels[skill.get_text()] = level
+            else:
                 return False
+        self.data.set_skill_levels(skill_levels)
         return True
 
-    def update(self, data):
-        pass
+    def update(self):
+        for child in self.container.winfo_children():
+            child.destroy()
+        self.selected_skills = []
+        for skill in self.data.selected_skills:
+            self.selected_skills.append(
+                elem.SmallField(self.container, skill.get_text()))
+        for skill in self.selected_skills:
+            skill.pack()
 
 
 def create_content():

@@ -2,6 +2,8 @@
 
 import tkinter as tk
 
+import calculator as calc
+
 
 def configure_window(self):
     """Set window title, size, minsize and position"""
@@ -34,6 +36,7 @@ class ViewManager(tk.Frame):
         tk.Frame.__init__(self, parent, bg="blue")
         self.parent = parent
         self.content = content
+        self.data = calc.DataObject()
         self.i = 0  # number of current view/page
 
         self.header = self.build_header()
@@ -59,7 +62,7 @@ class ViewManager(tk.Frame):
     def build_views(self):
         views = []
         for i in range(len(self.content)):
-            view = self.content[i][self.VIEW](self.view_container)
+            view = self.content[i][self.VIEW](self.view_container, self.data)
             views.append(view)
             view.grid(row=0, column=0, sticky="nsew")
         return views
@@ -90,10 +93,10 @@ class ViewManager(tk.Frame):
 
     def show_next(self):
         view = self.views[self.i]
-        input_ = view.get()
-        if view.is_valid(input_):
+        if view.can_use_input():
             if self.i + 1 < len(self.content):
                 self.i += 1
+                self.views[self.i].update()
                 self.update()
 
     def show_prev(self):
@@ -294,6 +297,7 @@ class Selectable(tk.Button):
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_)
         self.parent = parent
+        self.text = text_
         self.selected = False
         self.config(command=lambda: self.change_selection())
 
@@ -302,6 +306,9 @@ class Selectable(tk.Button):
 
     def get_value(self):
         return self.selected
+
+    def get_text(self):
+        return self.text
 
 
 class BigField(tk.Frame):
@@ -316,6 +323,7 @@ class BigField(tk.Frame):
     def __init__(self, parent, text_):
         tk.Frame.__init__(self, parent, bg="white", width=200, height=150)
         self.parent = parent
+        self.text = text_
 
         tk.Label(self, text=text_).pack()
         self.entry = tk.Entry(self)
@@ -323,6 +331,9 @@ class BigField(tk.Frame):
 
     def get(self):
         return self.entry.get()
+
+    def get_text(self):
+        return self.text
 
 
 class SmallField(tk.Frame):
@@ -337,6 +348,14 @@ class SmallField(tk.Frame):
     def __init__(self, parent, text_):
         tk.Frame.__init__(self, parent)
         self.parent = parent
+        self.text = text_
 
-        tk.Label(self, text=text_).pack(side="left")
-        tk.Entry(self).pack(side="left")
+        tk.Label(self, text=self.text).pack(side="left")
+        self.entry = tk.Entry(self)
+        self.entry.pack(side="left")
+
+    def get(self):
+        return self.entry.get()
+
+    def get_text(self):
+        return self.text
