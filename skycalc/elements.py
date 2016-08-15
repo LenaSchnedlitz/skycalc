@@ -287,9 +287,10 @@ class TabButton(tk.Button):
         text_ (str): displayed text
     """
 
-    def __init__(self, parent, text_):
+    def __init__(self, parent, text_, tab):
         tk.Button.__init__(self, parent, text=text_)
         self.parent = parent
+        self.config(command=lambda: tab.tkraise())
 
 
 # user interaction widgets
@@ -336,9 +337,6 @@ class OnlySelectable(tk.Button):
 
     def change_selection(self):
         self.object_.selected = self.get_text()
-
-    def get_value(self):
-        return self.selected
 
     def get_text(self):
         return self.text

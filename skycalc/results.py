@@ -19,18 +19,33 @@ class Results(tk.Frame):
         elem.Title(self, "Results").pack()
         sel_container = tk.Frame(self)
         sel_container.pack(expand=True)
-        elem.TabButton(sel_container, "a tab").pack(side="left")
-        elem.TabButton(sel_container, "b tab").pack(side="left")
-        elem.TabButton(sel_container, "c tab").pack(side="left")
-        res_container = tk.Frame(self)
-        res_container.pack(expand=True)
-        elem.Headline(res_container, "Variant").pack()
-        elem.Text(res_container,
-                  "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack()
 
+        self.tab_container = tk.Frame(self)
+        self.tab_container.grid_rowconfigure(0, weight=1)
+        self.tab_container.grid_columnconfigure(0, weight=1)
+        self.tab_container.pack(fill="both", expand=True)
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    elem.configure_window(root)
-    content = Results(root).pack(fill="both", expand=True)
-    root.mainloop()
+        self.fastest_tab = self.build_tab("Fastest method",
+                                          calculator.get_fastest_results())
+        self.easiest_tab = self.build_tab("Easiest method",
+                                          calculator.get_easiest_results())
+        self.balanced_tab = self.build_tab("Balanced method",
+                                           calculator.get_balanced_results())
+
+        self.a = elem.TabButton(sel_container, "a tab", self.fastest_tab).pack(
+            side="left")
+        self.a = elem.TabButton(sel_container, "b tab", self.easiest_tab).pack(
+            side="left")
+        self.a = elem.TabButton(sel_container, "c tab",
+                                self.balanced_tab).pack(side="left")
+
+    def build_tab(self, title, results):
+        tab = tk.Frame(self.tab_container)
+        tab.grid(row=0, column=0, sticky="nsew")
+        elem.Headline(tab, title).pack()
+        for skill in results:
+            elem.Instruction(tab, skill + ":\nCurrent Level: " + str(
+                results[skill]["start"]) + "\nGoal Level: " + str(
+                results[skill]["end"]) + "\nMade legendary " + str(
+                results[skill]["legendary"]) + " times\n\n").pack()
+        return tab

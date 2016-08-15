@@ -250,7 +250,6 @@ class Calculator:
 
         while still_needed > 0:
             selected = max(end_levels, key=lambda key: end_levels[key])
-            print(selected)
             training_result = self.train_skill(end_levels[selected])
             end_levels[selected] = training_result
             if training_result == 15:
@@ -258,7 +257,7 @@ class Calculator:
                 still_needed -= 100
             else:
                 still_needed -= training_result
-        return end_levels
+        return self.reformat_results(end_levels, times_legendary)
 
     def get_easiest_results(self):
         still_needed = self.needed_xp
@@ -269,7 +268,6 @@ class Calculator:
 
         while still_needed > 0:
             selected = min(end_levels, key=lambda key: end_levels[key])
-            print(selected)
             training_result = self.train_skill(end_levels[selected])
             end_levels[selected] = training_result
             if training_result == 15:
@@ -277,7 +275,7 @@ class Calculator:
                 still_needed -= 100
             else:
                 still_needed -= training_result
-        return end_levels
+        return self.reformat_results(end_levels, times_legendary)
 
     def get_balanced_results(self):
         still_needed = self.needed_xp
@@ -286,9 +284,9 @@ class Calculator:
         for skill in end_levels:
             times_legendary[skill] = 0
 
-        while True:
+        over = False
+        while not over:
             for skill in end_levels:
-                print(skill)
                 training_result = self.train_skill(end_levels[skill])
                 end_levels[skill] = training_result
                 if training_result == 15:
@@ -296,12 +294,23 @@ class Calculator:
                     still_needed -= 100
                 else:
                     still_needed -= training_result
-                if still_needed <= 0:
+                print(skill, still_needed)
+                over = still_needed <= 0
+                if over:
                     break
-        return end_levels
+        return self.reformat_results(end_levels, times_legendary)
 
     def train_skill(self, level):
         level += 1
         if level == 100:
             level = 15
         return level
+
+    def reformat_results(self, end_levels, times_legendary):
+        results = {}
+        for skill in end_levels:
+            results[skill] = {"start": self.current_skill_levels[skill],
+                              "end": end_levels[skill],
+                              "legendary": times_legendary[skill]
+                              }
+        return results
