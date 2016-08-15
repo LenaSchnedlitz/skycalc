@@ -98,11 +98,19 @@ class ViewManager(tk.Frame):
                 self.i += 1
                 self.views[self.i].update()
                 self.update()
+            else:
+                import results as r
+                r.Results(self.parent).pack(fill="both", expand=True)
+                self.destroy()
 
     def show_prev(self):
         if self.i - 1 >= 0:
             self.i -= 1
             self.update()
+        else:
+            import start as s
+            s.Start(self.parent).pack(fill="both", expand=True)
+            self.destroy()
 
 
 class Header(tk.Frame):
@@ -240,8 +248,8 @@ class BranchSelectionButton(tk.Button):
         text_ (str): button text, usually 'NEW' or 'EXISTING'
     """
 
-    def __init__(self, parent, text_):
-        tk.Button.__init__(self, parent, text=text_)
+    def __init__(self, parent, text_, command_):
+        tk.Button.__init__(self, parent, text=text_, command=command_)
         self.parent = parent
 
 

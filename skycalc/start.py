@@ -1,6 +1,8 @@
 import tkinter as tk
 
 import elements as elem
+import newbranch as n
+import existingbranch as e
 
 
 class Start(tk.Frame):
@@ -25,8 +27,20 @@ class Start(tk.Frame):
 
         wrapper = tk.Frame(self, bg="red", width=300, height=100)
         wrapper.pack(expand=True)
-        elem.BranchSelectionButton(wrapper, "NEW").pack(side="left")
-        elem.BranchSelectionButton(wrapper, "EXISTING").pack(side="right")
+        elem.BranchSelectionButton(wrapper, "NEW",
+                                   lambda: self.start_new()).pack(side="left")
+        elem.BranchSelectionButton(wrapper, "EXISTING",
+                                   lambda: self.start_ex()).pack(side="right")
+
+    def start_new(self):
+        branch = elem.ViewManager(self.parent, n.create_content())
+        branch.pack(fill="both", expand=True)
+        self.destroy()
+
+    def start_ex(self):
+        branch = elem.ViewManager(self.parent, e.create_content())
+        branch.pack(fill="both", expand=True)
+        self.destroy()
 
 
 if __name__ == "__main__":
