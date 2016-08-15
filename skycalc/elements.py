@@ -274,9 +274,12 @@ class SortButton(tk.Button):
         text_ (str): button text, usually 'alphabetically' or 'by category'
     """
 
-    def __init__(self, parent, text_):
-        tk.Button.__init__(self, parent, text=text_)
+    def __init__(self, parent, text_, command_):
+        tk.Button.__init__(self, parent, text=text_, command=command_)
         self.parent = parent
+
+    def change_text(self, text_):
+        self.config(text=text_)
 
 
 class TabButton(tk.Button):

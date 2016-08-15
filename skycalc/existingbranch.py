@@ -47,17 +47,22 @@ class Skills(tk.Frame):
         tk.Frame.__init__(self, parent, bg="green")
         self.parent = parent
         self.data = data
-
-        elem.SortButton(self, "Sort alphabetically").pack(anchor="ne")
+        self.sorted_by_type = True
 
         container = tk.Frame(self)
-        container.pack(fill="x", expand=True)
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)
 
+        self.type_headlines = self.build_headlines(container)
         self.skills = self.build_skills(container)
-        self.pack_by_type(self.skills, container)
+        self.pack_by_type()
+
+        self.sort_button = elem.SortButton(self, "Sort alphabetically",
+                                           lambda: self.sort())
+        self.sort_button.pack(anchor="ne")
+
+        container.pack(fill="x", expand=True)
 
     @staticmethod
     def build_skills(container):
@@ -76,7 +81,68 @@ class Skills(tk.Frame):
         return skills
 
     @staticmethod
-    def pack_by_type(skills, container):
+    def build_headlines(container):
+        headlines = [elem.Headline(container, "Magic"),
+                     elem.Headline(container, "Combat"),
+                     elem.Headline(container, "Stealth")]
+        return headlines
+
+    def pack_by_type(self):
+        for i in range(len(self.type_headlines)):
+            self.type_headlines[i].grid(row=0, column=i)
+
+        row_ = 1
+        column_ = 0
+        for i in range(len(self.skills)):
+            self.skills[i].grid(row=row_, column=column_)
+            if row_ == 6:
+                row_ = 1
+                column_ += 1
+            else:
+                row_ += 1
+
+    def pack_by_name(self):
+        for headline in self.type_headlines:
+            headline.grid_forget()
+        sorted_skills = sorted(self.skills, key=lambda x: x.text)
+        row_ = 0
+        column_ = 0
+        for i in range(len(sorted_skills)):
+            sorted_skills[i].grid(row=row_, column=column_)
+            if row_ == 5:
+                row_ = 0
+                column_ += 1
+            else:
+                row_ += 1
+
+    def sort(self):
+        if self.sorted_by_type:
+            self.pack_by_name()
+            self.sort_button.change_text("Sort by type")
+            self.sorted_by_type = False
+        else:
+            self.pack_by_type()
+            self.sort_button.change_text("Sort alphabetically")
+            self.sorted_by_type = True
+
+    @staticmethod
+    def build_skills(container):
+        skill_names = ("Illusion", "Conjuration", "Destruction",
+                       "Restoration", "Alteration", "Enchanting",
+
+                       "Smithing", "Heavy Armor", "Block",
+                       "Two-handed", "One-handed", "Archery",
+
+                       "Light Armor", "Sneak", "Lockpicking",
+                       "Pickpocket", "Speech", "Alchemy"
+                       )
+        skills = []
+        for i in range(len(skill_names)):
+            skills.append(elem.Selectable(container, skill_names[i]))
+        return skills
+
+    @staticmethod
+    def align_by_type(skills, container):
         elem.Headline(container, "Magic").grid(row=0, column=0)
         elem.Headline(container, "Combat").grid(row=0, column=1)
         elem.Headline(container, "Stealth").grid(row=0, column=2)
@@ -103,44 +169,6 @@ class Skills(tk.Frame):
 
     def update(self):
         pass  # needed for view manager
-
-
-class SkillsSorted(tk.Frame):
-    """Alternative skill selection frame.
-
-    Sorted alphabetically.
-    Attributes:
-        parent (Frame): frame that contains this frame.
-    """
-
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg="green")
-        self.parent = parent
-
-        elem.SortButton(self, "Sort by category").pack(anchor="ne")
-
-        center = tk.Frame(self)
-        center.pack(expand=True)
-        elem.Selectable(center, "Alchemy").grid(row=0, column=0)
-        elem.Selectable(center, "Alteration").grid(row=1, column=0)
-        elem.Selectable(center, "Archery").grid(row=2, column=0)
-        elem.Selectable(center, "Block").grid(row=3, column=0)
-        elem.Selectable(center, "Conjuration").grid(row=4, column=0)
-        elem.Selectable(center, "Destruction").grid(row=5, column=0)
-
-        elem.Selectable(center, "Enchanting").grid(row=0, column=1)
-        elem.Selectable(center, "Heavy Armor").grid(row=1, column=1)
-        elem.Selectable(center, "Illusion").grid(row=2, column=1)
-        elem.Selectable(center, "Light Armor").grid(row=3, column=1)
-        elem.Selectable(center, "Lockpicking").grid(row=4, column=1)
-        elem.Selectable(center, "One-handed").grid(row=5, column=1)
-
-        elem.Selectable(center, "Pickpocket").grid(row=0, column=2)
-        elem.Selectable(center, "Restoration").grid(row=1, column=2)
-        elem.Selectable(center, "Smithing").grid(row=2, column=2)
-        elem.Selectable(center, "Sneak").grid(row=3, column=2)
-        elem.Selectable(center, "Speech").grid(row=4, column=2)
-        elem.Selectable(center, "Two-handed").grid(row=5, column=2)
 
 
 class SkillLevelSelection(tk.Frame):

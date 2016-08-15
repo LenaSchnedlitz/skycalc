@@ -294,7 +294,6 @@ class Calculator:
                     still_needed -= 100
                 else:
                     still_needed -= training_result
-                print(skill, still_needed)
                 over = still_needed <= 0
                 if over:
                     break
