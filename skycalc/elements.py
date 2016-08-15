@@ -311,6 +311,31 @@ class Selectable(tk.Button):
         return self.text
 
 
+class OnlySelectable(tk.Button):
+    """Default style for buttons without borders / selectable text.
+
+    Attributes:
+        parent (Frame): frame that contains this button
+        text_ (str): displayed text
+    """
+
+    def __init__(self, parent, text_, object_):
+        tk.Button.__init__(self, parent, text=text_)
+        self.parent = parent
+        self.text = text_
+        self.object_ = object_
+        self.config(command=lambda: self.change_selection())
+
+    def change_selection(self):
+        self.object_.selected = self.get_text()
+
+    def get_value(self):
+        return self.selected
+
+    def get_text(self):
+        return self.text
+
+
 class BigField(tk.Frame):
     """Big input field with text.
 

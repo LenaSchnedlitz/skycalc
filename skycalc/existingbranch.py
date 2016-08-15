@@ -57,7 +57,7 @@ class Skills(tk.Frame):
         container.grid_columnconfigure(2, weight=1)
 
         self.skills = self.build_skills(container)
-        self.align_by_type(self.skills, container)
+        self.pack_by_type(self.skills, container)
 
     @staticmethod
     def build_skills(container):
@@ -76,7 +76,7 @@ class Skills(tk.Frame):
         return skills
 
     @staticmethod
-    def align_by_type(skills, container):
+    def pack_by_type(skills, container):
         elem.Headline(container, "Magic").grid(row=0, column=0)
         elem.Headline(container, "Combat").grid(row=0, column=1)
         elem.Headline(container, "Stealth").grid(row=0, column=2)
