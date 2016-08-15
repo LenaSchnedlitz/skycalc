@@ -1,4 +1,5 @@
 import tkinter as tk
+
 import elements as elem
 
 
@@ -23,7 +24,8 @@ class Results(tk.Frame):
         res_container = tk.Frame(self)
         res_container.pack(expand=True)
         elem.Headline(res_container, "Variant").pack()
-        elem.Text(res_container, "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack()
+        elem.Text(res_container,
+                  "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack()
 
 
 if __name__ == "__main__":

@@ -57,10 +57,10 @@ class ViewManager(tk.Frame):
         return container
 
     def build_views(self):
-        views = {}
+        views = []
         for i in range(len(self.content)):
             view = self.content[i][self.VIEW](self.view_container)
-            views[i] = view
+            views.append(view)
             view.grid(row=0, column=0, sticky="nsew")
         return views
 
@@ -79,19 +79,22 @@ class ViewManager(tk.Frame):
                         self.content[self.i][self.INSTRUCTION])
 
     def update_view(self):
-        frame = self.views[self.i]
-        frame.tkraise()
+        view = self.views[self.i]
+        view.tkraise()
 
     def update_footer(self):
-        if self.i + 1 == len(self.content):
+        if self.i == len(self.content) - 1:
             self.footer.set("< Back", "Get Results >")
         else:
             self.footer.set("< Back", "Next >")
 
     def show_next(self):
-        if self.i + 1 < len(self.content):
-            self.i += 1
-            self.update()
+        view = self.views[self.i]
+        input_ = view.get()
+        if view.is_valid(input_):
+            if self.i + 1 < len(self.content):
+                self.i += 1
+                self.update()
 
     def show_prev(self):
         if self.i - 1 >= 0:
@@ -291,6 +294,14 @@ class Selectable(tk.Button):
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_)
         self.parent = parent
+        self.selected = False
+        self.config(command=lambda: self.change_selection())
+
+    def change_selection(self):
+        self.selected = not self.selected
+
+    def get_value(self):
+        return self.selected
 
 
 class BigField(tk.Frame):
@@ -307,7 +318,11 @@ class BigField(tk.Frame):
         self.parent = parent
 
         tk.Label(self, text=text_).pack()
-        tk.Entry(self).pack()
+        self.entry = tk.Entry(self)
+        self.entry.pack()
+
+    def get(self):
+        return self.entry.get()
 
 
 class SmallField(tk.Frame):

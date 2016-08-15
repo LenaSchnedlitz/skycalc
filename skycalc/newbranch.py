@@ -1,4 +1,5 @@
 import tkinter as tk
+
 import elements as elem
 
 
@@ -160,7 +161,19 @@ class GoalLevelSelection(tk.Frame):
         tk.Frame.__init__(self, parent, bg="red")
         self.parent = parent
 
-        elem.BigField(self, "Your Goal:").pack(expand=True)
+        self.goal_level = elem.BigField(self, "Your Goal:")
+        self.goal_level.pack(expand=True)
+
+    def get(self):
+        return 1, self.goal_level.get()  # current level is always 1
+
+    @staticmethod
+    def is_valid(input_):
+        try:
+            goal = int(input_[1])
+        except ValueError:
+            return False
+        return 1 < goal < 500  # arbitrary cap
 
 
 def create_content():
