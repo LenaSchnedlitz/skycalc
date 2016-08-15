@@ -11,9 +11,10 @@ class Results(tk.Frame):
         parent (Tk): window that contains this frame
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, calculator):
         tk.Frame.__init__(self, parent)
         self.parent = parent
+        self.calculator = calculator
 
         elem.Title(self, "Results").pack()
         sel_container = tk.Frame(self)

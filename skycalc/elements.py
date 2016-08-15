@@ -100,7 +100,7 @@ class ViewManager(tk.Frame):
                 self.update()
             else:
                 import results as r
-                r.Results(self.parent).pack(fill="both", expand=True)
+                r.Results(self.parent, calc.Calculator(self.data)).pack(fill="both", expand=True)
                 self.destroy()
 
     def show_prev(self):

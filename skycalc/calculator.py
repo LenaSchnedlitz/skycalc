@@ -27,11 +27,11 @@ class DataObject:
     def get_race_skills_info():
         return {
             "Breton": {
-                "Illusion": 15,
-                "Conjuration": 15,
+                "Illusion": 20,
+                "Conjuration": 25,
                 "Destruction": 15,
-                "Restoration": 15,
-                "Alteration": 15,
+                "Restoration": 20,
+                "Alteration": 20,
                 "Enchanting": 15,
                 "Smithing": 15,
                 "Heavy Armor": 15,
@@ -43,8 +43,8 @@ class DataObject:
                 "Sneak": 15,
                 "Lockpicking": 15,
                 "Pickpocket": 15,
-                "Speech": 15,
-                "Alchemy": 15,
+                "Speech": 20,
+                "Alchemy": 20,
             },
             "Nord": {
                 "Illusion": 15,
@@ -53,31 +53,31 @@ class DataObject:
                 "Restoration": 15,
                 "Alteration": 15,
                 "Enchanting": 15,
-                "Smithing": 15,
+                "Smithing": 20,
                 "Heavy Armor": 15,
-                "Block": 15,
-                "Two-handed": 15,
-                "One-handed": 15,
+                "Block": 20,
+                "Two-handed": 25,
+                "One-handed": 20,
                 "Archery": 15,
-                "Light Armor": 15,
+                "Light Armor": 20,
                 "Sneak": 15,
                 "Lockpicking": 15,
                 "Pickpocket": 15,
-                "Speech": 15,
+                "Speech": 20,
                 "Alchemy": 15,
             },
             "Imperial": {
                 "Illusion": 15,
                 "Conjuration": 15,
-                "Destruction": 15,
-                "Restoration": 15,
+                "Destruction": 20,
+                "Restoration": 25,
                 "Alteration": 15,
-                "Enchanting": 15,
+                "Enchanting": 20,
                 "Smithing": 15,
-                "Heavy Armor": 15,
-                "Block": 15,
+                "Heavy Armor": 20,
+                "Block": 20,
                 "Two-handed": 15,
-                "One-handed": 15,
+                "One-handed": 20,
                 "Archery": 15,
                 "Light Armor": 15,
                 "Sneak": 15,
@@ -89,16 +89,16 @@ class DataObject:
             "Redguard": {
                 "Illusion": 15,
                 "Conjuration": 15,
-                "Destruction": 15,
+                "Destruction": 20,
                 "Restoration": 15,
-                "Alteration": 15,
+                "Alteration": 20,
                 "Enchanting": 15,
-                "Smithing": 15,
+                "Smithing": 20,
                 "Heavy Armor": 15,
-                "Block": 15,
+                "Block": 20,
                 "Two-handed": 15,
-                "One-handed": 15,
-                "Archery": 15,
+                "One-handed": 25,
+                "Archery": 20,
                 "Light Armor": 15,
                 "Sneak": 15,
                 "Lockpicking": 15,
@@ -107,12 +107,12 @@ class DataObject:
                 "Alchemy": 15,
             },
             "Altmer": {
-                "Illusion": 15,
-                "Conjuration": 15,
-                "Destruction": 15,
-                "Restoration": 15,
-                "Alteration": 15,
-                "Enchanting": 15,
+                "Illusion": 25,
+                "Conjuration": 20,
+                "Destruction": 20,
+                "Restoration": 20,
+                "Alteration": 20,
+                "Enchanting": 20,
                 "Smithing": 15,
                 "Heavy Armor": 15,
                 "Block": 15,
@@ -138,20 +138,20 @@ class DataObject:
                 "Block": 15,
                 "Two-handed": 15,
                 "One-handed": 15,
-                "Archery": 15,
-                "Light Armor": 15,
-                "Sneak": 15,
-                "Lockpicking": 15,
-                "Pickpocket": 15,
+                "Archery": 25,
+                "Light Armor": 20,
+                "Sneak": 20,
+                "Lockpicking": 20,
+                "Pickpocket": 20,
                 "Speech": 15,
-                "Alchemy": 15,
+                "Alchemy": 20,
             },
             "Dunmer": {
-                "Illusion": 15,
+                "Illusion": 20,
                 "Conjuration": 15,
-                "Destruction": 15,
+                "Destruction": 25,
                 "Restoration": 15,
-                "Alteration": 15,
+                "Alteration": 20,
                 "Enchanting": 15,
                 "Smithing": 15,
                 "Heavy Armor": 15,
@@ -159,12 +159,12 @@ class DataObject:
                 "Two-handed": 15,
                 "One-handed": 15,
                 "Archery": 15,
-                "Light Armor": 15,
-                "Sneak": 15,
+                "Light Armor": 20,
+                "Sneak": 20,
                 "Lockpicking": 15,
                 "Pickpocket": 15,
                 "Speech": 15,
-                "Alchemy": 15,
+                "Alchemy": 20,
             },
             "Orc": {
                 "Illusion": 15,
@@ -172,12 +172,12 @@ class DataObject:
                 "Destruction": 15,
                 "Restoration": 15,
                 "Alteration": 15,
-                "Enchanting": 15,
-                "Smithing": 15,
-                "Heavy Armor": 15,
-                "Block": 15,
-                "Two-handed": 15,
-                "One-handed": 15,
+                "Enchanting": 20,
+                "Smithing": 20,
+                "Heavy Armor": 25,
+                "Block": 20,
+                "Two-handed": 20,
+                "One-handed": 20,
                 "Archery": 15,
                 "Light Armor": 15,
                 "Sneak": 15,
@@ -190,8 +190,8 @@ class DataObject:
                 "Illusion": 15,
                 "Conjuration": 15,
                 "Destruction": 15,
-                "Restoration": 15,
-                "Alteration": 15,
+                "Restoration": 20,
+                "Alteration": 20,
                 "Enchanting": 15,
                 "Smithing": 15,
                 "Heavy Armor": 15,
@@ -199,10 +199,10 @@ class DataObject:
                 "Two-handed": 15,
                 "One-handed": 15,
                 "Archery": 15,
-                "Light Armor": 15,
-                "Sneak": 15,
-                "Lockpicking": 15,
-                "Pickpocket": 15,
+                "Light Armor": 20,
+                "Sneak": 20,
+                "Lockpicking": 25,
+                "Pickpocket": 20,
                 "Speech": 15,
                 "Alchemy": 15,
             },
@@ -217,13 +217,91 @@ class DataObject:
                 "Heavy Armor": 15,
                 "Block": 15,
                 "Two-handed": 15,
-                "One-handed": 15,
-                "Archery": 15,
+                "One-handed": 20,
+                "Archery": 20,
                 "Light Armor": 15,
-                "Sneak": 15,
-                "Lockpicking": 15,
-                "Pickpocket": 15,
+                "Sneak": 25,
+                "Lockpicking": 20,
+                "Pickpocket": 20,
                 "Speech": 15,
-                "Alchemy": 15,
+                "Alchemy": 20,
             }
         }
+
+
+class Calculator:
+    def __init__(self, data: DataObject):
+        self.current_xp = data.char_levels[0]
+        self.goal_xp = data.char_levels[1]
+        self.needed_xp = self.calculate_needed_xp()
+        self.current_skill_levels = data.skill_levels
+
+    def calculate_needed_xp(self):
+        a = 12.5 * (self.goal_xp ** 2 - self.current_xp ** 2)
+        b = 62.5 * (self.goal_xp - self.current_xp)
+        return a + b
+
+    def get_fastest_results(self):
+        still_needed = self.needed_xp
+        end_levels = self.current_skill_levels.copy()
+        times_legendary = {}
+        for skill in end_levels:
+            times_legendary[skill] = 0
+
+        while still_needed > 0:
+            selected = max(end_levels, key=lambda key: end_levels[key])
+            print(selected)
+            training_result = self.train_skill(end_levels[selected])
+            end_levels[selected] = training_result
+            if training_result == 15:
+                times_legendary[selected] += 1
+                still_needed -= 100
+            else:
+                still_needed -= training_result
+        return end_levels
+
+    def get_easiest_results(self):
+        still_needed = self.needed_xp
+        end_levels = self.current_skill_levels.copy()
+        times_legendary = {}
+        for skill in end_levels:
+            times_legendary[skill] = 0
+
+        while still_needed > 0:
+            selected = min(end_levels, key=lambda key: end_levels[key])
+            print(selected)
+            training_result = self.train_skill(end_levels[selected])
+            end_levels[selected] = training_result
+            if training_result == 15:
+                times_legendary[selected] += 1
+                still_needed -= 100
+            else:
+                still_needed -= training_result
+        return end_levels
+
+    def get_balanced_results(self):
+        still_needed = self.needed_xp
+        end_levels = self.current_skill_levels.copy()
+        times_legendary = {}
+        for skill in end_levels:
+            times_legendary[skill] = 0
+
+        while True:
+            for skill in end_levels:
+                print(skill)
+                training_result = self.train_skill(end_levels[skill])
+                end_levels[skill] = training_result
+                if training_result == 15:
+                    times_legendary[skill] += 1
+                    still_needed -= 100
+                else:
+                    still_needed -= training_result
+                if still_needed <= 0:
+                    break
+        return end_levels
+
+    def train_skill(self, level):
+        level += 1
+        if level == 100:
+            level = 15
+        return level
