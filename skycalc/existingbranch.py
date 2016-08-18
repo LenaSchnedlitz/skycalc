@@ -25,8 +25,8 @@ class CharLevelSelection(tk.Frame):
 
     def can_use_input(self):
         try:
-            current = int(self.current_level.get())
-            goal = int(self.goal_level.get())
+            current = int(self.current_level.get_input())
+            goal = int(self.goal_level.get_input())
         except ValueError:
             return False
         if 0 < current < goal and 0 < goal < 500:  # arbitrary cap
@@ -77,7 +77,7 @@ class Skills(tk.Frame):
                        )
         skills = []
         for i in range(len(skill_names)):
-            skills.append(elem.Selectable(container, skill_names[i]))
+            skills.append(elem.MultiSelectable(container, skill_names[i]))
         return skills
 
     @staticmethod
@@ -138,7 +138,7 @@ class Skills(tk.Frame):
                        )
         skills = []
         for i in range(len(skill_names)):
-            skills.append(elem.Selectable(container, skill_names[i]))
+            skills.append(elem.MultiSelectable(container, skill_names[i]))
         return skills
 
     @staticmethod
@@ -160,8 +160,8 @@ class Skills(tk.Frame):
     def can_use_input(self):
         selected = []
         for skill in self.skills:
-            if skill.get_value():
-                selected.append(skill)
+            if skill.is_selected():
+                selected.append(skill.get_label())
         if len(selected) > 0:
             self.data.set_selected_skills(selected)
             return True
@@ -192,11 +192,11 @@ class SkillLevelSelection(tk.Frame):
         skill_levels = {}
         for skill in self.selected_skills:
             try:
-                level = int(skill.get())
+                level = int(skill.get_input())
             except ValueError:
                 return False
             if 15 <= level <= 100:
-                skill_levels[skill.get_text()] = level
+                skill_levels[skill.get_label()] = level
             else:
                 return False
         self.data.set_skill_levels(skill_levels)
@@ -208,7 +208,7 @@ class SkillLevelSelection(tk.Frame):
         self.selected_skills = []
         for skill in self.data.selected_skills:
             self.selected_skills.append(
-                elem.SmallField(self.container, skill.get_text()))
+                elem.SmallField(self.container, skill))
         for skill in self.selected_skills:
             skill.pack()
 

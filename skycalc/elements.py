@@ -42,7 +42,7 @@ class ViewManager(tk.Frame):
         self.header = self.build_header()
         self.view_container = self.build_view_container()
         self.views = self.build_views()
-        self.update_view()
+        self.raise_view()
         self.footer = self.build_footer()
         self.update_footer()
 
@@ -74,33 +74,34 @@ class ViewManager(tk.Frame):
 
     def update(self):
         self.update_header()
-        self.update_view()
+        self.raise_view()
         self.update_footer()
 
     def update_header(self):
-        self.header.set(self.content[self.i][self.TITLE],
-                        self.content[self.i][self.INSTRUCTION])
+        self.header.change_text(self.content[self.i][self.TITLE],
+                                self.content[self.i][self.INSTRUCTION])
 
-    def update_view(self):
+    def raise_view(self):
         view = self.views[self.i]
         view.tkraise()
 
     def update_footer(self):
         if self.i == len(self.content) - 1:
-            self.footer.set("< Back", "Get Results >")
+            self.footer.change_text("< Back", "Get Results >")
         else:
-            self.footer.set("< Back", "Next >")
+            self.footer.change_text("< Back", "Next >")
 
     def show_next(self):
         view = self.views[self.i]
         if view.can_use_input():
             if self.i + 1 < len(self.content):
                 self.i += 1
-                self.views[self.i].update()
-                self.update()
+                self.views[self.i].update()  # update next view
+                self.update()  # update view manager
             else:
                 import results as r
-                r.Results(self.parent, calc.Calculator(self.data)).pack(fill="both", expand=True)
+                r.Results(self.parent, calc.Calculator(self.data)).pack(
+                    fill="both", expand=True)
                 self.destroy()
 
     def show_prev(self):
@@ -114,7 +115,7 @@ class ViewManager(tk.Frame):
 
 
 class Header(tk.Frame):
-    """Default header with breadcrumbs, title and instruction.
+    """Header with breadcrumbs, title and instruction.
 
     Attributes:
         manager (ViewManager): contains and manages the header
@@ -124,24 +125,24 @@ class Header(tk.Frame):
 
     def __init__(self, manager: ViewManager, title, instruction):
         tk.Frame.__init__(self, manager, bg="white")
-        self.parent = manager
+        self.__parent = manager
 
         # breadcrumb
         tk.Frame(self, bg="orange", height=30).pack(fill="x")
 
-        self.title = ViewTitle(self, title)
-        self.title.pack(expand=True)
+        self.__title = ViewName(self, title)
+        self.__title.pack(expand=True)
 
-        self.text = Instruction(self, instruction)
-        self.text.pack(expand=True)
+        self.__text = Instruction(self, instruction)
+        self.__text.pack(expand=True)
 
-    def set(self, title, instruction):
-        self.title.config(text=title)
-        self.text.config(text=instruction)
+    def change_text(self, title, instruction):
+        self.__title.config(text=title)
+        self.__text.config(text=instruction)
 
 
 class Footer(tk.Frame):
-    """Default footer containing a 'previous'- and a 'next'-button.
+    """Footer containing a 'previous'- and a 'next'-button.
 
     Attributes:
         manager (ViewManager): contains and manages the footer
@@ -149,31 +150,31 @@ class Footer(tk.Frame):
 
     def __init__(self, manager: ViewManager):
         tk.Frame.__init__(self, manager, bg="gray", height=200)
-        self.parent = manager
+        self.__parent = manager
 
-        self.left = NavButton(self, "")
-        self.left.config(command=lambda: self.show_prev())
-        self.left.pack(side="left")
+        self.__left = NavButton(self, "")
+        self.__left.config(command=lambda: self.show_prev())
+        self.__left.pack(side="left")
 
-        self.right = NavButton(self, "")
-        self.right.config(command=lambda: self.show_next())
-        self.right.pack(side="right")
+        self.__right = NavButton(self, "")
+        self.__right.config(command=lambda: self.show_next())
+        self.__right.pack(side="right")
 
     def show_next(self):
-        self.parent.show_next()
+        self.__parent.show_next()
 
     def show_prev(self):
-        self.parent.show_prev()
+        self.__parent.show_prev()
 
-    def set(self, left, right):
-        self.left.config(text=left)
-        self.right.config(text=right)
+    def change_text(self, left, right):
+        self.__left.config(text=left)
+        self.__right.config(text=right)
 
 
 # different kinds of text
 
 class Title(tk.Label):
-    """Default title style - biggest text
+    """Title - biggest text.
 
     Attributes:
         parent (Frame): frame that contains this title
@@ -182,11 +183,11 @@ class Title(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, bg="yellow")
-        self.parent = parent
+        self.__parent = parent
 
 
 class Headline(tk.Label):
-    """Default headline style - smaller than title
+    """Headline - smaller than title.
 
     Attributes:
         parent (Frame): frame that contains the headline
@@ -195,11 +196,11 @@ class Headline(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, bg="aqua")
-        self.parent = parent
+        self.__parent = parent
 
 
-class ViewTitle(tk.Label):
-    """View title
+class ViewName(tk.Label):
+    """View name text.
 
     Attributes:
         parent (Frame): frame that contains the title, usually a header
@@ -208,11 +209,11 @@ class ViewTitle(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, bg="aqua")
-        self.parent = parent
+        self.__parent = parent
 
 
 class Instruction(tk.Label):
-    """Instruction
+    """Instruction text.
 
     Attributes:
         parent (Frame): frame that contains the instruction, usually a header
@@ -221,21 +222,21 @@ class Instruction(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, bg="aqua")
-        self.parent = parent
+        self.__parent = parent
 
 
 class Text(tk.Label):
-    """Default text style
+    """Text.
 
     Attributes:
         parent (Frame): frame that contains this text
-        text_ (str): displayed title text
+        text_ (str): displayed text
     """
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, wraplength=700,
                           bg="yellow")
-        self.parent = parent
+        self.__parent = parent
 
 
 # classic buttons
@@ -246,11 +247,12 @@ class BranchSelectionButton(tk.Button):
     Attributes:
         parent (Frame): frame that contains this button
         text_ (str): button text, usually 'NEW' or 'EXISTING'
+        command_: button command
     """
 
     def __init__(self, parent, text_, command_):
         tk.Button.__init__(self, parent, text=text_, command=command_)
-        self.parent = parent
+        self.__parent = parent
 
 
 class NavButton(tk.Button):
@@ -263,43 +265,46 @@ class NavButton(tk.Button):
 
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_)
-        self.parent = parent
+        self.__parent = parent
 
 
 class SortButton(tk.Button):
-    """'Toggle button' for switching sorting methods.
+    """'Toggle button', used for sorting method selection.
 
     Attributes:
         parent (Frame): frame that contains this button
         text_ (str): button text, usually 'alphabetically' or 'by category'
+        command_: button command
     """
 
     def __init__(self, parent, text_, command_):
         tk.Button.__init__(self, parent, text=text_, command=command_)
-        self.parent = parent
+        self.__parent = parent
 
     def change_text(self, text_):
         self.config(text=text_)
 
 
 class TabButton(tk.Button):
-    """Result tab index button.
+    """Tab index button
 
+    For results view
     Attributes:
         parent (Frame): frame that contains this button
         text_ (str): displayed text
+        tab (Frame): frame that will be shown when the button is clicked
     """
 
     def __init__(self, parent, text_, tab):
         tk.Button.__init__(self, parent, text=text_)
-        self.parent = parent
+        self.__parent = parent
         self.config(command=lambda: tab.tkraise())
 
 
 # user interaction widgets
 
-class Selectable(tk.Button):
-    """Default style for buttons without borders / selectable text.
+class MultiSelectable(tk.Button):
+    """Multi select button / selectable text.
 
     Attributes:
         parent (Frame): frame that contains this button
@@ -308,41 +313,39 @@ class Selectable(tk.Button):
 
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_)
-        self.parent = parent
-        self.text = text_
-        self.selected = False
+        self.__parent = parent
+        self.__text = text_
+        self.__selected = False
         self.config(command=lambda: self.change_selection())
 
     def change_selection(self):
-        self.selected = not self.selected
+        self.__selected = not self.__selected
 
-    def get_value(self):
-        return self.selected
+    def is_selected(self):
+        return self.__selected
 
-    def get_text(self):
-        return self.text
+    def get_label(self):
+        return self.__text
 
 
-class OnlySelectable(tk.Button):
-    """Default style for buttons without borders / selectable text.
+class Option(tk.Button):
+    """Button / selectable text. Only one option can be selected at a time.
 
     Attributes:
         parent (Frame): frame that contains this button
         text_ (str): displayed text
+        object_ (any with 'selected' attribute): object that offers this option
     """
 
     def __init__(self, parent, text_, object_):
         tk.Button.__init__(self, parent, text=text_)
-        self.parent = parent
-        self.text = text_
-        self.object_ = object_
+        self.__parent = parent
+        self.__text = text_
+        self.__object = object_
         self.config(command=lambda: self.change_selection())
 
     def change_selection(self):
-        self.object_.selected = self.get_text()
-
-    def get_text(self):
-        return self.text
+        self.__object.selected = self.__text
 
 
 class BigField(tk.Frame):
@@ -351,23 +354,20 @@ class BigField(tk.Frame):
     Perfect for character level input.
     Attributes:
         parent (Frame): frame that contains this field
-        text_ (str): displayed text
+        text_ (str): label
     """
 
     def __init__(self, parent, text_):
         tk.Frame.__init__(self, parent, bg="white", width=200, height=150)
-        self.parent = parent
-        self.text = text_
+        self.__parent = parent
+        self.__text = text_
 
         tk.Label(self, text=text_).pack()
-        self.entry = tk.Entry(self)
-        self.entry.pack()
+        self.__entry = tk.Entry(self)
+        self.__entry.pack()
 
-    def get(self):
-        return self.entry.get()
-
-    def get_text(self):
-        return self.text
+    def get_input(self):
+        return self.__entry.get()
 
 
 class SmallField(tk.Frame):
@@ -376,20 +376,20 @@ class SmallField(tk.Frame):
     Made for skill level input.
     Attributes:
         parent (Frame): frame that contains this field
-        text_ (str): button text, usually 'Previous' or 'Next'
+        text_ (str): Label
     """
 
     def __init__(self, parent, text_):
         tk.Frame.__init__(self, parent)
-        self.parent = parent
-        self.text = text_
+        self.__parent = parent
+        self.__text = text_
 
-        tk.Label(self, text=self.text).pack(side="left")
-        self.entry = tk.Entry(self)
-        self.entry.pack(side="left")
+        tk.Label(self, text=self.__text).pack(side="left")
+        self.__entry = tk.Entry(self)
+        self.__entry.pack(side="left")
 
-    def get(self):
-        return self.entry.get()
+    def get_input(self):
+        return self.__entry.get()
 
-    def get_text(self):
-        return self.text
+    def get_label(self):
+        return self.__text

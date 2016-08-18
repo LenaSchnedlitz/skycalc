@@ -38,7 +38,7 @@ class Races(tk.Frame):
                       )
         races = []
         for i in range(len(race_names)):
-            races.append(elem.OnlySelectable(container, race_names[i], self))
+            races.append(elem.Option(container, race_names[i], self))
         return races
 
     @staticmethod
@@ -135,7 +135,7 @@ class Skills(tk.Frame):
                        )
         skills = []
         for i in range(len(skill_names)):
-            skills.append(elem.Selectable(container, skill_names[i]))
+            skills.append(elem.MultiSelectable(container, skill_names[i]))
         return skills
 
     @staticmethod
@@ -186,8 +186,8 @@ class Skills(tk.Frame):
     def can_use_input(self):
         selected = []
         for skill in self.skills:
-            if skill.get_value():
-                selected.append(skill.get_text())
+            if skill.is_selected():
+                selected.append(skill.get_label())
         if len(selected) > 0:
             self.data.set_selected_skills(selected)
             self.data.generate_selected_skill_levels()
@@ -215,7 +215,7 @@ class GoalLevelSelection(tk.Frame):
 
     def can_use_input(self):
         try:
-            goal = int(self.goal_level.get())
+            goal = int(self.goal_level.get_input())
         except ValueError:
             return False
         if 1 < goal < 500:  # arbitrary cap
