@@ -1,12 +1,10 @@
 import tkinter as tk
 
 import elements as elem
-import newbranch as n
-import existingbranch as e
 
 
 class Start(tk.Frame):
-    """Welcome Screen
+    """Welcome screen
 
     Choose between two buttons, 'NEW' and 'EXISTING'
     Attributes:
@@ -14,32 +12,40 @@ class Start(tk.Frame):
     """
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg="white")
-        self.parent = parent
+        tk.Frame.__init__(self, parent, bg=elem.DARK_BLUE)
+        self.__parent = parent
+
+        # spacer
+        tk.Frame(self, bg=self.cget("bg"), height=50).pack()
 
         # image placeholder
-        tk.Frame(self, bg="gray", width=150, height=150).pack(expand=True)
+        tk.Frame(self, bg="gray", width=150, height=150).pack(pady=50)
 
-        elem.Title(self, "Welcome!").pack(expand=True)
+        elem.Title(self, "Welcome!").pack()
         elem.Text(self,
-                  "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.").pack(
-            expand=True)
+                  "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
+                  "sed diam nonumy eirmod tempor invidunt ut labore et "
+                  "dolore magna aliquyam erat, sed diam voluptua.").pack()
 
-        wrapper = tk.Frame(self, bg="red", width=300, height=100)
-        wrapper.pack(expand=True)
-        elem.BranchSelectionButton(wrapper, "NEW",
-                                   lambda: self.start_new()).pack(side="left")
-        elem.BranchSelectionButton(wrapper, "EXISTING",
-                                   lambda: self.start_ex()).pack(side="right")
+        button_container = tk.Frame(self, bg=self.cget("bg"))
+        button_container.pack(pady=30)
+        elem.BranchSelectionButton(button_container, "NEW",
+                                   lambda: self.start_new()).pack(side="left",
+                                                                  padx=3)
+        elem.BranchSelectionButton(button_container, "EXISTING",
+                                   lambda: self.start_ex()).pack(side="right",
+                                                                 padx=3)
 
     def start_new(self):
-        branch = elem.ViewManager(self.parent, n.create_content())
-        branch.pack(fill="both", expand=True)
+        import newbranch as n
+        elem.ViewManager(self.__parent, n.build_content()).pack(fill="both",
+                                                                expand=True)
         self.destroy()
 
     def start_ex(self):
-        branch = elem.ViewManager(self.parent, e.create_content())
-        branch.pack(fill="both", expand=True)
+        import existingbranch as e
+        elem.ViewManager(self.__parent, e.build_content()).pack(fill="both",
+                                                                expand=True)
         self.destroy()
 
 

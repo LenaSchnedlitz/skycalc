@@ -11,11 +11,11 @@ class CharLevelSelection(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="red")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
 
-        container = tk.Frame(self, bg="aqua")
+        container = tk.Frame(self, bg=self.cget("bg"))
         container.pack(expand=True)
 
         self.current_level = elem.BigField(container, "Your Level:")
@@ -44,7 +44,7 @@ class Skills(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="green")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
         self.sorted_by_type = True
@@ -104,7 +104,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.skills, key=lambda x: x.text)
+        sorted_skills = sorted(self.skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_skills)):
@@ -179,7 +179,7 @@ class SkillLevelSelection(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="red")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
 
@@ -213,11 +213,17 @@ class SkillLevelSelection(tk.Frame):
             skill.pack()
 
 
-def create_content():
+def build_content():
     content = (
-        (CharLevelSelection, "Levels", "Enter your levels!"),
-        (Skills, "Skills", "Select some skills!"),
-        (SkillLevelSelection, "Skill Levels", "Enter your skill levels!")
+        {"View": CharLevelSelection,
+         "Title": "Levels",
+         "Instruction": "Enter your levels!"},
+        {"View": Skills,
+         "Title": "Skills",
+         "Instruction": "Select some skills!"},
+        {"View": SkillLevelSelection,
+         "Title": "Skill Levels",
+         "Instruction": "Enter your skill levels!"}
     )
     return content
 
@@ -225,6 +231,6 @@ def create_content():
 if __name__ == "__main__":
     root = tk.Tk()
     elem.configure_window(root)
-    view_manager = elem.ViewManager(root, create_content())
+    view_manager = elem.ViewManager(root, build_content())
     view_manager.pack(fill="both", expand=True)
     root.mainloop()

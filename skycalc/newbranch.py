@@ -12,13 +12,14 @@ class Races(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="red")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
         self.selected = ""
         self.sorted_by_type = True
 
-        self.sort_button = elem.SortButton(self, "Sort alphabetically", lambda: self.sort())
+        self.sort_button = elem.SortButton(self, "Sort alphabetically",
+                                           lambda: self.sort())
         self.sort_button.pack(anchor="ne")
 
         container = tk.Frame(self)
@@ -65,7 +66,7 @@ class Races(tk.Frame):
     def pack_by_name(self):
         for headline in self.headlines:
             headline.grid_forget()
-        sorted_races = sorted(self.races, key=lambda x: x.text)
+        sorted_races = sorted(self.races, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_races)):
@@ -102,7 +103,7 @@ class Skills(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="green")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
         self.sorted_by_type = True
@@ -162,7 +163,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.skills, key=lambda x: x.text)
+        sorted_skills = sorted(self.skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_skills)):
@@ -206,7 +207,7 @@ class GoalLevelSelection(tk.Frame):
     """
 
     def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg="red")
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.parent = parent
         self.data = data
 
@@ -224,11 +225,17 @@ class GoalLevelSelection(tk.Frame):
         return False
 
 
-def create_content():
+def build_content():
     content = (
-        (Races, "Races", "Select a race!"),
-        (Skills, "Skills", "Select some skills!"),
-        (GoalLevelSelection, "Level", "Enter your goal level!")
+        {"View": Races,
+         "Title": "Races",
+         "Instruction": "Select a race!"},
+        {"View": Skills,
+         "Title": "Skills",
+         "Instruction": "Select some skills!"},
+        {"View": GoalLevelSelection,
+         "Title": "Level",
+         "Instruction": "Enter your goal level!"}
     )
     return content
 
@@ -236,6 +243,6 @@ def create_content():
 if __name__ == "__main__":
     root = tk.Tk()
     elem.configure_window(root)
-    view_manager = elem.ViewManager(root, create_content())
+    view_manager = elem.ViewManager(root, build_content())
     view_manager.pack(fill="both", expand=True)
     root.mainloop()
