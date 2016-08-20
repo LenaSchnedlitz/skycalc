@@ -20,6 +20,8 @@ WHITE = "#FFFFFF"
 def configure_window(self):
     """Set window title, size, minsize and position"""
 
+    self.iconbitmap("res/Skyrim.ico")
+
     self.title("Skyrim Calculator")
 
     width = 800
@@ -29,6 +31,7 @@ def configure_window(self):
     x_pos = (self.winfo_screenwidth() - width) / 2
     y_pos = (self.winfo_screenheight() - height) / 2
     self.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
+
 
 #
 class ViewManager(tk.Frame):
@@ -179,20 +182,22 @@ class Footer(tk.Frame):
 
 
 # different kinds of text
-#
+
 class Title(tk.Label):
     """Title - biggest text.
 
     Attributes:
         parent (Frame): frame that contains this title
         text_ (str): displayed title text
+        color_ (str): text color
     """
 
-    def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, bg=parent.cget("bg"),
-                          fg="#E0D5C7",
+    def __init__(self, parent, text_, color_):
+        tk.Label.__init__(self, parent, text=text_, fg=color_,
+                          bg=parent.cget("bg"),
                           font=("Fira Sans Bold", 34))
         self.__parent = parent
+
 
 #
 class Headline(tk.Label):
@@ -239,25 +244,25 @@ class Instruction(tk.Label):
                           bg=parent.cget("bg"), fg=MEDIUM)
         self.__parent = parent
 
-#
+
 class Text(tk.Label):
     """Text.
 
     Attributes:
         parent (Frame): frame that contains this text
         text_ (str): displayed text
+        color_ (str): text color
     """
 
-    def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, wraplength=700,
-                          bg=parent.cget("bg"),
-                          fg="#E8E8E6",
+    def __init__(self, parent, text_, color_):
+        tk.Label.__init__(self, parent, text=text_, fg=color_,
+                          wraplength=700, bg=parent.cget("bg"),
                           font=("Fira Sans", 10))
         self.__parent = parent
 
 
 # classic buttons
-#
+
 class BranchSelectionButton(tk.Button):
     """Layout for 'NEW'- and 'EXISTING'-button.
 
@@ -269,7 +274,11 @@ class BranchSelectionButton(tk.Button):
 
     def __init__(self, parent, text_, command_):
         tk.Button.__init__(self, parent, text=text_, command=command_,
-                           width=12, height=2, bg="#E0D5C7")
+                           width=12, borderwidth=0, pady=7,
+                           cursor="hand2", relief="flat",
+                           font=("Fira Sans", 14),
+                           bg=DARK_BG, activebackground=MEDIUM,
+                           fg=DARK_BLUE, activeforeground=DARK)
         self.__parent = parent
 
 
@@ -285,14 +294,16 @@ class NavButton(tk.Button):
         tk.Button.__init__(self, parent,
                            borderwidth=0, padx=10, pady=2,
                            cursor="hand2", relief="flat",
-                           font=("Fira Sans", 10),
-                           bg=BG, activebackground=BG,
-                           fg=DARK_BLUE, activeforeground=MEDIUM)
+                           font=("Fira Sans", 10))
         self.__parent = parent
         if highlighted:
             self.config(
                 bg=LIGHT_BLUE, activebackground=DARK_BLUE,
                 fg=WHITE, activeforeground=MEDIUM)
+        else:
+            self.config(
+                bg=BG, activebackground=BG,
+                fg=DARK_BLUE, activeforeground=MEDIUM)
 
 
 class SortButton(tk.Button):
@@ -316,6 +327,7 @@ class SortButton(tk.Button):
     def change_text(self, text_):
         self.config(text=text_)
 
+
 #
 class TabButton(tk.Button):
     """Tab index button
@@ -334,7 +346,7 @@ class TabButton(tk.Button):
 
 
 # user interaction widgets
-#
+
 class MultiSelectable(tk.Button):
     """Multi select button / selectable text.
 
@@ -344,7 +356,12 @@ class MultiSelectable(tk.Button):
     """
 
     def __init__(self, parent, text_):
-        tk.Button.__init__(self, parent, text=text_)
+        tk.Button.__init__(self, parent, text=text_,
+                           borderwidth=0, padx=14, pady=7,
+                           cursor="hand2", relief="flat",
+                           font=("Fira Sans Medium", 12),
+                           bg=BG, activebackground=BG,
+                           fg=DARK_BLUE, activeforeground=DARK_GREEN)
         self.__parent = parent
         self.__text = text_
         self.__selected = False
@@ -359,7 +376,7 @@ class MultiSelectable(tk.Button):
     def get_label(self):
         return self.__text
 
-#
+
 class Option(tk.Button):
     """Button / selectable text. Only one option can be selected at a time.
 
@@ -370,7 +387,12 @@ class Option(tk.Button):
     """
 
     def __init__(self, parent, text_, object_):
-        tk.Button.__init__(self, parent, text=text_)
+        tk.Button.__init__(self, parent, text=text_,
+                           borderwidth=0, padx=14, pady=7,
+                           cursor="hand2", relief="flat",
+                           font=("Fira Sans Medium", 12),
+                           bg=BG, activebackground=BG,
+                           fg=DARK_BLUE, activeforeground=DARK_GREEN)
         self.__parent = parent
         self.__text = text_
         self.__object = object_
@@ -393,18 +415,26 @@ class BigField(tk.Frame):
     """
 
     def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent, bg=WHITE)
+        tk.Frame.__init__(self, parent, bg=WHITE, width=300, height=200)
         self.__parent = parent
         self.__text = text_
 
-        tk.Label(self, text=text_, bg=self.cget("bg")).pack()
-        self.__entry = tk.Entry(self, bg=self.cget("bg"))
+        tk.Label(self, text=text_, anchor="sw",
+                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=8)
+        self.__entry = tk.Entry(self, width=7, borderwidth=0,
+                                insertwidth=2, insertbackground=DARK_BLUE,
+                                relief="flat", justify="center",
+                                font=("Fira Sans", 32),
+                                bg=self.cget("bg"))
         self.__entry.pack()
+
+        # spacer
+        tk.Frame(self, bg=self.cget("bg"), height=15).pack()
 
     def get_input(self):
         return self.__entry.get()
 
-#
+
 class SmallField(tk.Frame):
     """Small input field with text.
 
@@ -415,12 +445,17 @@ class SmallField(tk.Frame):
     """
 
     def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent, bg=WHITE)
         self.__parent = parent
         self.__text = text_
 
-        tk.Label(self, text=self.__text).pack(side="left")
-        self.__entry = tk.Entry(self)
+        tk.Label(self, text=text_, anchor="sw",
+                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=8)
+        self.__entry = tk.Entry(self, width=7, borderwidth=0,
+                                insertwidth=2, insertbackground=DARK_BLUE,
+                                relief="flat", justify="center",
+                                font=("Fira Sans", 24),
+                                bg=self.cget("bg"))
         self.__entry.pack(side="left")
 
     def get_input(self):

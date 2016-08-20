@@ -22,7 +22,7 @@ class Races(tk.Frame):
                                            lambda: self.sort())
         self.sort_button.pack(anchor="ne")
 
-        container = tk.Frame(self)
+        container = tk.Frame(self, bg=parent.cget("bg"))
         container.pack(fill="x", expand=True)
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
@@ -108,7 +108,7 @@ class Skills(tk.Frame):
         self.data = data
         self.sorted_by_type = True
 
-        container = tk.Frame(self)
+        container = tk.Frame(self, bg=parent.cget("bg"))
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)

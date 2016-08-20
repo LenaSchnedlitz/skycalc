@@ -16,7 +16,7 @@ class Results(tk.Frame):
         self.parent = parent
         self.calculator = calculator
 
-        elem.Title(self, "Results").pack()
+        elem.Title(self, "Results", "white").pack()
         sel_container = tk.Frame(self)
         sel_container.pack(expand=True)
 

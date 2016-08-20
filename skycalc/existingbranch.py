@@ -19,9 +19,9 @@ class CharLevelSelection(tk.Frame):
         container.pack(expand=True)
 
         self.current_level = elem.BigField(container, "Your Level:")
-        self.current_level.pack(side="left")
+        self.current_level.pack(side="left", padx=45)
         self.goal_level = elem.BigField(container, "Your Goal:")
-        self.goal_level.pack(side="left")
+        self.goal_level.pack(side="left", padx=45)
 
     def can_use_input(self):
         try:
@@ -49,7 +49,7 @@ class Skills(tk.Frame):
         self.data = data
         self.sorted_by_type = True
 
-        container = tk.Frame(self)
+        container = tk.Frame(self, bg=parent.cget("bg"))
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)
