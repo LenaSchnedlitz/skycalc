@@ -12,7 +12,7 @@ class Start(tk.Frame):
     """
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg=elem.DARK_BLUE)
+        tk.Frame.__init__(self, parent, bg=elem.DARK_BG)
         self.__parent = parent
 
         # image placeholder
@@ -21,12 +21,12 @@ class Start(tk.Frame):
         label.image = img
         label.pack()
 
-        elem.Title(self, "Welcome!", elem.BG).pack()
+        elem.Title(self, "Welcome!", elem.WHITE).pack()
         elem.Text(self,
                   "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
                   "sed diam nonumy eirmod tempor invidunt ut labore et "
                   "dolore magna aliquyam erat, sed diam voluptua.",
-                  elem.WHITE).pack()
+                  elem.LIGHT).pack()
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)

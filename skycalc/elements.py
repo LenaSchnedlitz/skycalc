@@ -4,17 +4,18 @@ import tkinter as tk
 
 import calculator as calc
 
-BG = "#FAEFD4"
-BROWN = "#A57C65"
-DARK = "#1A1E21"
-DARK_BG = "#DECFC7"
-DARK_BLUE = "#3F464D"
-DARK_GREEN = "#6a7054"
-LIGHT = "#EBE7E4"
-LIGHT_BLUE = "#688B8A"
-LIGHT_GREEN = "#A0B084"
-MEDIUM = "#695856"
+LIGHT_BG = "#F0FCFF"
+DARK_BG = "#222629"
+
 WHITE = "#FFFFFF"
+LIGHT = "#A1B0B0"
+MEDIUM = "#536572"
+DARK = "#435258"
+BLACK = "#010101"
+
+LIGHT_COLOR = "#53AC59"
+MEDIUM_COLOR = "#3B8952"
+DARK_COLOR = "#0F684B"
 
 
 def configure_window(self):
@@ -33,7 +34,6 @@ def configure_window(self):
     self.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
 
 
-#
 class ViewManager(tk.Frame):
     """Contain and manage all views of a branch.
 
@@ -43,27 +43,27 @@ class ViewManager(tk.Frame):
     """
 
     def __init__(self, parent, content):
-        tk.Frame.__init__(self, parent, bg=BG)
-        self.parent = parent
-        self.content = content
-        self.data = calc.DataObject()
-        self.i = 0  # number of current view/page
+        tk.Frame.__init__(self, parent, bg=LIGHT_BG)
+        self.__parent = parent
+        self.__content = content
+        self.__data = calc.DataObject()
+        self.__i = 0  # number of current view/page
 
-        self.header = self.build_header()
-        self.view_container = self.build_view_container()
-        self.views = self.build_views()
+        self.__header = self.build_header()
+        self.__view_container = self.build_view_container()
+        self.__views = self.build_views()
         self.raise_view()
-        self.footer = self.build_footer()
+        self.__footer = self.build_footer()
         self.update_footer()
 
     def build_header(self):
-        header = Header(self, self.content[self.i]["Title"],
-                        self.content[self.i]["Instruction"])
+        header = Header(self, self.__content[self.__i]["Title"],
+                        self.__content[self.__i]["Instruction"])
         header.pack(fill="x")
         return header
 
     def build_view_container(self):
-        container = tk.Frame(self, bg=BG)
+        container = tk.Frame(self, bg=self.cget("bg"))
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         container.pack(fill="both", expand=True)
@@ -71,8 +71,9 @@ class ViewManager(tk.Frame):
 
     def build_views(self):
         views = []
-        for i in range(len(self.content)):
-            view = self.content[i]["View"](self.view_container, self.data)
+        for i in range(len(self.__content)):
+            view = self.__content[i]["View"](self.__view_container,
+                                             self.__data)
             views.append(view)
             view.grid(row=0, column=0, sticky="nsew")
         return views
@@ -88,39 +89,39 @@ class ViewManager(tk.Frame):
         self.update_footer()
 
     def update_header(self):
-        self.header.change_text(self.content[self.i]["Title"],
-                                self.content[self.i]["Instruction"])
+        self.__header.change_text(self.__content[self.__i]["Title"],
+                                  self.__content[self.__i]["Instruction"])
 
     def raise_view(self):
-        view = self.views[self.i]
+        view = self.__views[self.__i]
         view.tkraise()
 
     def update_footer(self):
-        if self.i == len(self.content) - 1:
-            self.footer.change_text("< Back", "Get Results >")
+        if self.__i == len(self.__content) - 1:
+            self.__footer.change_text("< Back", "Get Results >")
         else:
-            self.footer.change_text("< Back", "Next >")
+            self.__footer.change_text("< Back", "Next >")
 
     def show_next(self):
-        view = self.views[self.i]
+        view = self.__views[self.__i]
         if view.can_use_input():
-            if self.i + 1 < len(self.content):
-                self.i += 1
-                self.views[self.i].update()  # update next view
+            if self.__i + 1 < len(self.__content):
+                self.__i += 1
+                self.__views[self.__i].update()  # update next view
                 self.update()  # update view manager
             else:
                 import results as r
-                r.Results(self.parent, calc.Calculator(self.data)).pack(
+                r.Results(self.__parent, calc.Calculator(self.__data)).pack(
                     fill="both", expand=True)
                 self.destroy()
 
     def show_prev(self):
-        if self.i - 1 >= 0:
-            self.i -= 1
+        if self.__i - 1 >= 0:
+            self.__i -= 1
             self.update()
         else:
             import start as s
-            s.Start(self.parent).pack(fill="both", expand=True)
+            s.Start(self.__parent).pack(fill="both", expand=True)
             self.destroy()
 
 
@@ -134,11 +135,11 @@ class Header(tk.Frame):
     """
 
     def __init__(self, manager: ViewManager, title, instruction):
-        tk.Frame.__init__(self, manager, bg=BG)
+        tk.Frame.__init__(self, manager, bg=manager.cget("bg"))
         self.__parent = manager
 
         # breadcrumb
-        tk.Frame(self, bg=BG, height=30).pack(fill="x")
+        tk.Frame(self, bg=self.__parent.cget("bg"), height=30).pack(fill="x")
 
         self.__title = ViewName(self, title)
         self.__title.pack(fill="x", expand=True, padx="15")
@@ -199,7 +200,6 @@ class Title(tk.Label):
         self.__parent = parent
 
 
-#
 class Headline(tk.Label):
     """Headline - smaller than title.
 
@@ -209,8 +209,9 @@ class Headline(tk.Label):
     """
 
     def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, bg=parent.cget("bg"),
-                          font=("Fira Sans Bold", 20))
+        tk.Label.__init__(self, parent, text=text_,
+                          bg=parent.cget("bg"), fg=DARK,
+                          font=("Fira Sans Bold", 18))
         self.__parent = parent
 
 
@@ -224,8 +225,8 @@ class ViewName(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, pady=0, anchor="sw",
-                          font=("Fira Sans Light", 26),
-                          bg=parent.cget("bg"), fg=DARK_BLUE)
+                          font=("Fira Sans Bold", 22),
+                          bg=parent.cget("bg"), fg=BLACK)
         self.__parent = parent
 
 
@@ -240,8 +241,8 @@ class Instruction(tk.Label):
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, pady=0,
                           anchor="nw", justify="left", wraplength=700,
-                          font=("Fira Sans", 10),
-                          bg=parent.cget("bg"), fg=MEDIUM)
+                          font=("Fira Sans", 11),
+                          bg=parent.cget("bg"), fg=DARK)
         self.__parent = parent
 
 
@@ -277,8 +278,8 @@ class BranchSelectionButton(tk.Button):
                            width=12, borderwidth=0, pady=7,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans", 14),
-                           bg=DARK_BG, activebackground=MEDIUM,
-                           fg=DARK_BLUE, activeforeground=DARK)
+                           bg=LIGHT_COLOR, activebackground=MEDIUM_COLOR,
+                           fg=WHITE, activeforeground=LIGHT)
         self.__parent = parent
 
 
@@ -298,12 +299,12 @@ class NavButton(tk.Button):
         self.__parent = parent
         if highlighted:
             self.config(
-                bg=LIGHT_BLUE, activebackground=DARK_BLUE,
-                fg=WHITE, activeforeground=MEDIUM)
+                bg=MEDIUM_COLOR, activebackground=DARK_COLOR,
+                fg=WHITE, activeforeground=LIGHT)
         else:
             self.config(
-                bg=BG, activebackground=BG,
-                fg=DARK_BLUE, activeforeground=MEDIUM)
+                bg=self.__parent.cget("bg"), activebackground=LIGHT,
+                fg=DARK, activeforeground=BLACK)
 
 
 class SortButton(tk.Button):
@@ -317,18 +318,18 @@ class SortButton(tk.Button):
 
     def __init__(self, parent, text_, command_):
         tk.Button.__init__(self, parent, text=text_, command=command_,
-                           borderwidth=0, padx=14, pady=7,
+                           borderwidth=0, padx=14,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans Medium", 10),
-                           bg=BG, activebackground=BG,
-                           fg=BROWN, activeforeground=DARK_BG)
+                           bg=parent.cget("bg"),
+                           activebackground=parent.cget("bg"),
+                           fg=LIGHT, activeforeground=MEDIUM)
         self.__parent = parent
 
     def change_text(self, text_):
         self.config(text=text_)
 
 
-#
 class TabButton(tk.Button):
     """Tab index button
 
@@ -357,11 +358,11 @@ class MultiSelectable(tk.Button):
 
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_,
-                           borderwidth=0, padx=14, pady=7,
+                           borderwidth=0, width=15, pady=6,
                            cursor="hand2", relief="flat",
-                           font=("Fira Sans Medium", 12),
-                           bg=BG, activebackground=BG,
-                           fg=DARK_BLUE, activeforeground=DARK_GREEN)
+                           font=("Fira Sans Medium", 11),
+                           bg=parent.cget("bg"), activebackground=MEDIUM_COLOR,
+                           fg=BLACK, activeforeground=LIGHT_BG)
         self.__parent = parent
         self.__text = text_
         self.__selected = False
@@ -391,8 +392,8 @@ class Option(tk.Button):
                            borderwidth=0, padx=14, pady=7,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans Medium", 12),
-                           bg=BG, activebackground=BG,
-                           fg=DARK_BLUE, activeforeground=DARK_GREEN)
+                           bg=parent.cget("bg"), activebackground=DARK_BG,
+                           fg=BLACK, activeforeground=DARK)
         self.__parent = parent
         self.__text = text_
         self.__object = object_
@@ -415,21 +416,21 @@ class BigField(tk.Frame):
     """
 
     def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent, bg=WHITE, width=300, height=200)
+        tk.Frame.__init__(self, parent, bg=WHITE)
         self.__parent = parent
         self.__text = text_
 
         tk.Label(self, text=text_, anchor="sw",
-                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=8)
+                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=5)
         self.__entry = tk.Entry(self, width=7, borderwidth=0,
-                                insertwidth=2, insertbackground=DARK_BLUE,
+                                insertwidth=2, insertbackground=DARK_COLOR,
                                 relief="flat", justify="center",
                                 font=("Fira Sans", 32),
                                 bg=self.cget("bg"))
         self.__entry.pack()
 
         # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=15).pack()
+        tk.Frame(self, bg=self.cget("bg"), height=18).pack()
 
     def get_input(self):
         return self.__entry.get()
@@ -450,13 +451,16 @@ class SmallField(tk.Frame):
         self.__text = text_
 
         tk.Label(self, text=text_, anchor="sw",
-                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=8)
-        self.__entry = tk.Entry(self, width=7, borderwidth=0,
-                                insertwidth=2, insertbackground=DARK_BLUE,
+                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=5)
+        self.__entry = tk.Entry(self, width=6, borderwidth=0,
+                                insertwidth=2, insertbackground=DARK_COLOR,
                                 relief="flat", justify="center",
-                                font=("Fira Sans", 24),
+                                font=("Fira Sans", 20),
                                 bg=self.cget("bg"))
-        self.__entry.pack(side="left")
+        self.__entry.pack()
+
+        # spacer
+        tk.Frame(self, bg=self.cget("bg"), height=18).pack()
 
     def get_input(self):
         return self.__entry.get()
