@@ -38,6 +38,9 @@ class CharLevelSelection(tk.Frame):
             return True
         return False
 
+    def set_focus(self):
+        self.__current_level.set_focus()
+
 
 class Skills(tk.Frame):
     """Default skill selection frame.
@@ -55,6 +58,7 @@ class Skills(tk.Frame):
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
+        self.__sort_button.bind("<Return>", lambda e: self.sort())
         self.__sort_button.pack(anchor="ne")
 
         container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
@@ -114,7 +118,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
+        sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_skills)):
@@ -164,6 +168,9 @@ class Skills(tk.Frame):
     def update(self):
         pass  # needed for view manager
 
+    def set_focus(self):
+        self.focus_set()
+
 
 class SkillLevelSelection(tk.Frame):
     """Frame where skill levels are entered.
@@ -183,40 +190,7 @@ class SkillLevelSelection(tk.Frame):
         self.__container.grid_rowconfigure(2, weight=1)
         self.__container.pack(fill="both", expand=True, padx=50, pady=50)
 
-        self.selected_skills = []
-
-    def can_use_input(self):
-        skill_levels = {}
-        for skill in self.selected_skills:
-            try:
-                level = int(skill.get_input())
-            except ValueError:
-                return False
-            if 15 <= level <= 100:
-                skill_levels[skill.get_label()] = level
-            else:
-                return False
-        self.__data.set_skill_levels(skill_levels)
-        return True
-
-    def update(self):
-        for child in self.__container.winfo_children():
-            child.destroy()
-        self.selected_skills = []
-        for skill in self.__data.selected_skills:
-            self.selected_skills.append(
-                elem.SmallField(self.__container, skill))
-        row_ = 0
-        column_ = 0
-        max_ = self.set_max(len(self.selected_skills))
-        self.make_columns_grow(max_)
-        for skill in self.selected_skills:
-            skill.grid(row=row_, column=column_, padx=5, pady=10)
-            if column_ == max_:
-                column_ = 0
-                row_ += 1
-            else:
-                column_ += 1
+        self.__selected_skills = []
 
     @staticmethod
     def set_max(n):
@@ -238,6 +212,42 @@ class SkillLevelSelection(tk.Frame):
             self.__container.grid_columnconfigure(i, weight=0)  # reset
         for i in range(n + 1):
             self.__container.grid_columnconfigure(i, weight=1)  # set
+
+    def can_use_input(self):
+        skill_levels = {}
+        for skill in self.__selected_skills:
+            try:
+                level = int(skill.get_input())
+            except ValueError:
+                return False
+            if 15 <= level <= 100:
+                skill_levels[skill.get_label()] = level
+            else:
+                return False
+        self.__data.set_skill_levels(skill_levels)
+        return True
+
+    def update(self):
+        for child in self.__container.winfo_children():
+            child.destroy()
+        self.__selected_skills = []
+        for skill in self.__data.selected_skills:
+            self.__selected_skills.append(
+                elem.SmallField(self.__container, skill))
+        row_ = 0
+        column_ = 0
+        max_ = self.set_max(len(self.__selected_skills))
+        self.make_columns_grow(max_)
+        for skill in self.__selected_skills:
+            skill.grid(row=row_, column=column_, padx=5, pady=10)
+            if column_ == max_:
+                column_ = 0
+                row_ += 1
+            else:
+                column_ += 1
+
+    def set_focus(self):
+        self.__selected_skills[0].set_focus()
 
 
 def build_content():

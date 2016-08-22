@@ -15,14 +15,16 @@ class Races(tk.Frame):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.__parent = parent
         self.__data = data
-        self.selected = ""
+        self.selected = ""  # must be public for selection change via button
         self.__sorted_by_type = True
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
+        self.__sort_button.bind("<Return>", lambda e: self.sort())
         self.__sort_button.pack(anchor="ne")
 
-        self.__container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
+        self.__container = tk.Frame(self, bg=parent.cget("bg"), padx=50,
+                                    pady=20)
         self.__container.grid_columnconfigure(0, weight=1)
         self.__container.grid_columnconfigure(1, weight=1)
         self.__container.grid_columnconfigure(2, weight=1)
@@ -73,7 +75,7 @@ class Races(tk.Frame):
     def pack_by_name(self):
         for headline in self.__headlines:
             headline.grid_forget()
-        sorted_races = sorted(self.__races, key=lambda x: x.get_label())
+        sorted_races = sorted(self.__races, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_races)):
@@ -101,6 +103,9 @@ class Races(tk.Frame):
         self.__data.set_race(self.selected)
         return True
 
+    def set_focus(self):
+        self.focus_set()
+
 
 class Skills(tk.Frame):
     """Default skill selection frame.
@@ -118,6 +123,7 @@ class Skills(tk.Frame):
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
+        self.__sort_button.bind("<Return>", lambda e: self.sort())
         self.__sort_button.pack(anchor="ne")
 
         container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
@@ -177,7 +183,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
+        sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_skills)):
@@ -212,6 +218,9 @@ class Skills(tk.Frame):
     def update(self):
         pass  # needed for view manager
 
+    def set_focus(self):
+        self.focus_set()
+
 
 class GoalLevelSelection(tk.Frame):
     """Frame where goal level is entered.
@@ -228,8 +237,8 @@ class GoalLevelSelection(tk.Frame):
         self.__goal_level = elem.BigField(self, "Your Goal:")
         self.__goal_level.pack(expand=True)
 
-        # spacer
-        tk.Frame(self, height=50, bg=self.cget("bg")).pack(side="bottom")
+        spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
+        spacer.pack(side="bottom")
 
     def can_use_input(self):
         try:
@@ -240,6 +249,9 @@ class GoalLevelSelection(tk.Frame):
             self.__data.set_char_levels((1, goal))  # new char lvl is always 1
             return True
         return False
+
+    def set_focus(self):
+        self.__goal_level.set_focus()
 
 
 def build_content():

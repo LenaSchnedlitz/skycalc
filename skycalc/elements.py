@@ -95,6 +95,7 @@ class ViewManager(tk.Frame):
     def raise_view(self):
         view = self.__views[self.__i]
         view.tkraise()
+        view.set_focus()
 
     def update_footer(self):
         if self.__i == len(self.__content) - 1:
@@ -367,6 +368,7 @@ class MultiSelectable(tk.Button):
         self.__text = text_
         self.__selected = False
         self.config(command=lambda: self.change_selection())
+        self.bind("<Return>", lambda e: self.change_selection())
 
     def change_selection(self):
         self.__selected = not self.__selected
@@ -398,6 +400,7 @@ class Option(tk.Button):
         self.__text = text_
         self.__object = object_
         self.config(command=lambda: self.change_selection())
+        self.bind("<Return>", lambda e: self.change_selection())
 
     def change_selection(self):
         self.__object.selected = self.__text
@@ -435,6 +438,9 @@ class BigField(tk.Frame):
     def get_input(self):
         return self.__entry.get()
 
+    def set_focus(self):
+        self.__entry.focus_set()
+
 
 class SmallField(tk.Frame):
     """Small input field with text.
@@ -467,3 +473,6 @@ class SmallField(tk.Frame):
 
     def get_label(self):
         return self.__text
+
+    def set_focus(self):
+        self.__entry.focus_set()
