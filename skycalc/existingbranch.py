@@ -33,7 +33,7 @@ class CharLevelSelection(tk.Frame):
             goal = int(self.__goal_level.get_input())
         except ValueError:
             return False
-        if 0 < current < goal and 0 < goal < 500:  # arbitrary cap
+        if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
             self.__data.set_char_levels((current, goal))
             return True
         return False

@@ -13,23 +13,29 @@ class Races(tk.Frame):
 
     def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.parent = parent
-        self.data = data
+        self.__parent = parent
+        self.__data = data
         self.selected = ""
-        self.sorted_by_type = True
+        self.__sorted_by_type = True
 
-        self.sort_button = elem.SortButton(self, "Sort alphabetically",
-                                           lambda: self.sort())
-        self.sort_button.pack(anchor="ne")
+        self.__sort_button = elem.SortButton(self, "Sort alphabetically",
+                                             lambda: self.sort())
+        self.__sort_button.pack(anchor="ne")
 
-        container = tk.Frame(self, bg=parent.cget("bg"))
-        container.pack(fill="x", expand=True)
-        container.grid_columnconfigure(0, weight=1)
-        container.grid_columnconfigure(1, weight=1)
-        container.grid_columnconfigure(2, weight=1)
+        self.__container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
+        self.__container.grid_columnconfigure(0, weight=1)
+        self.__container.grid_columnconfigure(1, weight=1)
+        self.__container.grid_columnconfigure(2, weight=1)
+        self.__container.grid_rowconfigure(0, weight=1)
+        self.__container.grid_rowconfigure(1, weight=1)
+        self.__container.grid_rowconfigure(2, weight=1)
+        self.__container.grid_rowconfigure(3, weight=1)
+        self.__container.grid_rowconfigure(4, weight=1)
+        self.__container.grid_rowconfigure(5, weight=1)  # looks better
+        self.__container.pack(fill="both", expand=True)
 
-        self.races = self.build_races(container)
-        self.headlines = self.build_headlines(container)
+        self.__races = self.build_races(self.__container)
+        self.__headlines = self.build_headlines(self.__container)
         self.pack_by_type()
 
     def build_races(self, container):
@@ -50,23 +56,24 @@ class Races(tk.Frame):
         return headlines
 
     def pack_by_type(self):
-        for i in range(len(self.headlines)):
-            self.headlines[i].grid(row=0, column=i)
+        for i in range(len(self.__headlines)):
+            self.__headlines[i].grid(row=0, column=i)
 
         row_ = 1
         column_ = 0
-        for i in range(len(self.races)):
-            self.races[i].grid(row=row_, column=column_)
+        for i in range(len(self.__races)):
+            self.__races[i].grid(row=row_, column=column_)
             if row_ == 4:
                 row_ = 1
                 column_ += 1
             else:
                 row_ += 1
+        self.__container.grid_columnconfigure(2, weight=1)  # set grid scale
 
     def pack_by_name(self):
-        for headline in self.headlines:
+        for headline in self.__headlines:
             headline.grid_forget()
-        sorted_races = sorted(self.races, key=lambda x: x.get_label())
+        sorted_races = sorted(self.__races, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_races)):
@@ -76,21 +83,22 @@ class Races(tk.Frame):
                 column_ += 1
             else:
                 row_ += 1
+        self.__container.grid_columnconfigure(2, weight=0)  # reset grid scale
 
     def sort(self):
-        if self.sorted_by_type:
+        if self.__sorted_by_type:
             self.pack_by_name()
-            self.sort_button.change_text("Sort by type")
-            self.sorted_by_type = False
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
         else:
             self.pack_by_type()
-            self.sort_button.change_text("Sort alphabetically")
-            self.sorted_by_type = True
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
 
     def can_use_input(self):
         if self.selected == "":
             return False
-        self.data.set_race(self.selected)
+        self.__data.set_race(self.selected)
         return True
 
 
@@ -104,24 +112,30 @@ class Skills(tk.Frame):
 
     def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.parent = parent
-        self.data = data
-        self.sorted_by_type = True
+        self.__parent = parent
+        self.__data = data
+        self.__sorted_by_type = True
 
-        container = tk.Frame(self, bg=parent.cget("bg"))
+        self.__sort_button = elem.SortButton(self, "Sort alphabetically",
+                                             lambda: self.sort())
+        self.__sort_button.pack(anchor="ne")
+
+        container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_rowconfigure(1, weight=1)
+        container.grid_rowconfigure(2, weight=1)
+        container.grid_rowconfigure(3, weight=1)
+        container.grid_rowconfigure(4, weight=1)
+        container.grid_rowconfigure(5, weight=1)
+        container.grid_rowconfigure(6, weight=1)
+        container.pack(fill="both", expand=True)
 
-        self.type_headlines = self.build_headlines(container)
-        self.skills = self.build_skills(container)
+        self.__type_headlines = self.build_headlines(container)
+        self.__skills = self.build_skills(container)
         self.pack_by_type()
-
-        self.sort_button = elem.SortButton(self, "Sort alphabetically",
-                                           lambda: self.sort())
-        self.sort_button.pack(anchor="ne")
-
-        container.pack(fill="x", expand=True)
 
     @staticmethod
     def build_skills(container):
@@ -147,13 +161,13 @@ class Skills(tk.Frame):
         return headlines
 
     def pack_by_type(self):
-        for i in range(len(self.type_headlines)):
-            self.type_headlines[i].grid(row=0, column=i)
+        for i in range(len(self.__type_headlines)):
+            self.__type_headlines[i].grid(row=0, column=i)
 
         row_ = 1
         column_ = 0
-        for i in range(len(self.skills)):
-            self.skills[i].grid(row=row_, column=column_)
+        for i in range(len(self.__skills)):
+            self.__skills[i].grid(row=row_, column=column_)
             if row_ == 6:
                 row_ = 1
                 column_ += 1
@@ -161,9 +175,9 @@ class Skills(tk.Frame):
                 row_ += 1
 
     def pack_by_name(self):
-        for headline in self.type_headlines:
+        for headline in self.__type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.skills, key=lambda x: x.get_label())
+        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for i in range(len(sorted_skills)):
@@ -175,23 +189,23 @@ class Skills(tk.Frame):
                 row_ += 1
 
     def sort(self):
-        if self.sorted_by_type:
+        if self.__sorted_by_type:
             self.pack_by_name()
-            self.sort_button.change_text("Sort by type")
-            self.sorted_by_type = False
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
         else:
             self.pack_by_type()
-            self.sort_button.change_text("Sort alphabetically")
-            self.sorted_by_type = True
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
 
     def can_use_input(self):
         selected = []
-        for skill in self.skills:
+        for skill in self.__skills:
             if skill.is_selected():
                 selected.append(skill.get_label())
         if len(selected) > 0:
-            self.data.set_selected_skills(selected)
-            self.data.generate_selected_skill_levels()
+            self.__data.set_selected_skills(selected)
+            self.__data.generate_selected_skill_levels()
             return True
         return False
 
@@ -208,19 +222,22 @@ class GoalLevelSelection(tk.Frame):
 
     def __init__(self, parent, data):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.parent = parent
-        self.data = data
+        self.__parent = parent
+        self.__data = data
 
-        self.goal_level = elem.BigField(self, "Your Goal:")
-        self.goal_level.pack(expand=True)
+        self.__goal_level = elem.BigField(self, "Your Goal:")
+        self.__goal_level.pack(expand=True)
+
+        # spacer
+        tk.Frame(self, height=50, bg=self.cget("bg")).pack(side="bottom")
 
     def can_use_input(self):
         try:
-            goal = int(self.goal_level.get_input())
+            goal = int(self.__goal_level.get_input())
         except ValueError:
             return False
-        if 1 < goal < 500:  # arbitrary cap
-            self.data.set_char_levels((1, goal))  # current level is always 1
+        if 1 < goal < 300:  # arbitrary cap, >= 252
+            self.__data.set_char_levels((1, goal))  # new char lvl is always 1
             return True
         return False
 
