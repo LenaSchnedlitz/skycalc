@@ -62,6 +62,11 @@ class ViewManager(tk.Frame):
         header.pack(fill="x")
         return header
 
+    def build_footer(self):
+        footer = Footer(self)
+        footer.pack(fill="x", side="bottom")
+        return footer
+
     def build_view_container(self):
         container = tk.Frame(self, bg=self.cget("bg"))
         container.grid_rowconfigure(0, weight=1)
@@ -78,10 +83,10 @@ class ViewManager(tk.Frame):
             view.grid(row=0, column=0, sticky="nsew")
         return views
 
-    def build_footer(self):
-        footer = Footer(self)
-        footer.pack(fill="x", side="bottom")
-        return footer
+    def raise_view(self):
+        view = self.__views[self.__i]
+        view.tkraise()
+        view.set_focus()
 
     def update(self):
         self.update_header()
@@ -91,11 +96,6 @@ class ViewManager(tk.Frame):
     def update_header(self):
         self.__header.change_text(self.__content[self.__i]["Title"],
                                   self.__content[self.__i]["Instruction"])
-
-    def raise_view(self):
-        view = self.__views[self.__i]
-        view.tkraise()
-        view.set_focus()
 
     def update_footer(self):
         if self.__i == len(self.__content) - 1:
@@ -164,13 +164,16 @@ class Footer(tk.Frame):
         tk.Frame.__init__(self, manager, bg=manager.cget("bg"))
         self.__parent = manager
 
-        self.__left = NavButton(self, False)
-        self.__left.config(command=lambda: self.show_prev())
-        self.__left.pack(side="left", padx=10, pady=11)
-
         self.__right = NavButton(self, True)
         self.__right.config(command=lambda: self.show_next())
+        self.__right.bind("<Return>", lambda e: self.show_next())
         self.__right.pack(side="right", padx=10, pady=11)
+
+        self.__left = NavButton(self, False)
+        self.__left.config(command=lambda: self.show_prev())
+        self.__left.bind("<Return>", lambda e: self.show_prev())
+        self.__left.pack(side="left", padx=10, pady=11)
+
 
     def show_next(self):
         self.__parent.show_next()

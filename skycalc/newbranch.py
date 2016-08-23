@@ -63,8 +63,9 @@ class Races(tk.Frame):
 
         row_ = 1
         column_ = 0
-        for i in range(len(self.__races)):
-            self.__races[i].grid(row=row_, column=column_)
+        for race in self.__races:
+            race.grid(row=row_, column=column_)
+            race.tkraise()
             if row_ == 4:
                 row_ = 1
                 column_ += 1
@@ -78,8 +79,9 @@ class Races(tk.Frame):
         sorted_races = sorted(self.__races, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
-        for i in range(len(sorted_races)):
-            sorted_races[i].grid(row=row_, column=column_)
+        for race in sorted_races:
+            race.grid(row=row_, column=column_)
+            race.tkraise()
             if row_ == 4:
                 row_ = 0
                 column_ += 1
@@ -172,8 +174,9 @@ class Skills(tk.Frame):
 
         row_ = 1
         column_ = 0
-        for i in range(len(self.__skills)):
-            self.__skills[i].grid(row=row_, column=column_)
+        for skill in self.__skills:
+            skill.grid(row=row_, column=column_)
+            skill.tkraise()
             if row_ == 6:
                 row_ = 1
                 column_ += 1
@@ -186,8 +189,9 @@ class Skills(tk.Frame):
         sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
-        for i in range(len(sorted_skills)):
-            sorted_skills[i].grid(row=row_, column=column_)
+        for skill in sorted_skills:
+            skill.grid(row=row_, column=column_)
+            skill.tkraise()
             if row_ == 5:
                 row_ = 0
                 column_ += 1

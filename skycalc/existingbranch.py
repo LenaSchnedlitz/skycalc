@@ -107,8 +107,9 @@ class Skills(tk.Frame):
 
         row_ = 1
         column_ = 0
-        for i in range(len(self.__skills)):
-            self.__skills[i].grid(row=row_, column=column_, pady=3)
+        for skill in self.__skills:
+            skill.grid(row=row_, column=column_, pady=3)
+            skill.tkraise()
             if row_ == 6:
                 row_ = 1
                 column_ += 1
@@ -121,8 +122,9 @@ class Skills(tk.Frame):
         sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
         row_ = 0
         column_ = 0
-        for i in range(len(sorted_skills)):
-            sorted_skills[i].grid(row=row_, column=column_)
+        for skill in sorted_skills:
+            skill.grid(row=row_, column=column_)
+            skill.tkraise()
             if row_ == 5:
                 row_ = 0
                 column_ += 1
@@ -139,27 +141,13 @@ class Skills(tk.Frame):
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
-    @staticmethod
-    def align_by_type(skills, container):
-        elem.Headline(container, "Magic").grid(row=0, column=0)
-        elem.Headline(container, "Combat").grid(row=0, column=1)
-        elem.Headline(container, "Stealth").grid(row=0, column=2)
-
-        row_ = 1
-        column_ = 0
-        for i in range(len(skills)):
-            skills[i].grid(row=row_, column=column_)
-            if row_ == 6:
-                row_ = 1
-                column_ += 1
-            else:
-                row_ += 1
-
     def can_use_input(self):
         selected = []
         for skill in self.__skills:
             if skill.is_selected():
                 selected.append(skill.get_label())
+        if not self.__sorted_by_type:
+            selected = sorted(selected)
         if len(selected) > 0:
             self.__data.set_selected_skills(selected)
             return True
@@ -193,7 +181,7 @@ class SkillLevelSelection(tk.Frame):
         self.__selected_skills = []
 
     @staticmethod
-    def set_max(n):
+    def get_max_column(n):
         if n > 15:
             return 5
         elif n % 5 == 0:
@@ -236,7 +224,7 @@ class SkillLevelSelection(tk.Frame):
                 elem.SmallField(self.__container, skill))
         row_ = 0
         column_ = 0
-        max_ = self.set_max(len(self.__selected_skills))
+        max_ = self.get_max_column(len(self.__selected_skills))
         self.make_columns_grow(max_)
         for skill in self.__selected_skills:
             skill.grid(row=row_, column=column_, padx=5, pady=10)
