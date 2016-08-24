@@ -58,7 +58,7 @@ class Skills(tk.Frame):
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
-        self.__sort_button.bind("<Return>", lambda e: self.sort())
+        self.__sort_button.bind("<Return>", lambda x: self.sort())
         self.__sort_button.pack(anchor="ne")
 
         container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
@@ -119,7 +119,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
+        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for skill in sorted_skills:

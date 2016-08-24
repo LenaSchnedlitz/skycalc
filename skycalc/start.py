@@ -30,12 +30,14 @@ class Start(tk.Frame):
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)
-        elem.BranchSelectionButton(button_container, "NEW",
-                                   lambda: self.start_new()).pack(side="left",
-                                                                  padx=5)
-        elem.BranchSelectionButton(button_container, "EXISTING",
-                                   lambda: self.start_ex()).pack(side="right",
-                                                                 padx=5)
+        new_ = elem.BranchSelectionButton(button_container, "NEW",
+                                          lambda: self.start_new())
+        new_.bind("<Return>", lambda x: self.start_new())
+        new_.pack(side="left", padx=5)
+        ex_ = elem.BranchSelectionButton(button_container, "EXISTING",
+                                         lambda: self.start_ex())
+        ex_.bind("<Return>", lambda x: self.start_ex())
+        ex_.pack(side="right", padx=5)
 
     def start_new(self):
         import newbranch as n

@@ -15,16 +15,16 @@ class Races(tk.Frame):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
         self.__parent = parent
         self.__data = data
-        self.selected = ""  # must be public for selection change via button
+        self.__selected = ""
         self.__sorted_by_type = True
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
-        self.__sort_button.bind("<Return>", lambda e: self.sort())
+        self.__sort_button.bind("<Return>", lambda x: self.sort())
         self.__sort_button.pack(anchor="ne")
 
-        self.__container = tk.Frame(self, bg=parent.cget("bg"), padx=50,
-                                    pady=20)
+        self.__container = tk.Frame(self, bg=parent.cget("bg"),
+                                    padx=50, pady=20)
         self.__container.grid_columnconfigure(0, weight=1)
         self.__container.grid_columnconfigure(1, weight=1)
         self.__container.grid_columnconfigure(2, weight=1)
@@ -36,19 +36,9 @@ class Races(tk.Frame):
         self.__container.grid_rowconfigure(5, weight=1)  # looks better
         self.__container.pack(fill="both", expand=True)
 
-        self.__races = self.build_races(self.__container)
         self.__headlines = self.build_headlines(self.__container)
+        self.__races = self.build_races(self.__container)
         self.pack_by_type()
-
-    def build_races(self, container):
-        race_names = ("Breton", "Nord", "Imperial", "Redguard",
-                      "Altmer", "Bosmer", "Dunmer", "Orc",
-                      "Argonian", "Khajiit"
-                      )
-        races = []
-        for i in range(len(race_names)):
-            races.append(elem.Option(container, race_names[i], self))
-        return races
 
     @staticmethod
     def build_headlines(container):
@@ -56,6 +46,16 @@ class Races(tk.Frame):
                      elem.Headline(container, "Mer"),
                      elem.Headline(container, "Beast")]
         return headlines
+
+    def build_races(self, container):
+        race_names = ("Breton", "Nord", "Imperial", "Redguard",
+                      "Altmer", "Bosmer", "Dunmer", "Orc",
+                      "Argonian", "Khajiit"
+                      )
+        races = []
+        for name in race_names:
+            races.append(elem.Option(container, name, self))
+        return races
 
     def pack_by_type(self):
         for i in range(len(self.__headlines)):
@@ -76,7 +76,7 @@ class Races(tk.Frame):
     def pack_by_name(self):
         for headline in self.__headlines:
             headline.grid_forget()
-        sorted_races = sorted(self.__races, key=lambda e: e.get_label())
+        sorted_races = sorted(self.__races, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for race in sorted_races:
@@ -99,10 +99,18 @@ class Races(tk.Frame):
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
+    def select(self, selection):
+        self.__selected = selection
+        for race in self.__races:
+            if race.get_label() == selection:
+                race.mark_selected()
+            else:
+                race.mark_unselected()
+
     def can_use_input(self):
-        if self.selected == "":
+        if self.__selected == "":
             return False
-        self.__data.set_race(self.selected)
+        self.__data.set_race(self.__selected)
         return True
 
     def set_focus(self):
@@ -125,7 +133,7 @@ class Skills(tk.Frame):
 
         self.__sort_button = elem.SortButton(self, "Sort alphabetically",
                                              lambda: self.sort())
-        self.__sort_button.bind("<Return>", lambda e: self.sort())
+        self.__sort_button.bind("<Return>", lambda x: self.sort())
         self.__sort_button.pack(anchor="ne")
 
         container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
@@ -186,7 +194,7 @@ class Skills(tk.Frame):
     def pack_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
-        sorted_skills = sorted(self.__skills, key=lambda e: e.get_label())
+        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for skill in sorted_skills:

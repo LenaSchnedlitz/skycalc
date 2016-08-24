@@ -166,12 +166,12 @@ class Footer(tk.Frame):
 
         self.__right = NavButton(self, True)
         self.__right.config(command=lambda: self.show_next())
-        self.__right.bind("<Return>", lambda e: self.show_next())
+        self.__right.bind("<Return>", lambda x: self.show_next())
         self.__right.pack(side="right", padx=10, pady=11)
 
         self.__left = NavButton(self, False)
         self.__left.config(command=lambda: self.show_prev())
-        self.__left.bind("<Return>", lambda e: self.show_prev())
+        self.__left.bind("<Return>", lambda x: self.show_prev())
         self.__left.pack(side="left", padx=10, pady=11)
 
 
@@ -365,16 +365,24 @@ class MultiSelectable(tk.Button):
                            borderwidth=0, width=15, pady=6,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans Medium", 11),
-                           bg=parent.cget("bg"), activebackground=MEDIUM_COLOR,
-                           fg=BLACK, activeforeground=LIGHT_BG)
+                           activebackground=MEDIUM_COLOR,
+                           activeforeground=LIGHT_BG)
         self.__parent = parent
         self.__text = text_
         self.__selected = False
+        self.set_button_style()
         self.config(command=lambda: self.change_selection())
-        self.bind("<Return>", lambda e: self.change_selection())
+        self.bind("<Return>", lambda x: self.change_selection())
 
     def change_selection(self):
         self.__selected = not self.__selected
+        self.set_button_style()
+
+    def set_button_style(self):
+        if self.__selected:
+            self.config(bg=LIGHT_COLOR, fg=WHITE)
+        else:
+            self.config(bg=self.__parent.cget("bg"), fg=BLACK)
 
     def is_selected(self):
         return self.__selected
@@ -397,16 +405,23 @@ class Option(tk.Button):
                            borderwidth=0, padx=14, pady=7,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans Medium", 12),
-                           bg=parent.cget("bg"), activebackground=DARK_BG,
-                           fg=BLACK, activeforeground=DARK)
+                           activebackground=DARK_BG,
+                           activeforeground=DARK)
         self.__parent = parent
         self.__text = text_
         self.__object = object_
-        self.config(command=lambda: self.change_selection())
-        self.bind("<Return>", lambda e: self.change_selection())
+        self.mark_unselected()
+        self.config(command=lambda: self.select())
+        self.bind("<Return>", lambda x: self.select())
 
-    def change_selection(self):
-        self.__object.selected = self.__text
+    def select(self):
+        self.__object.select(self.__text)
+
+    def mark_unselected(self):
+        self.config(bg=self.__parent.cget("bg"), fg=BLACK)
+
+    def mark_selected(self):
+        self.config(bg=LIGHT_COLOR, fg=WHITE)
 
     def get_label(self):
         return self.__text

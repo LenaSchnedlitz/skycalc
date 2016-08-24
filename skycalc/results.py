@@ -13,34 +13,34 @@ class Results(tk.Frame):
 
     def __init__(self, parent, calculator):
         tk.Frame.__init__(self, parent)
-        self.parent = parent
-        self.calculator = calculator
+        self.__parent = parent
+        self.__calculator = calculator
 
         elem.Title(self, "Results", "white").pack()
         sel_container = tk.Frame(self)
         sel_container.pack(expand=True)
 
-        self.tab_container = tk.Frame(self)
-        self.tab_container.grid_rowconfigure(0, weight=1)
-        self.tab_container.grid_columnconfigure(0, weight=1)
-        self.tab_container.pack(fill="both", expand=True)
+        self.__tab_container = tk.Frame(self)
+        self.__tab_container.grid_rowconfigure(0, weight=1)
+        self.__tab_container.grid_columnconfigure(0, weight=1)
+        self.__tab_container.pack(fill="both", expand=True)
 
-        self.fastest_tab = self.build_tab("Fastest method",
-                                          calculator.get_fastest_results())
-        self.easiest_tab = self.build_tab("Easiest method",
-                                          calculator.get_easiest_results())
-        self.balanced_tab = self.build_tab("Balanced method",
-                                           calculator.get_balanced_results())
+        self.__fastest_tab = self.build_tab("Fastest method",
+                                            calculator.get_fastest_results())
+        self.__easiest_tab = self.build_tab("Easiest method",
+                                            calculator.get_easiest_results())
+        self.__balanced_tab = self.build_tab("Balanced method",
+                                             calculator.get_balanced_results())
 
-        self.a = elem.TabButton(sel_container, "a tab", self.fastest_tab).pack(
-            side="left")
-        self.a = elem.TabButton(sel_container, "b tab", self.easiest_tab).pack(
-            side="left")
+        self.a = elem.TabButton(sel_container, "a tab",
+                                self.__fastest_tab).pack(side="left")
+        self.a = elem.TabButton(sel_container, "b tab",
+                                self.__easiest_tab).pack(side="left")
         self.a = elem.TabButton(sel_container, "c tab",
-                                self.balanced_tab).pack(side="left")
+                                self.__balanced_tab).pack(side="left")
 
     def build_tab(self, title, results):
-        tab = tk.Frame(self.tab_container)
+        tab = tk.Frame(self.__tab_container)
         tab.grid(row=0, column=0, sticky="nsew")
         elem.Headline(tab, title).pack()
         for skill in results:
