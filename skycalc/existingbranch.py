@@ -61,7 +61,7 @@ class Skills(tk.Frame):
         self.__sort_button.bind("<Return>", lambda x: self.sort())
         self.__sort_button.pack(anchor="ne")
 
-        container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=20)
+        container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=0)
         container.grid_columnconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
         container.grid_columnconfigure(2, weight=1)

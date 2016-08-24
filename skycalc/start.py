@@ -12,21 +12,20 @@ class Start(tk.Frame):
     """
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg=elem.DARK_BG)
+        tk.Frame.__init__(self, parent, bg=elem.Colors.DARK_BG)
         self.__parent = parent
 
-        # image placeholder
         img = tk.PhotoImage(file="res/skyrim.gif")
         label = tk.Label(self, image=img, bg=self.cget("bg"))
         label.image = img
         label.pack()
 
-        elem.Title(self, "Welcome!", elem.WHITE).pack()
+        elem.Title(self, "Welcome!", elem.Colors.WHITE).pack()
         elem.Text(self,
                   "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
                   "sed diam nonumy eirmod tempor invidunt ut labore et "
                   "dolore magna aliquyam erat, sed diam voluptua.",
-                  elem.LIGHT).pack()
+                  elem.Colors.LIGHT).pack()
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)

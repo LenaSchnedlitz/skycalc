@@ -4,19 +4,6 @@ import tkinter as tk
 
 import calculator as calc
 
-LIGHT_BG = "#F0FCFF"
-DARK_BG = "#222629"
-
-WHITE = "#FFFFFF"
-LIGHT = "#A1B0B0"
-MEDIUM = "#536572"
-DARK = "#435258"
-BLACK = "#010101"
-
-LIGHT_COLOR = "#53AC59"
-MEDIUM_COLOR = "#3B8952"
-DARK_COLOR = "#0F684B"
-
 
 def configure_window(self):
     """Set window title, size, minsize and position"""
@@ -43,7 +30,7 @@ class ViewManager(tk.Frame):
     """
 
     def __init__(self, parent, content):
-        tk.Frame.__init__(self, parent, bg=LIGHT_BG)
+        tk.Frame.__init__(self, parent, bg=Colors.LIGHT_BG)
         self.__parent = parent
         self.__content = content
         self.__data = calc.DataObject()
@@ -99,9 +86,9 @@ class ViewManager(tk.Frame):
 
     def update_footer(self):
         if self.__i == len(self.__content) - 1:
-            self.__footer.change_text("< Back", "Get Results >")
+            self.__footer.change_text("< Back ", "Results >")
         else:
-            self.__footer.change_text("< Back", "Next >")
+            self.__footer.change_text("< Back ", " Next >")
 
     def show_next(self):
         view = self.__views[self.__i]
@@ -174,7 +161,6 @@ class Footer(tk.Frame):
         self.__left.bind("<Return>", lambda x: self.show_prev())
         self.__left.pack(side="left", padx=10, pady=11)
 
-
     def show_next(self):
         self.__parent.show_next()
 
@@ -214,7 +200,7 @@ class Headline(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_,
-                          bg=parent.cget("bg"), fg=DARK,
+                          bg=parent.cget("bg"), fg=Colors.DARK,
                           font=("Fira Sans Bold", 18))
         self.__parent = parent
 
@@ -230,7 +216,7 @@ class ViewName(tk.Label):
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, pady=0, anchor="sw",
                           font=("Fira Sans Bold", 22),
-                          bg=parent.cget("bg"), fg=BLACK)
+                          bg=parent.cget("bg"), fg=Colors.BLACK)
         self.__parent = parent
 
 
@@ -246,7 +232,7 @@ class Instruction(tk.Label):
         tk.Label.__init__(self, parent, text=text_, pady=0,
                           anchor="nw", justify="left", wraplength=700,
                           font=("Fira Sans", 11),
-                          bg=parent.cget("bg"), fg=DARK)
+                          bg=parent.cget("bg"), fg=Colors.DARK)
         self.__parent = parent
 
 
@@ -282,8 +268,9 @@ class BranchSelectionButton(tk.Button):
                            width=12, borderwidth=0, pady=7,
                            cursor="hand2", relief="flat",
                            font=("Fira Sans", 14),
-                           bg=LIGHT_COLOR, activebackground=MEDIUM_COLOR,
-                           fg=WHITE, activeforeground=LIGHT)
+                           bg=Colors.LIGHT_GREEN,
+                           activebackground=Colors.MEDIUM_GREEN,
+                           fg=Colors.WHITE, activeforeground=Colors.LIGHT)
         self.__parent = parent
 
 
@@ -297,18 +284,20 @@ class NavButton(tk.Button):
 
     def __init__(self, parent, highlighted):
         tk.Button.__init__(self, parent,
-                           borderwidth=0, padx=10, pady=2,
-                           cursor="hand2", relief="flat",
-                           font=("Fira Sans", 10))
+                           borderwidth=0,
+                           cursor="hand2", relief="flat", compound="center",
+                           font=("Fira Sans", 10),
+                           bg=parent.cget("bg"),
+                           activebackground=parent.cget("bg"))
         self.__parent = parent
         if highlighted:
-            self.config(
-                bg=MEDIUM_COLOR, activebackground=DARK_COLOR,
-                fg=WHITE, activeforeground=LIGHT)
+            self.__normal_img = ImageImporter.import_("res/nav_h_NORMAL.png")
+            self.config(image=self.__normal_img,
+                        fg=Colors.WHITE, activeforeground=Colors.LIGHT_BG)
         else:
-            self.config(
-                bg=self.__parent.cget("bg"), activebackground=LIGHT,
-                fg=DARK, activeforeground=BLACK)
+            self.__normal_img = ImageImporter.import_("res/nav_NORMAL.png")
+            self.config(image=self.__normal_img,
+                        fg=Colors.MEDIUM, activeforeground=Colors.BLACK)
 
 
 class SortButton(tk.Button):
@@ -327,7 +316,7 @@ class SortButton(tk.Button):
                            font=("Fira Sans Medium", 10),
                            bg=parent.cget("bg"),
                            activebackground=parent.cget("bg"),
-                           fg=LIGHT, activeforeground=MEDIUM)
+                           fg=Colors.LIGHT, activeforeground=Colors.MEDIUM)
         self.__parent = parent
 
     def change_text(self, text_):
@@ -362,14 +351,18 @@ class MultiSelectable(tk.Button):
 
     def __init__(self, parent, text_):
         tk.Button.__init__(self, parent, text=text_,
-                           borderwidth=0, width=15, pady=6,
-                           cursor="hand2", relief="flat",
+                           borderwidth=0, width=135,
+                           cursor="hand2", relief="flat", compound="center",
                            font=("Fira Sans Medium", 11),
-                           activebackground=MEDIUM_COLOR,
-                           activeforeground=LIGHT_BG)
+                           bg=parent.cget("bg"),
+                           activebackground=parent.cget("bg"),
+                           activeforeground=Colors.LIGHT_BG)
         self.__parent = parent
         self.__text = text_
         self.__selected = False
+        self.__normal_img = ImageImporter.import_("res/selectable_NORMAL.png")
+        self.__selected_img = ImageImporter.import_(
+            "res/selectable_SELECTED.png")
         self.set_button_style()
         self.config(command=lambda: self.change_selection())
         self.bind("<Return>", lambda x: self.change_selection())
@@ -380,9 +373,9 @@ class MultiSelectable(tk.Button):
 
     def set_button_style(self):
         if self.__selected:
-            self.config(bg=LIGHT_COLOR, fg=WHITE)
+            self.config(image=self.__selected_img, fg=Colors.WHITE)
         else:
-            self.config(bg=self.__parent.cget("bg"), fg=BLACK)
+            self.config(image=self.__normal_img, fg=Colors.BLACK)
 
     def is_selected(self):
         return self.__selected
@@ -402,14 +395,18 @@ class Option(tk.Button):
 
     def __init__(self, parent, text_, object_):
         tk.Button.__init__(self, parent, text=text_,
-                           borderwidth=0, padx=14, pady=7,
-                           cursor="hand2", relief="flat",
+                           borderwidth=0, width=135,
+                           cursor="hand2", relief="flat", compound="center",
                            font=("Fira Sans Medium", 12),
-                           activebackground=DARK_BG,
-                           activeforeground=DARK)
+                           bg=parent.cget("bg"),
+                           activebackground=parent.cget("bg"),
+                           activeforeground=Colors.LIGHT_BG)
         self.__parent = parent
         self.__text = text_
         self.__object = object_
+        self.__normal_img = ImageImporter.import_("res/selectable_NORMAL.png")
+        self.__selected_img = ImageImporter.import_(
+            "res/selectable_SELECTED.png")
         self.mark_unselected()
         self.config(command=lambda: self.select())
         self.bind("<Return>", lambda x: self.select())
@@ -418,10 +415,10 @@ class Option(tk.Button):
         self.__object.select(self.__text)
 
     def mark_unselected(self):
-        self.config(bg=self.__parent.cget("bg"), fg=BLACK)
+        self.config(image=self.__normal_img, fg=Colors.BLACK)
 
     def mark_selected(self):
-        self.config(bg=LIGHT_COLOR, fg=WHITE)
+        self.config(image=self.__selected_img, fg=Colors.WHITE)
 
     def get_label(self):
         return self.__text
@@ -437,21 +434,30 @@ class BigField(tk.Frame):
     """
 
     def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent, bg=WHITE)
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"),
+                          width=170, height=118)
         self.__parent = parent
         self.__text = text_
 
+        self.__background_image = ImageImporter.import_("res/bigfield.png")
+        background_label = tk.Label(self, bg=self.cget("bg"),
+                                    image=self.__background_image)
+        background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.pack_propagate(0)
+
         tk.Label(self, text=text_, anchor="sw",
-                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=5)
-        self.__entry = tk.Entry(self, width=7, borderwidth=0,
-                                insertwidth=2, insertbackground=DARK_COLOR,
+                 bg=Colors.WHITE, fg=Colors.MEDIUM).pack(fill="x", padx=10,
+                                                            pady=5)
+        self.__entry = tk.Entry(self, width=6, borderwidth=0,
+                                insertwidth=2,
+                                insertbackground=Colors.DARK_GREEN,
                                 relief="flat", justify="center",
                                 font=("Fira Sans", 32),
-                                bg=self.cget("bg"))
+                                bg=Colors.WHITE)
         self.__entry.pack()
 
         # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=18).pack()
+        tk.Frame(self, bg=self.cget("bg"), height=14).pack(pady=2)
 
     def get_input(self):
         return self.__entry.get()
@@ -470,21 +476,30 @@ class SmallField(tk.Frame):
     """
 
     def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent, bg=WHITE)
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"),
+                          width=95, height=91)
         self.__parent = parent
         self.__text = text_
 
+        self.__background_image = ImageImporter.import_("res/smallfield.png")
+        background_label = tk.Label(self, bg=self.cget("bg"),
+                                    image=self.__background_image)
+        background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.pack_propagate(0)
+
         tk.Label(self, text=text_, anchor="sw",
-                 bg=self.cget("bg"), fg=MEDIUM).pack(fill="x", padx=10, pady=5)
-        self.__entry = tk.Entry(self, width=6, borderwidth=0,
-                                insertwidth=2, insertbackground=DARK_COLOR,
+                 bg=Colors.WHITE, fg=Colors.MEDIUM).pack(fill="x", padx=10,
+                                                            pady=5)
+        self.__entry = tk.Entry(self, width=5, borderwidth=0,
+                                insertwidth=2,
+                                insertbackground=Colors.DARK_GREEN,
                                 relief="flat", justify="center",
                                 font=("Fira Sans", 20),
-                                bg=self.cget("bg"))
+                                bg=Colors.WHITE)
         self.__entry.pack()
 
         # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=18).pack()
+        tk.Frame(self, bg=self.cget("bg"), height=14).pack(pady=2)
 
     def get_input(self):
         return self.__entry.get()
@@ -494,3 +509,25 @@ class SmallField(tk.Frame):
 
     def set_focus(self):
         self.__entry.focus_set()
+
+
+class Colors:
+    LIGHT_BG = "#F0FCFF"
+    DARK_BG = "#222629"
+
+    WHITE = "#FFFFFF"
+    LIGHT = "#A1B0B0"
+    MEDIUM = "#536572"
+    DARK = "#435258"
+    BLACK = "#010101"
+
+    LIGHT_GREEN = "#53AC59"
+    MEDIUM_GREEN = "#3B8952"
+    DARK_GREEN = "#0F684B"
+
+
+class ImageImporter:
+    @staticmethod
+    def import_(image):
+        from PIL import Image, ImageTk
+        return ImageTk.PhotoImage(Image.open(image))
