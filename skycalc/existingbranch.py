@@ -76,7 +76,7 @@ class Skills(tk.Frame):
 
         self.__type_headlines = self.build_headlines(container)
         self.__skills = self.build_skills(container)
-        self.pack_by_type()
+        self.sort_by_type()
 
     @staticmethod
     def build_headlines(container):
@@ -101,7 +101,7 @@ class Skills(tk.Frame):
             skills.append(elem.MultiSelectable(container, skill_names[i]))
         return skills
 
-    def pack_by_type(self):
+    def sort_by_type(self):
         for i in range(len(self.__type_headlines)):
             self.__type_headlines[i].grid(row=0, column=i)
 
@@ -116,7 +116,7 @@ class Skills(tk.Frame):
             else:
                 row_ += 1
 
-    def pack_by_name(self):
+    def sort_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
         sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
@@ -133,11 +133,11 @@ class Skills(tk.Frame):
 
     def sort(self):
         if self.__sorted_by_type:
-            self.pack_by_name()
+            self.sort_by_name()
             self.__sort_button.change_text("Sort by type")
             self.__sorted_by_type = False
         else:
-            self.pack_by_type()
+            self.sort_by_type()
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 

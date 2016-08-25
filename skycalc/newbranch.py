@@ -38,7 +38,7 @@ class Races(tk.Frame):
 
         self.__headlines = self.build_headlines(self.__container)
         self.__races = self.build_races(self.__container)
-        self.pack_by_type()
+        self.sort_by_type()
 
     @staticmethod
     def build_headlines(container):
@@ -57,7 +57,7 @@ class Races(tk.Frame):
             races.append(elem.Option(container, name, self))
         return races
 
-    def pack_by_type(self):
+    def sort_by_type(self):
         for i in range(len(self.__headlines)):
             self.__headlines[i].grid(row=0, column=i)
 
@@ -73,7 +73,7 @@ class Races(tk.Frame):
                 row_ += 1
         self.__container.grid_columnconfigure(2, weight=1)  # set grid scale
 
-    def pack_by_name(self):
+    def sort_by_name(self):
         for headline in self.__headlines:
             headline.grid_forget()
         sorted_races = sorted(self.__races, key=lambda x: x.get_label())
@@ -91,11 +91,11 @@ class Races(tk.Frame):
 
     def sort(self):
         if self.__sorted_by_type:
-            self.pack_by_name()
+            self.sort_by_name()
             self.__sort_button.change_text("Sort by type")
             self.__sorted_by_type = False
         else:
-            self.pack_by_type()
+            self.sort_by_type()
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
@@ -103,9 +103,9 @@ class Races(tk.Frame):
         self.__selected = selection
         for race in self.__races:
             if race.get_label() == selection:
-                race.mark_selected()
+                race.mark_selected()  # select clicked option
             else:
-                race.mark_unselected()
+                race.mark_unselected()  # deselect all other options
 
     def can_use_input(self):
         if self.__selected == "":
@@ -151,7 +151,7 @@ class Skills(tk.Frame):
 
         self.__type_headlines = self.build_headlines(container)
         self.__skills = self.build_skills(container)
-        self.pack_by_type()
+        self.sort_by_type()
 
     @staticmethod
     def build_skills(container):
@@ -176,7 +176,7 @@ class Skills(tk.Frame):
                      elem.Headline(container, "Stealth")]
         return headlines
 
-    def pack_by_type(self):
+    def sort_by_type(self):
         for i in range(len(self.__type_headlines)):
             self.__type_headlines[i].grid(row=0, column=i)
 
@@ -191,7 +191,7 @@ class Skills(tk.Frame):
             else:
                 row_ += 1
 
-    def pack_by_name(self):
+    def sort_by_name(self):
         for headline in self.__type_headlines:
             headline.grid_forget()
         sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
@@ -208,11 +208,11 @@ class Skills(tk.Frame):
 
     def sort(self):
         if self.__sorted_by_type:
-            self.pack_by_name()
+            self.sort_by_name()
             self.__sort_button.change_text("Sort by type")
             self.__sorted_by_type = False
         else:
-            self.pack_by_type()
+            self.sort_by_type()
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 

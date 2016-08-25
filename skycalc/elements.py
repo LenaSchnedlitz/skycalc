@@ -186,7 +186,7 @@ class Title(tk.Label):
     def __init__(self, parent, text_, color_):
         tk.Label.__init__(self, parent, text=text_, fg=color_,
                           bg=parent.cget("bg"),
-                          font=("Fira Sans Bold", 34))
+                          font="-size 34 -weight bold")
         self.__parent = parent
 
 
@@ -201,7 +201,7 @@ class Headline(tk.Label):
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_,
                           bg=parent.cget("bg"), fg=Colors.DARK,
-                          font=("Fira Sans Bold", 18))
+                          font="-size 18 -weight bold")
         self.__parent = parent
 
 
@@ -215,7 +215,7 @@ class ViewName(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, pady=0, anchor="sw",
-                          font=("Fira Sans Bold", 22),
+                          font="-size 22 -weight bold",
                           bg=parent.cget("bg"), fg=Colors.BLACK)
         self.__parent = parent
 
@@ -231,7 +231,7 @@ class Instruction(tk.Label):
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_, pady=0,
                           anchor="nw", justify="left", wraplength=700,
-                          font=("Fira Sans", 11),
+                          font="-size 11",
                           bg=parent.cget("bg"), fg=Colors.DARK)
         self.__parent = parent
 
@@ -248,7 +248,7 @@ class Text(tk.Label):
     def __init__(self, parent, text_, color_):
         tk.Label.__init__(self, parent, text=text_, fg=color_,
                           wraplength=700, bg=parent.cget("bg"),
-                          font=("Fira Sans", 10))
+                          font=("Helvetica", 10))
         self.__parent = parent
 
 
@@ -267,7 +267,7 @@ class BranchSelectionButton(tk.Button):
         tk.Button.__init__(self, parent, text=text_, command=command_,
                            width=12, borderwidth=0, pady=7,
                            cursor="hand2", relief="flat",
-                           font=("Fira Sans", 14),
+                           font="-size 13",
                            bg=Colors.LIGHT_GREEN,
                            activebackground=Colors.MEDIUM_GREEN,
                            fg=Colors.WHITE, activeforeground=Colors.LIGHT)
@@ -286,7 +286,7 @@ class NavButton(tk.Button):
         tk.Button.__init__(self, parent,
                            borderwidth=0,
                            cursor="hand2", relief="flat", compound="center",
-                           font=("Fira Sans", 10),
+                           font="-size 10",
                            bg=parent.cget("bg"),
                            activebackground=parent.cget("bg"))
         self.__parent = parent
@@ -313,7 +313,7 @@ class SortButton(tk.Button):
         tk.Button.__init__(self, parent, text=text_, command=command_,
                            borderwidth=0, padx=14,
                            cursor="hand2", relief="flat",
-                           font=("Fira Sans Medium", 10),
+                           font="-size 10",
                            bg=parent.cget("bg"),
                            activebackground=parent.cget("bg"),
                            fg=Colors.LIGHT, activeforeground=Colors.MEDIUM)
@@ -353,8 +353,7 @@ class MultiSelectable(tk.Button):
         tk.Button.__init__(self, parent, text=text_,
                            borderwidth=0, width=135,
                            cursor="hand2", relief="flat", compound="center",
-                           font=("Fira Sans Medium", 11),
-                           bg=parent.cget("bg"),
+                           font="-size 11", bg=parent.cget("bg"),
                            activebackground=parent.cget("bg"),
                            activeforeground=Colors.LIGHT_BG)
         self.__parent = parent
@@ -397,8 +396,7 @@ class Option(tk.Button):
         tk.Button.__init__(self, parent, text=text_,
                            borderwidth=0, width=135,
                            cursor="hand2", relief="flat", compound="center",
-                           font=("Fira Sans Medium", 12),
-                           bg=parent.cget("bg"),
+                           font="-size 11", bg=parent.cget("bg"),
                            activebackground=parent.cget("bg"),
                            activeforeground=Colors.LIGHT_BG)
         self.__parent = parent
@@ -445,19 +443,18 @@ class BigField(tk.Frame):
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
         self.pack_propagate(0)
 
-        tk.Label(self, text=text_, anchor="sw",
-                 bg=Colors.WHITE, fg=Colors.MEDIUM).pack(fill="x", padx=10,
-                                                            pady=5)
-        self.__entry = tk.Entry(self, width=6, borderwidth=0,
+        tk.Label(self, text=text_, anchor="sw", bg=Colors.WHITE,
+                 fg=Colors.MEDIUM).pack(fill="x", padx=10, pady=5)
+        self.__entry = tk.Entry(self, width=5, borderwidth=0,
                                 insertwidth=2,
                                 insertbackground=Colors.DARK_GREEN,
                                 relief="flat", justify="center",
-                                font=("Fira Sans", 32),
+                                font="-size 38",
                                 bg=Colors.WHITE)
         self.__entry.pack()
 
         # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=14).pack(pady=2)
+        tk.Frame(self, bg=self.cget("bg"), height=12).pack(pady=2)
 
     def get_input(self):
         return self.__entry.get()
@@ -487,19 +484,18 @@ class SmallField(tk.Frame):
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
         self.pack_propagate(0)
 
-        tk.Label(self, text=text_, anchor="sw",
-                 bg=Colors.WHITE, fg=Colors.MEDIUM).pack(fill="x", padx=10,
-                                                            pady=5)
-        self.__entry = tk.Entry(self, width=5, borderwidth=0,
+        tk.Label(self, text=text_, anchor="sw", bg=Colors.WHITE,
+                 fg=Colors.MEDIUM).pack(fill="x", padx=10, pady=5)
+        self.__entry = tk.Entry(self, width=4, borderwidth=0,
                                 insertwidth=2,
                                 insertbackground=Colors.DARK_GREEN,
                                 relief="flat", justify="center",
-                                font=("Fira Sans", 20),
+                                font="-size 24",
                                 bg=Colors.WHITE)
         self.__entry.pack()
 
         # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=14).pack(pady=2)
+        tk.Frame(self, bg=self.cget("bg"), height=12).pack(pady=2)
 
     def get_input(self):
         return self.__entry.get()
