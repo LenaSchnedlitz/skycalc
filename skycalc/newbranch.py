@@ -252,14 +252,19 @@ class GoalLevelSelection(tk.Frame):
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
         spacer.pack(side="bottom")
 
+    def update(self):
+        self.__goal_level.mark_valid()  # remove red error border
+
     def can_use_input(self):
         try:
             goal = int(self.__goal_level.get_input())
         except ValueError:
+            self.__goal_level.mark_invalid()
             return False
         if 1 < goal < 300:  # arbitrary cap, >= 252
             self.__data.set_char_levels((1, goal))  # new char lvl is always 1
             return True
+        self.__goal_level.mark_invalid()
         return False
 
     def set_focus(self):
@@ -270,13 +275,16 @@ def build_content():
     content = (
         {"View": Races,
          "Title": "Races",
-         "Instruction": "Select a race!"},
+         "Instruction": "Select a race!",
+         "Error": "Please select a race."},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Select some skills!"},
+         "Instruction": "Select some skills!",
+         "Error": "You need to select at least one skill."},
         {"View": GoalLevelSelection,
          "Title": "Level",
-         "Instruction": "Enter your goal level!"}
+         "Instruction": "Enter your goal level!",
+         "Error": "Invalid level."}
     )
     return content
 

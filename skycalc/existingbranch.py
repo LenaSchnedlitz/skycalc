@@ -28,14 +28,23 @@ class CharLevelSelection(tk.Frame):
         tk.Frame(self, height=50, bg=self.cget("bg")).pack(side="bottom")
 
     def can_use_input(self):
+        self.__current_level.mark_valid()  # remove error border
+        self.__goal_level.mark_valid()  # remove error border
         try:
             current = int(self.__current_level.get_input())
+        except ValueError:
+            self.__current_level.mark_invalid()
+            return False
+        try:
             goal = int(self.__goal_level.get_input())
         except ValueError:
+            self.__goal_level.mark_invalid()
             return False
         if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
             self.__data.set_char_levels((current, goal))
             return True
+        self.__current_level.mark_invalid()
+        self.__goal_level.mark_invalid()
         return False
 
     def set_focus(self):
@@ -204,13 +213,16 @@ class SkillLevelSelection(tk.Frame):
     def can_use_input(self):
         skill_levels = {}
         for skill in self.__selected_skills:
+            skill.mark_valid()  # reset error border
             try:
                 level = int(skill.get_input())
             except ValueError:
+                skill.mark_invalid()
                 return False
             if 15 <= level <= 100:
                 skill_levels[skill.get_label()] = level
             else:
+                skill.mark_invalid()
                 return False
         self.__data.set_skill_levels(skill_levels)
         return True
@@ -242,13 +254,16 @@ def build_content():
     content = (
         {"View": CharLevelSelection,
          "Title": "Levels",
-         "Instruction": "Enter your levels!"},
+         "Instruction": "Enter your levels!",
+         "Error": "Invalid input."},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Select some skills!"},
+         "Instruction": "Select some skills!",
+         "Error": "You need to select at least one skill."},
         {"View": SkillLevelSelection,
          "Title": "Skill Levels",
-         "Instruction": "Enter your skill levels!"}
+         "Instruction": "Enter your skill levels!",
+         "Error": "Skill levels are numbers between 15 and 100."}
     )
     return content
 

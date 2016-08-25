@@ -16,7 +16,7 @@
    height="91"
    viewBox="0 0 95 91"
    sodipodi:docname="smallfield.svg"
-   inkscape:export-filename="D:\Projekte\GitHub\detailed-skyrim-calculator\skycalc\res\smallfield.png"
+   inkscape:export-filename="D:\Projekte\GitHub\detailed-skyrim-calculator\skycalc\res\smallfield_ERROR.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -27,7 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -47,18 +47,18 @@
      id="namedview4"
      showgrid="false"
      inkscape:zoom="3.2"
-     inkscape:cx="68.235294"
+     inkscape:cx="-136.60846"
      inkscape:cy="78.611088"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <rect
-     style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#a1b0b0;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#f94340;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      id="rect4138"
      width="93.4375"
      height="89.0625"
      x="0.9375"
      y="1"
-     ry="11.806795" />
+     ry="6.1817951" />
 </svg>
