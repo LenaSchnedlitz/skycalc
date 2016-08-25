@@ -275,15 +275,15 @@ def build_content():
     content = (
         {"View": Races,
          "Title": "Races",
-         "Instruction": "Select a race!",
+         "Instruction": "Select your character race:",
          "Error": "Please select a race."},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Select some skills!",
+         "Instruction": "Which skills would you like to train? Please select:",
          "Error": "You need to select at least one skill."},
         {"View": GoalLevelSelection,
          "Title": "Level",
-         "Instruction": "Enter your goal level!",
+         "Instruction": "What's your goal level?",
          "Error": "Invalid level."}
     )
     return content

@@ -254,15 +254,16 @@ def build_content():
     content = (
         {"View": CharLevelSelection,
          "Title": "Levels",
-         "Instruction": "Enter your levels!",
+         "Instruction": "Enter the level of your character and the level you "
+                        "would like to reach:",
          "Error": "Invalid input."},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Select some skills!",
+         "Instruction": "Which skills would you like to train? Please select:",
          "Error": "You need to select at least one skill."},
         {"View": SkillLevelSelection,
          "Title": "Skill Levels",
-         "Instruction": "Enter your skill levels!",
+         "Instruction": "Enter your current skill levels below:",
          "Error": "Skill levels are numbers between 15 and 100."}
     )
     return content
