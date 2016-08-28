@@ -43,8 +43,8 @@ class CharLevelSelection(tk.Frame):
         if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
             self.__data.set_char_levels((current, goal))
             return True
-        self.__current_level.mark_invalid()
         self.__goal_level.mark_invalid()
+        self.__current_level.mark_invalid()
         return False
 
     def set_focus(self):

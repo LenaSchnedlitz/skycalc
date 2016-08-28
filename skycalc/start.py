@@ -12,7 +12,7 @@ class Start(tk.Frame):
     """
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg=elem.Colors.DARK_BG)
+        tk.Frame.__init__(self, parent, bg=elem.Colors.BG)
         self.__parent = parent
 
         img = tk.PhotoImage(file="res/skyrim.gif")
