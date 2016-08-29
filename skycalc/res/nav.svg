@@ -17,7 +17,7 @@
    height="33"
    viewBox="0 0 80 33"
    sodipodi:docname="nav.svg"
-   inkscape:export-filename="D:\Projekte\GitHub\detailed-skyrim-calculator\skycalc\res\nav_RESULTS.png"
+   inkscape:export-filename="D:\Projekte\GitHub\detailed-skyrim-calculator\skycalc\res\nav_NEXT.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -89,6 +89,19 @@
        x2="41.457108"
        y2="34.346382"
        gradientUnits="userSpaceOnUse" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4170">
+      <rect
+         ry="5"
+         rx="5"
+         y="7.4730883"
+         x="0.70710677"
+         height="31.996586"
+         width="78.842407"
+         id="rect4172"
+         style="opacity:1;fill:#1a1816;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -104,12 +117,12 @@
      id="namedview4"
      showgrid="false"
      inkscape:zoom="8"
-     inkscape:cx="32.644435"
+     inkscape:cx="36.249558"
      inkscape:cy="5.5014397"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g4163" />
+     inkscape:current-layer="g4151" />
   <g
      inkscape:groupmode="layer"
      id="layer1"
@@ -160,8 +173,17 @@
      inkscape:label="fill"
      id="g4151"
      inkscape:groupmode="layer"
-     sodipodi:insensitive="true"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <rect
+       ry="5"
+       rx="5"
+       y="7.4730883"
+       x="0.70710677"
+       height="31.996586"
+       width="78.842407"
+       id="rect4162"
+       style="opacity:1;fill:#1a1816;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        style="opacity:1;fill:#1a1816;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4159"
@@ -175,10 +197,12 @@
        style="opacity:1;fill:#2f2924;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4173)"
        d="M 22.664062,7.4726562 C 16.87426,8.014897 10.31494,6.4920648 4.9179688,8.113281 3.9604721,14.407492 5.7542089,21.01247 4.4238281,27.416016 3.2942829,32.603684 9.030016,31.297323 12.327368,31.343164 33.212876,31.48504 54.37076,31.851714 75.087891,31.035156 76.766002,26.181001 74.772763,20.79733 75.367188,15.722656 75.71685,12.452496 77.271931,5.5135156 71.261719,7.4724855 55.0625,7.471692 38.863281,7.4695511 22.664062,7.4726562 Z"
        id="rect4161"
-       inkscape:connector-curvature="0" />
-    <path
        inkscape:connector-curvature="0"
-       id="path4228"
+       clip-path="url(#clipPath4170)" />
+    <path
+       clip-path="url(#clipPath4170)"
+       inkscape:connector-curvature="0"
+       id="path4174"
        d="M 22.664062,7.4726562 C 16.87426,8.014897 10.31494,6.4920648 4.9179688,8.113281 3.9604721,14.407492 5.7542089,21.01247 4.4238281,27.416016 3.2942829,32.603684 9.030016,31.297323 12.327368,31.343164 33.212876,31.48504 54.37076,31.851714 75.087891,31.035156 76.766002,26.181001 74.772763,20.79733 75.367188,15.722656 75.71685,12.452496 77.271931,5.5135156 71.261719,7.4724855 55.0625,7.471692 38.863281,7.4695511 22.664062,7.4726562 Z"
        style="opacity:1;fill:#2f2924;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4173)" />
   </g>
@@ -209,7 +233,7 @@
      inkscape:label="TEXT"
      id="g4157"
      inkscape:groupmode="layer"
-     style="display:none"
+     style="display:inline"
      sodipodi:insensitive="true">
     <text
        sodipodi:linespacing="125%"
@@ -228,7 +252,8 @@
      inkscape:groupmode="layer"
      id="g4163"
      inkscape:label="TEXT Results"
-     sodipodi:insensitive="true">
+     sodipodi:insensitive="true"
+     style="display:none">
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:27.17182159px;line-height:125%;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

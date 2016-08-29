@@ -246,7 +246,7 @@ class GoalLevelSelection(tk.Frame):
         self.__parent = parent
         self.__data = data
 
-        self.__goal_level = elem.BigField(self, "Your Goal:")
+        self.__goal_level = elem.BigField(self, "goal")
         self.__goal_level.pack(expand=True)
 
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))

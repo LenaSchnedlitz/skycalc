@@ -18,27 +18,33 @@ class CharLevelSelection(tk.Frame):
         container = tk.Frame(self, bg=self.cget("bg"))
         container.pack(expand=True)
 
-        self.__current_level = elem.BigField(container, "Your Level:")
+        self.__current_level = elem.BigField(container, "now")
         self.__current_level.pack(side="left", padx=45)
 
-        self.__goal_level = elem.BigField(container, "Your Goal:")
+        self.__goal_level = elem.BigField(container, "goal")
         self.__goal_level.pack(side="left", padx=45)
 
         # spacer
         tk.Frame(self, height=50, bg=self.cget("bg")).pack(side="bottom")
 
+    def remove_error_borders(self):
+        self.__current_level.mark_valid()
+        self.__goal_level.mark_valid()
+
     def can_use_input(self):
-        self.__current_level.mark_valid()  # remove error border
-        self.__goal_level.mark_valid()  # remove error border
-        try:
-            current = int(self.__current_level.get_input())
-        except ValueError:
-            self.__current_level.mark_invalid()
-            return False
+        self.remove_error_borders()
+        valid = True
         try:
             goal = int(self.__goal_level.get_input())
         except ValueError:
             self.__goal_level.mark_invalid()
+            valid = False
+        try:
+            current = int(self.__current_level.get_input())
+        except ValueError:
+            self.__current_level.mark_invalid()
+            valid = False
+        if not valid:
             return False
         if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
             self.__data.set_char_levels((current, goal))
