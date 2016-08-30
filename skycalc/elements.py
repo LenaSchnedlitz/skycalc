@@ -29,13 +29,15 @@ class ViewManager(tk.Frame):
         content: tuple with a dictionary for each view
     """
 
-    def __init__(self, parent, content):
-        tk.Frame.__init__(self, parent, bg=Colors.BG)
-        self.__parent = parent
+    def __init__(self, root, content):
+        tk.Frame.__init__(self, root, bg=Colors.BG)
+        self.__root = root
         self.__content = content
         self.__data = calc.DataObject()
         self.__i = 0  # number of current view/page
 
+        self.__breadcrumbs = Breadcrumbs(self.__root, len(self.__content))
+        self.__breadcrumbs.pack(fill="x")
         self.__header = self.build_header()
         self.__view_container = self.build_view_container()
         self.__views = self.build_views()
@@ -44,18 +46,19 @@ class ViewManager(tk.Frame):
         self.update_footer()
 
     def build_header(self):
-        header = Header(self, self.__content[self.__i]["Title"],
-                        self.__content[self.__i]["Instruction"], len(self.__content))
+        header = Header(self.__root, self.__content[self.__i]["Title"],
+                        self.__content[self.__i]["Instruction"],
+                        len(self.__content))
         header.pack(fill="x")
         return header
 
     def build_footer(self):
-        footer = Footer(self)
+        footer = Footer(self.__root, self)
         footer.pack(fill="x", side="bottom")
         return footer
 
     def build_view_container(self):
-        container = tk.Frame(self, bg=self.cget("bg"))
+        container = tk.Frame(self.__root)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         container.pack(fill="both", expand=True)
@@ -76,6 +79,7 @@ class ViewManager(tk.Frame):
         view.set_focus()
 
     def update(self):
+        self.__breadcrumbs.refresh(self.__i)
         self.update_header()
         self.raise_view()
         self.update_footer()
@@ -83,7 +87,6 @@ class ViewManager(tk.Frame):
     def update_header(self):
         self.__header.change_text(self.__content[self.__i]["Title"],
                                   self.__content[self.__i]["Instruction"])
-        self.__header.update_breadcrumbs(self.__i)
 
     def update_footer(self):
         self.__footer.clear_error_message()
@@ -101,7 +104,7 @@ class ViewManager(tk.Frame):
                 self.update()  # update view manager
             else:
                 import results as r
-                r.Results(self.__parent, calc.Calculator(self.__data)).pack(
+                r.Results(self.__root, calc.Calculator(self.__data)).pack(
                     fill="both", expand=True)
                 self.destroy()
         else:
@@ -113,11 +116,40 @@ class ViewManager(tk.Frame):
             self.update()
         else:
             import start as s
-            s.Start(self.__parent).pack(fill="both", expand=True)
+            s.Start(self.__root).pack(fill="both", expand=True)
             self.destroy()
 
 
-class Header(tk.Frame):
+class WindowElement(tk.Frame):
+    def __init__(self, root):
+        tk.Frame.__init__(self, root, bg=Colors.BG)
+
+
+class Breadcrumbs(WindowElement):
+    def __init__(self, root, n):
+        WindowElement.__init__(self, root)
+
+        container = tk.Frame(self, bg=self.cget("bg"))
+        container.pack(expand=True, pady=10)
+
+        self.__line_img = ImageImporter.load("bread_line")
+
+        self.__points = []
+
+        for i in range(n):
+            point = BreadcrumbButton(container, i + 1)
+            self.__points.append(point)
+            point.pack(side="left")
+            if i + 1 < n:
+                tk.Label(container, bg=self.cget("bg"),
+                         image=self.__line_img).pack(side="left")
+
+    def refresh(self, n):
+        for point in self.__points:
+            point.refresh(n)
+
+
+class Header(WindowElement):
     """Header with breadcrumbs, title and instruction.
 
     Attributes:
@@ -126,13 +158,8 @@ class Header(tk.Frame):
         instruction (str): smaller instruction text
     """
 
-    def __init__(self, manager: ViewManager, title, instruction, n):
-        tk.Frame.__init__(self, manager, bg=manager.cget("bg"))
-        self.__parent = manager
-
-        self.__breadcrumbs = Breadcrumbs(self, n)
-        self.__breadcrumbs.pack(expand=True, pady=10)
-        self.__breadcrumbs.set(1)
+    def __init__(self, root, title, instruction, n):
+        WindowElement.__init__(self, root)
 
         self.__title = ViewName(self, title)
         self.__title.pack(fill="x", expand=True, padx="15")
@@ -144,50 +171,30 @@ class Header(tk.Frame):
         self.__title.config(text=title)
         self.__text.config(text=instruction)
 
-    def update_breadcrumbs(self, n):
-        self.__breadcrumbs.set(n + 1)
+
+class View(WindowElement):
+    def __init__(self, parent, collector):
+        WindowElement.__init__(self, parent)
+        self.__collector = collector
+
+    def set_focus(self):
+        self.focus_set()
+
+    def update(self):
+        pass
 
 
-class Breadcrumbs(tk.Frame):
-    def __init__(self, parent, n):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.__parent = parent
-        self.__empty_img = ImageImporter.get("bread")
-        self.__line_img = ImageImporter.get("bread_line")
-
-        self.__imgs = []
-        self.__points = []
-
-        i = 1
-        while i <= n:
-            self.__imgs.append(ImageImporter.get("bread" + str(i)))
-            i += 1
-
-        i = 1
-        while i <= n:
-            self.__points.append(tk.Label(self, bg=self.cget("bg"), image=self.__imgs[i - 1]))
-            self.__points[i - 1].grid(row=0, column=(2 * (i - 1)))
-            if i != n:
-                tk.Label(self, bg=self.cget("bg"), image=self.__line_img).grid(row=0, column=(2 * (i - 1) + 1))
-            i += 1
-
-    def set(self, n):
-        for point in self.__points:
-            point.config(image=self.__empty_img)
-        for i in range(n):
-            self.__points[i].config(image=self.__imgs[i])
-
-
-class Footer(tk.Frame):
+class Footer(WindowElement):
     """Footer containing a 'previous'- and a 'next'-button.
 
     Attributes:
         manager (ViewManager): contains and manages the footer
     """
 
-    def __init__(self, manager: ViewManager):
-        tk.Frame.__init__(self, manager, bg=manager.cget("bg"))
-        self.__parent = manager
+    def __init__(self, parent, manager: ViewManager):
+        WindowElement.__init__(self, parent)
+        self.__parent = parent
+        self.__manager = manager
 
         self.__right = NavButton(self)
         self.__right.config(command=lambda: self.show_next())
@@ -205,10 +212,10 @@ class Footer(tk.Frame):
         self.__error_message.pack(side="left", expand=True, fill="both")
 
     def show_next(self):
-        self.__parent.show_next()
+        self.__manager.show_next()
 
     def show_prev(self):
-        self.__parent.show_prev()
+        self.__manager.show_prev()
 
     def show_results_text(self):
         self.__right.show_results_text()
@@ -230,7 +237,7 @@ class Title(tk.Label):
 
     Attributes:
         parent (Frame): frame that contains this title
-        text_ (str): displayed title text
+        text_ (str): displayed text
         color_ (str): text color
     """
 
@@ -238,7 +245,6 @@ class Title(tk.Label):
         tk.Label.__init__(self, parent, text=text_, fg=color_,
                           bg=parent.cget("bg"),
                           font="-size 34 -weight bold")
-        self.__parent = parent
 
 
 class Headline(tk.Label):
@@ -251,9 +257,10 @@ class Headline(tk.Label):
 
     def __init__(self, parent, text_):
         tk.Label.__init__(self, parent, text=text_,
-                          bg=parent.cget("bg"), fg=Colors.DARK, pady=20,
-                          font="-size 18 -weight bold")
-        self.__parent = parent
+                          bg=parent.cget("bg"),
+                          fg=Colors.DARK,
+                          font="-size 18 -weight bold",
+                          pady=20)
 
 
 class ViewName(tk.Label):
@@ -280,11 +287,14 @@ class Instruction(tk.Label):
     """
 
     def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, pady=0,
-                          anchor="nw", justify="left", wraplength=700,
+        tk.Label.__init__(self, parent, text=text_,
+                          anchor="nw",
+                          bg=parent.cget("bg"),
+                          fg=Colors.MEDIUM,
                           font="-size 11",
-                          bg=parent.cget("bg"), fg=Colors.MEDIUM)
-        self.__parent = parent
+                          justify="left",
+                          pady=0,
+                          wraplength=700)
 
 
 class Text(tk.Label):
@@ -298,9 +308,9 @@ class Text(tk.Label):
 
     def __init__(self, parent, text_, color_):
         tk.Label.__init__(self, parent, text=text_, fg=color_,
-                          wraplength=700, bg=parent.cget("bg"),
-                          font=("Helvetica", 10))
-        self.__parent = parent
+                          bg=parent.cget("bg"),
+                          font=("Helvetica", 10),
+                          wraplength=700)
 
 
 class ErrorMessage(tk.Label):
@@ -312,10 +322,11 @@ class ErrorMessage(tk.Label):
     """
 
     def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, fg=Colors.ERROR,
-                          wraplength=500, bg=parent.cget("bg"),
-                          font=("Helvetica", 10))
-        self.__parent = parent
+        tk.Label.__init__(self, parent, text=text_,
+                          bg=parent.cget("bg"),
+                          fg=Colors.ERROR,
+                          font=("Helvetica", 10),
+                          wraplength=500)
 
 
 # classic buttons
@@ -340,33 +351,47 @@ class BranchSelectionButton(tk.Button):
         self.__parent = parent
 
 
+class BreadcrumbButton(tk.Label):
+    def __init__(self, parent, i):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"))
+        self.__i = i
+        self.__empty = ImageImporter.load("bread_empty")
+        self.__filled = ImageImporter.load("bread_" + str(i))
+        self.refresh(0)
+
+    def refresh(self, n):
+        if self.__i <= n + 1:
+            self.config(image=self.__filled)
+        else:
+            self.config(image=self.__empty)
+
+
 class NavButton(tk.Button):
     """Standard layout for 'previous'- & 'next'-button.
 
     Attributes:
         parent (Frame): frame that contains this button
-        highlighted (bool): different, highlighted style when true
     """
 
     def __init__(self, parent):
         tk.Button.__init__(self, parent,
-                           borderwidth=0,
-                           cursor="hand2", relief="flat",
+                           activebackground=parent.cget("bg"),
                            bg=parent.cget("bg"),
-                           activebackground=parent.cget("bg"))
-        self.__parent = parent
-        self.__results_img = ImageImporter.get("nav_RESULTS")
-        self.__next_img = ImageImporter.get("nav_NEXT")
-        self.__back_img = ImageImporter.get("nav_BACK")
+                           borderwidth=0,
+                           cursor="hand2",
+                           relief="flat")
+        self.__back_img = ImageImporter.load("nav_BACK")
+        self.__next_img = ImageImporter.load("nav_NEXT")
+        self.__results_img = ImageImporter.load("nav_RESULTS")
 
-    def show_results_text(self):
-        self.config(image=self.__results_img)
+    def show_back_text(self):
+        self.config(image=self.__back_img)
 
     def show_next_text(self):
         self.config(image=self.__next_img)
 
-    def show_back_text(self):
-        self.config(image=self.__back_img)
+    def show_results_text(self):
+        self.config(image=self.__results_img)
 
 
 class SortButton(tk.Button):
@@ -375,21 +400,24 @@ class SortButton(tk.Button):
     Attributes:
         parent (Frame): frame that contains this button
         text_ (str): button text, usually 'alphabetically' or 'by category'
-        command_: button command
     """
 
-    def __init__(self, parent, text_, command_):
-        tk.Button.__init__(self, parent, text=text_, command=command_,
-                           borderwidth=0, padx=14,
-                           cursor="hand2", relief="flat",
-                           font="-size 10",
-                           bg=parent.cget("bg"),
+    def __init__(self, parent, text_):
+        tk.Button.__init__(self, parent, text=text_,
                            activebackground=parent.cget("bg"),
-                           fg=Colors.MEDIUM, activeforeground=Colors.DARK)
-        self.__parent = parent
+                           activeforeground=Colors.DARK,
+                           bg=parent.cget("bg"),
+                           borderwidth=0,
+                           cursor="hand2",
+                           fg=Colors.MEDIUM,
+                           font="-size 10",
+                           padx=14,
+                           relief="flat")
+        self.bind("<Return>", lambda x: parent.sort())
+        self.config(command=lambda: parent.sort())
 
-    def change_text(self, text_):
-        self.config(text=text_)
+    def change_text(self, new_text):
+        self.config(text=new_text)
 
 
 class TabButton(tk.Button):
@@ -410,8 +438,8 @@ class TabButton(tk.Button):
 
 # user interaction widgets
 
-class MultiSelectable(tk.Button):
-    """Multi select button / selectable text.
+class Selectable(tk.Button):
+    """Selectable text.
 
     Attributes:
         parent (Frame): frame that contains this button
@@ -419,75 +447,75 @@ class MultiSelectable(tk.Button):
     """
 
     def __init__(self, parent, text_):
-        tk.Button.__init__(self, parent, text=text_, borderwidth=0,
-                           cursor="hand2", relief="flat", compound="center",
-                           font="-size 11",
-                           bg=parent.cget("bg"),
+        tk.Button.__init__(self, parent, text=text_,
                            activebackground=parent.cget("bg"),
-                           activeforeground=Colors.MEDIUM)
-        self.__parent = parent
+                           activeforeground=Colors.MEDIUM,
+                           bg=parent.cget("bg"),
+                           borderwidth=0,
+                           compound="center",
+                           cursor="hand2",
+                           font="-size 11",
+                           relief="flat")
         self.__text = text_
-        self.__selected = False
-        self.__normal_img = ImageImporter.get("selectable")
-        self.__selected_img = ImageImporter.get("selectable_SELECTED")
-        self.set_button_style()
-        self.config(command=lambda: self.change_selection())
-        self.bind("<Return>", lambda x: self.change_selection())
+        self.__normal_img = ImageImporter.load("selectable")
+        self.__selected_img = ImageImporter.load("selectable_SELECTED")
 
-    def change_selection(self):
-        self.__selected = not self.__selected
-        self.set_button_style()
+        self.config(command=lambda: self.select())
+        self.bind("<Return>", lambda x: self.select())
 
-    def set_button_style(self):
-        if self.__selected:
-            self.config(image=self.__selected_img, fg=Colors.LIGHT)
-        else:
-            self.config(image=self.__normal_img, fg=Colors.WHITE)
-
-    def is_selected(self):
-        return self.__selected
+        self.mark_unselected()
 
     def get_label(self):
         return self.__text
 
+    def mark_selected(self):
+        self.config(image=self.__selected_img, fg=Colors.LIGHT)
 
-class Option(tk.Button):
-    """Button / selectable text. Only one option can be selected at a time.
+    def mark_unselected(self):
+        self.config(image=self.__normal_img, fg=Colors.WHITE)
+
+    def select(self):
+        self.mark_selected()
+
+
+class MultiSelectable(Selectable):
+    """Selectable: more than one element can be selected.
 
     Attributes:
-        parent (Frame): frame that contains this button
+        parent (Frame): frame that contains this selectable
+        text_ (str): displayed text
+    """
+
+    def __init__(self, parent, text_):
+        Selectable.__init__(self, parent, text_)
+        self.__selected = False
+
+    def is_selected(self):
+        return self.__selected
+
+    def select(self):
+        if self.__selected:
+            self.mark_unselected()
+        else:
+            self.mark_selected()
+        self.__selected = not self.__selected
+
+
+class Option(Selectable):
+    """Selectable: Only one element can be selected at a time.
+
+    Attributes:
+        parent (Frame): frame that contains this selectable
         text_ (str): displayed text
         object_ (any with 'selected' attribute): object that offers this option
     """
 
     def __init__(self, parent, text_, object_):
-        tk.Button.__init__(self, parent, text=text_,
-                           borderwidth=0, width=135,
-                           cursor="hand2", relief="flat", compound="center",
-                           font="-size 11",
-                           bg=parent.cget("bg"),
-                           activebackground=parent.cget("bg"),
-                           activeforeground=Colors.MEDIUM)
-        self.__parent = parent
-        self.__text = text_
+        Selectable.__init__(self, parent, text_)
         self.__object = object_
-        self.__normal_img = ImageImporter.get("selectable")
-        self.__selected_img = ImageImporter.get("selectable_SELECTED")
-        self.mark_unselected()
-        self.config(command=lambda: self.select())
-        self.bind("<Return>", lambda x: self.select())
 
     def select(self):
-        self.__object.select(self.__text)
-
-    def mark_unselected(self):
-        self.config(image=self.__normal_img, fg=Colors.WHITE)
-
-    def mark_selected(self):
-        self.config(image=self.__selected_img, fg=Colors.LIGHT)
-
-    def get_label(self):
-        return self.__text
+        self.__object.select(self.get_label())
 
 
 class BigField(tk.Frame):
@@ -500,22 +528,19 @@ class BigField(tk.Frame):
     """
 
     def __init__(self, parent, name):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"),
-                          width=170, height=118)
-        self.__parent = parent
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
-        self.__selected_bg = ImageImporter.get("bigfield_SELECTED_" + name)
-        self.__error_bg = ImageImporter.get("bigfield_ERROR_" + name)
+        self.__selected_bg = ImageImporter.load("bigfield_SELECTED_" + name)
+        self.__error_bg = ImageImporter.load("bigfield_ERROR_" + name)
 
         self.__background_label = tk.Label(self, bg=self.cget("bg"))
-        self.__background_label.place(x=0, y=0, relwidth=1, relheight=1)
-        self.pack_propagate(0)
+        self.__background_label.grid(row=0, column=0)
 
         self.__entry = tk.Entry(self, width=3, borderwidth=0, insertwidth=2,
                                 relief="flat", justify="center",
                                 font="-size 38",
                                 bg=Colors.SHADOW, fg=Colors.TEXT)
-        self.__entry.pack(pady=30)
+        self.__entry.grid(row=0, column=0)
         self.mark_valid()
 
     def get_input(self):
@@ -546,11 +571,10 @@ class SmallField(tk.Frame):
     def __init__(self, parent, text_):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"),
                           width=95, height=91)
-        self.__parent = parent
         self.__text = text_
 
-        self.__bg_image = ImageImporter.get("smallfield")
-        self.__error_bg_image = ImageImporter.get("smallfield_ERROR")
+        self.__bg_image = ImageImporter.load("smallfield")
+        self.__error_bg_image = ImageImporter.load("smallfield_ERROR")
 
         self.__background_label = tk.Label(self, bg=self.cget("bg"),
                                            image=self.__bg_image)
@@ -603,6 +627,6 @@ class Colors:
 
 class ImageImporter:
     @staticmethod
-    def get(image):
+    def load(image):
         from PIL import Image, ImageTk
         return ImageTk.PhotoImage(Image.open("res/" + image + ".png"))

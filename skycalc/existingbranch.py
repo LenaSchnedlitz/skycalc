@@ -3,17 +3,17 @@ import tkinter as tk
 import elements as elem
 
 
-class CharLevelSelection(tk.Frame):
+class CharLevelSelection(elem.View):
     """Frame where player levels (current and goal) are entered.
 
     Attributes:
         parent (Frame): frame that contains this frame
+        collector:
     """
 
-    def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.__parent = parent
-        self.__data = data
+    def __init__(self, parent, collector):
+        elem.View.__init__(self, parent, collector)
+        self.__collector = collector
 
         container = tk.Frame(self, bg=self.cget("bg"))
         container.pack(expand=True)
@@ -24,15 +24,15 @@ class CharLevelSelection(tk.Frame):
         self.__goal_level = elem.BigField(container, "goal")
         self.__goal_level.pack(side="left", padx=45)
 
-        # spacer
-        tk.Frame(self, height=50, bg=self.cget("bg")).pack(side="bottom")
+        spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
+        spacer.pack(side="bottom")
 
-    def remove_error_borders(self):
+    def mark_valid(self):
         self.__current_level.mark_valid()
         self.__goal_level.mark_valid()
 
     def can_use_input(self):
-        self.remove_error_borders()
+        self.mark_valid()
         valid = True
         try:
             goal = int(self.__goal_level.get_input())
@@ -47,7 +47,7 @@ class CharLevelSelection(tk.Frame):
         if not valid:
             return False
         if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
-            self.__data.set_char_levels((current, goal))
+            self.__collector.set_char_levels((current, goal))
             return True
         self.__goal_level.mark_invalid()
         self.__current_level.mark_invalid()
@@ -57,7 +57,7 @@ class CharLevelSelection(tk.Frame):
         self.__current_level.set_focus()
 
 
-class Skills(tk.Frame):
+class Skills(elem.View):
     """Default skill selection frame.
 
     Sorted by category.
@@ -65,43 +65,37 @@ class Skills(tk.Frame):
         parent (Frame): frame that contains this frame
     """
 
-    def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.__parent = parent
-        self.__data = data
-        self.__sorted_by_type = True
+    def __init__(self, parent, collector):
+        elem.View.__init__(self, parent, collector)
+        self.__collector = collector
 
-        self.__sort_button = elem.SortButton(self, "Sort alphabetically",
-                                             lambda: self.sort())
-        self.__sort_button.bind("<Return>", lambda x: self.sort())
+        self.__sorted_by_type = True
+        self.__sort_button = elem.SortButton(self, "Sort alphabetically")
         self.__sort_button.pack(anchor="ne")
 
-        container = tk.Frame(self, bg=parent.cget("bg"), padx=50, pady=0)
-        container.grid_columnconfigure(0, weight=1)
-        container.grid_columnconfigure(1, weight=1)
-        container.grid_columnconfigure(2, weight=1)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_rowconfigure(1, weight=1)
-        container.grid_rowconfigure(2, weight=1)
-        container.grid_rowconfigure(3, weight=1)
-        container.grid_rowconfigure(4, weight=1)
-        container.grid_rowconfigure(5, weight=1)
-        container.grid_rowconfigure(6, weight=1)
-        container.pack(fill="both", expand=True)
+        self.__container = self.build_skill_container()
+        self.__container.pack(fill="both", expand=True)
 
-        self.__type_headlines = self.build_headlines(container)
-        self.__skills = self.build_skills(container)
+        self.__headlines = self.build_headlines()
+        self.__skills = self.build_skills()
         self.sort_by_type()
 
-    @staticmethod
-    def build_headlines(container):
-        headlines = [elem.Headline(container, "Magic"),
-                     elem.Headline(container, "Combat"),
-                     elem.Headline(container, "Stealth")]
+    def build_skill_container(self):
+        container = tk.Frame(self, bg=self.cget("bg"), padx=50, pady=0)
+        for i in range(3):
+            container.grid_columnconfigure(i, weight=1)
+
+        for i in range(7):
+            container.grid_rowconfigure(6, weight=1)
+        return container
+
+    def build_headlines(self):
+        headlines = [elem.Headline(self.__container, "Magic"),
+                     elem.Headline(self.__container, "Combat"),
+                     elem.Headline(self.__container, "Stealth")]
         return headlines
 
-    @staticmethod
-    def build_skills(container):
+    def build_skills(self):
         skill_names = ("Illusion", "Conjuration", "Destruction",
                        "Restoration", "Alteration", "Enchanting",
 
@@ -113,18 +107,19 @@ class Skills(tk.Frame):
                        )
         skills = []
         for i in range(len(skill_names)):
-            skills.append(elem.MultiSelectable(container, skill_names[i]))
+            skills.append(
+                elem.MultiSelectable(self.__container, skill_names[i]))
         return skills
 
     def sort_by_type(self):
-        for i in range(len(self.__type_headlines)):
-            self.__type_headlines[i].grid(row=0, column=i)
+        for i in range(len(self.__headlines)):
+            self.__headlines[i].grid(row=0, column=i)
 
         row_ = 1
         column_ = 0
         for skill in self.__skills:
             skill.grid(row=row_, column=column_, pady=3)
-            skill.tkraise()
+            skill.tkraise()  # for tabbing
             if row_ == 6:
                 row_ = 1
                 column_ += 1
@@ -132,8 +127,9 @@ class Skills(tk.Frame):
                 row_ += 1
 
     def sort_by_name(self):
-        for headline in self.__type_headlines:
+        for headline in self.__headlines:
             headline.grid_forget()
+
         sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
@@ -164,28 +160,21 @@ class Skills(tk.Frame):
         if not self.__sorted_by_type:
             selected = sorted(selected)
         if len(selected) > 0:
-            self.__data.set_selected_skills(selected)
+            self.__collector.set_selected_skills(selected)
             return True
         return False
 
-    def update(self):
-        pass  # needed for view manager
 
-    def set_focus(self):
-        self.focus_set()
-
-
-class SkillLevelSelection(tk.Frame):
+class SkillLevelSelection(elem.View):
     """Frame where skill levels are entered.
 
     Attributes:
         parent (Frame): frame that contains this frame
     """
 
-    def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-        self.__parent = parent
-        self.__data = data
+    def __init__(self, parent, collector):
+        elem.View.__init__(self, parent, collector)
+        self.__collector = collector
 
         self.__container = tk.Frame(self, bg=parent.cget("bg"))
         self.__container.grid_rowconfigure(0, weight=1)
@@ -230,14 +219,17 @@ class SkillLevelSelection(tk.Frame):
             else:
                 skill.mark_invalid()
                 return False
-        self.__data.set_skill_levels(skill_levels)
+        self.__collector.set_skill_levels(skill_levels)
         return True
+
+    def set_focus(self):
+        self.__selected_skills[0].set_focus()
 
     def update(self):
         for child in self.__container.winfo_children():
             child.destroy()
         self.__selected_skills = []
-        for skill in self.__data.selected_skills:
+        for skill in self.__collector.selected_skills:
             self.__selected_skills.append(
                 elem.SmallField(self.__container, skill))
         row_ = 0
@@ -251,9 +243,6 @@ class SkillLevelSelection(tk.Frame):
                 row_ += 1
             else:
                 column_ += 1
-
-    def set_focus(self):
-        self.__selected_skills[0].set_focus()
 
 
 def build_content():
