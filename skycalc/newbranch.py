@@ -9,12 +9,12 @@ class Races(elem.View):
     Sorted by category.
     Attributes:
         parent (Frame): frame that contains this frame
-        collector:
+
     """
 
-    def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
-        self.__collector = collector
+    def __init__(self, parent, validator):
+        elem.View.__init__(self, parent)
+        self.__validator = validator
 
         self.__selected = ""
 
@@ -108,10 +108,7 @@ class Races(elem.View):
                 race.mark_unselected()  # deselect all other options
 
     def can_use_input(self):
-        if self.__selected == "":
-            return False
-        self.__collector.set_race(self.__selected)
-        return True
+        self.__validator.set_race(self.__selected)
 
 
 class Skills(elem.View):
@@ -120,12 +117,11 @@ class Skills(elem.View):
     Sorted by category.
     Attributes:
         parent (Frame): frame that contains this frame
-        collector:
     """
 
-    def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
-        self.__collector = collector
+    def __init__(self, parent, validator):
+        elem.View.__init__(self, parent)
+        self.__validator = validator
 
         self.__sorted_by_type = True
         self.__sort_button = elem.SortButton(self, "Sort alphabetically")
@@ -215,11 +211,7 @@ class Skills(elem.View):
         for skill in self.__skills:
             if skill.is_selected():
                 selected.append(skill.get_label())
-        if len(selected) > 0:
-            self.__collector.set_selected_skills(selected)
-            self.__collector.generate_selected_skill_levels()
-            return True
-        return False
+        self.__validator.set_selected_skills(selected)
 
 
 class GoalLevelSelection(elem.View):
@@ -227,12 +219,12 @@ class GoalLevelSelection(elem.View):
 
     Attributes:
         parent (Frame): frame that contains this frame
-        collector:
+
     """
 
-    def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
-        self.__collector = collector
+    def __init__(self, parent, validator):
+        elem.View.__init__(self, parent)
+        self.__validator = validator
 
         self.__goal_level = elem.BigField(self, "goal")
         self.__goal_level.pack(expand=True)
@@ -241,16 +233,7 @@ class GoalLevelSelection(elem.View):
         spacer.pack(side="bottom")
 
     def can_use_input(self):
-        try:
-            goal = int(self.__goal_level.get_input())
-        except ValueError:
-            self.__goal_level.mark_invalid()
-            return False
-        if 1 < goal < 300:  # arbitrary cap (must be >= 252)
-            self.__collector.set_char_levels((1, goal))  # new char has lvl 1
-            return True
-        self.__goal_level.mark_invalid()
-        return False
+        self.__validator.set_goal(self.__goal_level.get_input())
 
     def set_focus(self):
         self.__goal_level.set_focus()
@@ -263,16 +246,13 @@ def build_content():
     content = (
         {"View": Races,
          "Title": "Races",
-         "Instruction": "Select your character race:",
-         "Error": "Please select a race."},
+         "Instruction": "Select your character race:"},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Which skills would you like to train? Please select:",
-         "Error": "You need to select at least one skill."},
+         "Instruction": "Which skills would you like to train? Please select:"},
         {"View": GoalLevelSelection,
          "Title": "Level",
-         "Instruction": "What's your goal level?",
-         "Error": "Invalid level."}
+         "Instruction": "What's your goal level?"}
     )
     return content
 
@@ -281,5 +261,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     elem.configure_window(root)
     view_manager = elem.ViewManager(root, build_content())
-    view_manager.pack(fill="both", expand=True)
     root.mainloop()

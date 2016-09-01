@@ -1,15 +1,19 @@
-class DataObject:
+class Collector:
     def __init__(self):
         self.race = ""
         self.char_levels = []
         self.selected_skills = []
         self.skill_levels = {}
 
+        self.__now = None
+        self.__goal = None
+
     def set_race(self, race):
         self.race = race
 
-    def set_char_levels(self, char_levels):
-        self.char_levels = char_levels
+    def set_char_levels(self, now, goal):
+        self.__now = now
+        self.__goal = goal
 
     def set_selected_skills(self, skills):
         self.selected_skills = skills
@@ -229,8 +233,66 @@ class DataObject:
         }
 
 
+class InputValidator:
+    def __init__(self):
+        self.__collector = Collector()
+        self.selected_skills = []
+
+    def set_race(self, race):
+        if race in self.__collector.get_race_skills_info():
+            self.__collector.set_race(race)
+        else:
+            raise Exception("You need to select a race.")
+
+    def set_selected_skills(self, skills):
+        if len(skills) > 0:
+            self.__collector.set_selected_skills(skills)
+            self.__collector.generate_selected_skill_levels()
+        else:
+            raise Exception("Please select at least one skill.")
+
+    def set_goal(self, level):
+        try:
+            level = int(level)
+        except ValueError:
+            raise Exception("Your goal level should be a number.")
+
+        if 1 < level < 300:  # arbitrary cap (must be >= 252)
+            self.__collector.set_char_levels(1, level)  # new char has lvl 1
+        else:
+            raise Exception("Invalid goal level.")
+
+    def set_char_levels(self, now, goal):
+        try:
+            now = int(now)
+            if not self.is_valid(now):
+                raise Exception("Invalid character level")
+        except ValueError:
+            raise Exception("Invalid character level")
+        try:
+            goal = int(goal)
+            if not self.is_valid(goal):
+                raise Exception("Invalid character level")
+        except ValueError:
+            raise Exception("Invalid goal level")
+        if goal <= now:
+            raise Exception("Invalid levels")
+        self.__collector.set_char_levels(now, goal)
+
+    @staticmethod
+    def is_valid(level):
+        return 0 < level < 300  # arbitrary cap, >= 252
+
+    def set_skills(self, skills):
+        if len(skills) > 0:
+            self.__collector.set_selected_skills(skills)
+            self.selected_skills = skills
+        else:
+            raise Exception("Please select at least one skill.")
+
+
 class Calculator:
-    def __init__(self, data: DataObject):
+    def __init__(self, data: Collector):
         self.current_xp = data.char_levels[0]
         self.goal_xp = data.char_levels[1]
         self.needed_xp = self.calculate_needed_xp()

@@ -12,7 +12,7 @@ class CharLevelSelection(elem.View):
     """
 
     def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
+        elem.View.__init__(self, parent)
         self.__collector = collector
 
         container = tk.Frame(self, bg=self.cget("bg"))
@@ -27,34 +27,17 @@ class CharLevelSelection(elem.View):
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
         spacer.pack(side="bottom")
 
-    def mark_valid(self):
-        self.__current_level.mark_valid()
-        self.__goal_level.mark_valid()
-
     def can_use_input(self):
-        self.mark_valid()
-        valid = True
-        try:
-            goal = int(self.__goal_level.get_input())
-        except ValueError:
-            self.__goal_level.mark_invalid()
-            valid = False
-        try:
-            current = int(self.__current_level.get_input())
-        except ValueError:
-            self.__current_level.mark_invalid()
-            valid = False
-        if not valid:
-            return False
-        if 0 < current < goal and 0 < goal < 300:  # arbitrary cap, >= 252
-            self.__collector.set_char_levels((current, goal))
-            return True
-        self.__goal_level.mark_invalid()
-        self.__current_level.mark_invalid()
-        return False
+        self.update()
+        self.__collector.set_char_levels(self.__current_level.get_input(),
+                                         self.__goal_level.get_input())
 
     def set_focus(self):
         self.__current_level.set_focus()
+
+    def update(self):
+        self.__current_level.mark_valid()
+        self.__goal_level.mark_valid()
 
 
 class Skills(elem.View):
@@ -66,8 +49,8 @@ class Skills(elem.View):
     """
 
     def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
-        self.__collector = collector
+        elem.View.__init__(self, parent)
+        self.__validator = collector
 
         self.__sorted_by_type = True
         self.__sort_button = elem.SortButton(self, "Sort alphabetically")
@@ -159,10 +142,7 @@ class Skills(elem.View):
                 selected.append(skill.get_label())
         if not self.__sorted_by_type:
             selected = sorted(selected)
-        if len(selected) > 0:
-            self.__collector.set_selected_skills(selected)
-            return True
-        return False
+        self.__validator.set_skills(selected)
 
 
 class SkillLevelSelection(elem.View):
@@ -173,10 +153,10 @@ class SkillLevelSelection(elem.View):
     """
 
     def __init__(self, parent, collector):
-        elem.View.__init__(self, parent, collector)
+        elem.View.__init__(self, parent)
         self.__collector = collector
 
-        self.__container = tk.Frame(self, bg=parent.cget("bg"))
+        self.__container = tk.Frame(self, bg=self.cget("bg"))
         self.__container.grid_rowconfigure(0, weight=1)
         self.__container.grid_rowconfigure(1, weight=1)
         self.__container.grid_rowconfigure(2, weight=1)
@@ -250,16 +230,14 @@ def build_content():
         {"View": CharLevelSelection,
          "Title": "Levels",
          "Instruction": "Enter the level of your character and the level you "
-                        "would like to reach:",
-         "Error": "Invalid input."},
+                        "would like to reach:"},
         {"View": Skills,
          "Title": "Skills",
-         "Instruction": "Which skills would you like to train? Please select:",
-         "Error": "You need to select at least one skill."},
+         "Instruction": "Which skills would you like to train? Please "
+                        "select:"},
         {"View": SkillLevelSelection,
          "Title": "Skill Levels",
-         "Instruction": "Enter your current skill levels below:",
-         "Error": "Skill levels are numbers between 15 and 100."}
+         "Instruction": "Enter your current skill levels below:"}
     )
     return content
 
@@ -268,5 +246,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     elem.configure_window(root)
     view_manager = elem.ViewManager(root, build_content())
-    view_manager.pack(fill="both", expand=True)
     root.mainloop()

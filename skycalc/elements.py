@@ -21,111 +21,111 @@ def configure_window(self):
     self.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
 
 
-class ViewManager(tk.Frame):
+class ViewManager:
     """Contain and manage all views of a branch.
 
     Attributes:
-        parent (Tk): window that contains this frame
+        root (Tk): window that contains this frame
         content: tuple with a dictionary for each view
     """
 
     def __init__(self, root, content):
-        tk.Frame.__init__(self, root, bg=Colors.BG)
         self.__root = root
-        self.__content = content
-        self.__data = calc.DataObject()
+        self.__collector = calc.InputValidator()
+        self.__n = len(content)
         self.__i = 0  # number of current view/page
 
-        self.__breadcrumbs = Breadcrumbs(self.__root, len(self.__content))
-        self.__breadcrumbs.pack(fill="x")
-        self.__header = self.build_header()
-        self.__view_container = self.build_view_container()
-        self.__views = self.build_views()
-        self.raise_view()
-        self.__footer = self.build_footer()
-        self.update_footer()
+        self.__elements = self.build_window_elements(content)
 
-    def build_header(self):
-        header = Header(self.__root, self.__content[self.__i]["Title"],
-                        self.__content[self.__i]["Instruction"],
-                        len(self.__content))
-        header.pack(fill="x")
-        return header
+        self.update_content()
 
-    def build_footer(self):
-        footer = Footer(self.__root, self)
-        footer.pack(fill="x", side="bottom")
-        return footer
+    def build_window_elements(self, content):
+        breadcrumbs = Breadcrumbs(self.__root, len(content))
+        header = Header(self.__root,
+                        [v["Title"] for v in content],
+                        [v["Instruction"] for v in content])
+        view_container = ViewContainer(self.__root,
+                                       [v["View"] for v in content],
+                                       self.__collector)
+        footer = Footer(self.__root, self, len(content))
+        return breadcrumbs, header, view_container, footer
 
-    def build_view_container(self):
-        container = tk.Frame(self.__root)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-        container.pack(fill="both", expand=True)
-        return container
+    def update_content(self):
+        for element in self.__elements:
+            element.refresh(self.__i)
 
-    def build_views(self):
-        views = []
-        for i in range(len(self.__content)):
-            view = self.__content[i]["View"](self.__view_container,
-                                             self.__data)
-            views.append(view)
-            view.grid(row=0, column=0, sticky="nsew")
-        return views
-
-    def raise_view(self):
-        view = self.__views[self.__i]
-        view.tkraise()
-        view.set_focus()
-
-    def update(self):
-        self.__breadcrumbs.refresh(self.__i)
-        self.update_header()
-        self.raise_view()
-        self.update_footer()
-
-    def update_header(self):
-        self.__header.change_text(self.__content[self.__i]["Title"],
-                                  self.__content[self.__i]["Instruction"])
-
-    def update_footer(self):
-        self.__footer.clear_error_message()
-        if self.__i == len(self.__content) - 1:
-            self.__footer.show_results_text()
-        else:
-            self.__footer.show_next_text()
+    def destroy_content(self):
+        for element in self.__elements:
+            element.destroy()
 
     def show_next(self):
-        view = self.__views[self.__i]
-        if view.can_use_input():
-            if self.__i + 1 < len(self.__content):
+        try:
+            self.__elements[2].use_input(self.__i)
+            if self.__i + 1 < self.__n:
                 self.__i += 1
-                self.__views[self.__i].update()  # update next view
-                self.update()  # update view manager
+                self.update_content()
             else:
                 import results as r
-                r.Results(self.__root, calc.Calculator(self.__data)).pack(
+                r.Results(self.__root, calc.Calculator(self.__collector)).pack(
                     fill="both", expand=True)
-                self.destroy()
-        else:
-            self.__footer.show_error_message(self.__content[self.__i]["Error"])
+                self.destroy_content()
+        except Exception as e:
+            for element in self.__elements:
+                element.show_error(e)
 
     def show_prev(self):
         if self.__i - 1 >= 0:
             self.__i -= 1
-            self.update()
+            self.update_content()
         else:
             import start as s
             s.Start(self.__root).pack(fill="both", expand=True)
-            self.destroy()
+            self.destroy_content()
+
+
+class View(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
+
+        self.grid(row=0, column=0, sticky="nsew")
+
+    def set_focus(self):
+        self.focus_set()
+
+    def show_error(self):
+        pass
+
+    def update(self):
+        pass
 
 
 class WindowElement(tk.Frame):
+    """Standard element packed in a window. Packs automatically!
+
+    Attributes:
+        root: a window element's parent
+    """
+
     def __init__(self, root):
         tk.Frame.__init__(self, root, bg=Colors.BG)
 
+        self.pack(fill="x")
+
+    def refresh(self, i=0):
+        self.update()
+
+    def show_error(self, message):
+        pass  # expected method
+
 
 class Breadcrumbs(WindowElement):
+    """Displays progress by highlighting completed stages.
+
+    Attributes:
+        root: parent window
+        n (int): number of stages
+    """
+
     def __init__(self, root, n):
         WindowElement.__init__(self, root)
 
@@ -137,64 +137,94 @@ class Breadcrumbs(WindowElement):
         self.__points = []
 
         for i in range(n):
-            point = BreadcrumbButton(container, i + 1)
+            point = BreadcrumbButton(container, i + 1)  # count starts with 1
             self.__points.append(point)
             point.pack(side="left")
             if i + 1 < n:
                 tk.Label(container, bg=self.cget("bg"),
                          image=self.__line_img).pack(side="left")
 
-    def refresh(self, n):
+    def refresh(self, i=0):
         for point in self.__points:
-            point.refresh(n)
+            point.refresh(i)
 
 
 class Header(WindowElement):
-    """Header with breadcrumbs, title and instruction.
+    """Displays a title and an instruction.
 
     Attributes:
-        manager (ViewManager): contains and manages the header
-        title (str): title text
-        instruction (str): smaller instruction text
+        root: parent window
+        titles (str array): array with all titles
+        instructions (str array): array with all instructions
     """
 
-    def __init__(self, root, title, instruction, n):
+    def __init__(self, root, titles, instructions):
         WindowElement.__init__(self, root)
 
-        self.__title = ViewName(self, title)
+        self.__titles = titles
+        self.__instructions = instructions
+
+        self.__title = ViewName(self, titles[0])
         self.__title.pack(fill="x", expand=True, padx="15")
 
-        self.__text = Instruction(self, instruction)
+        self.__text = Instruction(self, instructions[0])
         self.__text.pack(fill="x", expand=True, padx="16")
 
-    def change_text(self, title, instruction):
-        self.__title.config(text=title)
-        self.__text.config(text=instruction)
+    def refresh(self, i=0):
+        self.__title.config(text=self.__titles[i])
+        self.__text.config(text=self.__instructions[i])
 
 
-class View(WindowElement):
-    def __init__(self, parent, collector):
-        WindowElement.__init__(self, parent)
-        self.__collector = collector
+class ViewContainer(WindowElement):
+    """Displays the current view.
 
-    def set_focus(self):
-        self.focus_set()
+    Attributes:
+        root: parent window
+        view_types (View array): array with all available view types
+        collector (InputCollector): collects input data
+    """
 
-    def update(self):
-        pass
+    def __init__(self, root, view_types, collector):
+        WindowElement.__init__(self, root)
+
+        self.__views = []
+        for type_ in view_types:
+            self.__views.append(type_(self, collector))
+
+        self.refresh()
+
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.pack_configure(fill="both", expand=True)
+
+    def refresh(self, i=0):
+        view = self.__views[i]
+        view.update()
+        view.tkraise()
+        view.set_focus()
+
+    def use_input(self, i):
+        view = self.__views[i]
+        try:
+            view.can_use_input()
+        except Exception as e:
+            raise e
 
 
 class Footer(WindowElement):
-    """Footer containing a 'previous'- and a 'next'-button.
+    """Displays two NavButtons ('Back' and 'Next') and error messages.
 
     Attributes:
-        manager (ViewManager): contains and manages the footer
+        root: parent window
+        manager (ViewManager): a view manager
+        n (int): number of stages
     """
 
-    def __init__(self, parent, manager: ViewManager):
-        WindowElement.__init__(self, parent)
-        self.__parent = parent
+    def __init__(self, root, manager, n):
+        WindowElement.__init__(self, root)
+        self.__root = root
         self.__manager = manager
+        self.__n = n
 
         self.__right = NavButton(self)
         self.__right.config(command=lambda: self.show_next())
@@ -211,6 +241,15 @@ class Footer(WindowElement):
         self.__error_message = ErrorMessage(self, "")
         self.__error_message.pack(side="left", expand=True, fill="both")
 
+        self.pack_configure(side="bottom")
+
+    def refresh(self, i=0):
+        self.clear_error_message()
+        if i == self.__n - 1:
+            self.show_results_text()
+        else:
+            self.show_next_text()
+
     def show_next(self):
         self.__manager.show_next()
 
@@ -223,11 +262,11 @@ class Footer(WindowElement):
     def show_next_text(self):
         self.__right.show_next_text()
 
-    def show_error_message(self, message):
+    def show_error(self, message):
         self.__error_message.config(text=message)
 
     def clear_error_message(self):
-        self.show_error_message("")
+        self.show_error("")
 
 
 # different kinds of text
@@ -357,10 +396,10 @@ class BreadcrumbButton(tk.Label):
         self.__i = i
         self.__empty = ImageImporter.load("bread_empty")
         self.__filled = ImageImporter.load("bread_" + str(i))
-        self.refresh(0)
+        self.refresh()
 
-    def refresh(self, n):
-        if self.__i <= n + 1:
+    def refresh(self, n=0):
+        if self.__i <= n + 1:  # 'n + 1' because count starts with 1
             self.config(image=self.__filled)
         else:
             self.config(image=self.__empty)
