@@ -1,11 +1,13 @@
+"""Views and Window Elements."""
+
 import tkinter as tk
 
 import components as comp
 
 
-# Window Elements
+# Elements
 
-class WindowElement(tk.Frame):
+class Element(tk.Frame):
     """Standard element packed in a window. Packs automatically!
 
     Attributes:
@@ -24,7 +26,7 @@ class WindowElement(tk.Frame):
         pass  # expected method
 
 
-class Breadcrumbs(WindowElement):
+class Breadcrumbs(Element):
     """Displays progress by highlighting completed stages.
 
     Attributes:
@@ -33,30 +35,27 @@ class Breadcrumbs(WindowElement):
     """
 
     def __init__(self, root, n):
-        WindowElement.__init__(self, root)
-
-        container = tk.Frame(self, bg=self.cget("bg"))
-        container.pack(expand=True, pady=10)
+        Element.__init__(self, root)
 
         self.__line_img = comp.ImageImporter.load("bread_line")
-
         self.__points = []
 
+        container = tk.Frame(self, bg=self.cget("bg"))
         for i in range(n):
-            point = comp.BreadcrumbButton(container,
-                                          i + 1)  # count starts with 1
+            point = comp.BreadcrumbButton(container, i + 1)  # starts with 1
             self.__points.append(point)
             point.pack(side="left")
             if i + 1 < n:
                 tk.Label(container, bg=self.cget("bg"),
                          image=self.__line_img).pack(side="left")
+        container.pack(expand=True, pady=10)
 
     def refresh(self, i=0):
         for point in self.__points:
             point.refresh(i)
 
 
-class Footer(WindowElement):
+class Footer(Element):
     """Displays two NavButtons ('Back' and 'Next') and error messages.
 
     Attributes:
@@ -66,7 +65,7 @@ class Footer(WindowElement):
     """
 
     def __init__(self, root, manager, n):
-        WindowElement.__init__(self, root)
+        Element.__init__(self, root)
         self.__root = root
         self.__manager = manager
         self.__n = n
@@ -114,7 +113,7 @@ class Footer(WindowElement):
         self.show_error("")
 
 
-class Header(WindowElement):
+class Header(Element):
     """Displays a title and an instruction.
 
     Attributes:
@@ -124,7 +123,7 @@ class Header(WindowElement):
     """
 
     def __init__(self, root, titles, instructions):
-        WindowElement.__init__(self, root)
+        Element.__init__(self, root)
 
         self.__titles = titles
         self.__instructions = instructions
@@ -188,17 +187,17 @@ class Results(tk.Frame):
         return tab
 
 
-class Start(WindowElement):
+class Start(Element):
     """Welcome screen
 
     Choose between two buttons, 'NEW' and 'EXISTING'
     Attributes:
-        parent (Tk): window that contains this frame
+        parent (Tk): window that contains this element
     """
 
-    def __init__(self, parent):
-        WindowElement.__init__(self, parent)
-        self.__parent = parent
+    def __init__(self, parent, manager):
+        Element.__init__(self, parent)
+        self.__manager = manager
 
         img = tk.PhotoImage(file="res/skyrim.gif")
         label = tk.Label(self, image=img, bg=self.cget("bg"))
@@ -215,48 +214,46 @@ class Start(WindowElement):
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)
         new_ = comp.BranchSelectionButton(button_container, "NEW",
-                                          lambda: self.start_new())
-        new_.bind("<Return>", lambda x: self.start_new())
+                                          lambda: self.__start_new())
+        new_.bind("<Return>", lambda x: self.__start_new())
         new_.pack(side="left", padx=5)
         ex_ = comp.BranchSelectionButton(button_container, "EXISTING",
-                                         lambda: self.start_ex())
-        ex_.bind("<Return>", lambda x: self.start_ex())
+                                         lambda: self.__start_ex())
+        ex_.bind("<Return>", lambda x: self.__start_ex())
         ex_.pack(side="right", padx=5)
 
         self.pack(fill="both", expand=True)
 
-    def start_new(self):
-        import main as m
-        m.ViewManager(self.__parent, build_new_content())
-        self.destroy()
+    def __start_new(self):
+        self.__manager.show_new_branch()
 
-    def start_ex(self):
-        import main as m
-        m.ViewManager(self.__parent, build_existing_content())
-        self.destroy()
+    def __start_ex(self):
+        self.__manager.show_existing_branch()
 
 
-class ViewContainer(WindowElement):
+class ViewContainer(Element):
     """Displays the current view.
 
     Attributes:
         root: parent window
         view_types (View array): array with all available view types
-        collector (InputCollector): collects input data
     """
 
-    def __init__(self, root, view_types, collector):
-        WindowElement.__init__(self, root)
+    def __init__(self, root, view_types):
+        Element.__init__(self, root)
+        
+        from calculator import Collector
+        self.__collector = Collector()
 
         self.__views = []
         for type_ in view_types:
-            self.__views.append(type_(self, collector))
-
-        self.refresh()
+            self.__views.append(type_(self, self.__collector))
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.pack_configure(fill="both", expand=True)
+
+        self.refresh()
 
     def refresh(self, i=0):
         view = self.__views[i]
@@ -275,6 +272,11 @@ class ViewContainer(WindowElement):
 # Views
 
 class View(tk.Frame):
+    """Standard View.
+
+    Attributes:
+        parent (Frame): frame that contains this view
+    """
     def __init__(self, parent: tk.Frame):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
@@ -646,34 +648,37 @@ class Skills(View):
         self.__validator.set_selected_skills(selected)
 
 
-def build_new_content():
-    content = (
-        {"View": Races,
-         "Title": "Races",
-         "Instruction": "Select your character race:"},
-        {"View": Skills,
-         "Title": "Skills",
-         "Instruction": "Which skills would you like to train? Please "
-                        "select:"},
-        {"View": GoalLevelSelection,
-         "Title": "Level",
-         "Instruction": "What's your goal level?"}
-    )
-    return content
+# Data
 
+class ViewInfo:
+    @staticmethod
+    def get_existing_char_content():
+        return (
+            {"View": CharLevelSelection,
+             "Title": "Levels",
+             "Instruction": "Enter the level of your character and the level "
+                            "you "
+                            "would like to reach:"},
+            {"View": Skills,
+             "Title": "Skills",
+             "Instruction": "Which skills would you like to train? Please "
+                            "select:"},
+            {"View": SkillLevelSelection,
+             "Title": "Skill Levels",
+             "Instruction": "Enter your current skill levels below:"}
+        )
 
-def build_existing_content():
-    content = (
-        {"View": CharLevelSelection,
-         "Title": "Levels",
-         "Instruction": "Enter the level of your character and the level you "
-                        "would like to reach:"},
-        {"View": Skills,
-         "Title": "Skills",
-         "Instruction": "Which skills would you like to train? Please "
-                        "select:"},
-        {"View": SkillLevelSelection,
-         "Title": "Skill Levels",
-         "Instruction": "Enter your current skill levels below:"}
-    )
-    return content
+    @staticmethod
+    def get_new_char_content():
+        return (
+            {"View": Races,
+             "Title": "Races",
+             "Instruction": "Select your character race:"},
+            {"View": Skills,
+             "Title": "Skills",
+             "Instruction": "Which skills would you like to train? Please "
+                            "select:"},
+            {"View": GoalLevelSelection,
+             "Title": "Level",
+             "Instruction": "What's your goal level?"}
+        )

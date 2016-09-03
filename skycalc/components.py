@@ -1,8 +1,6 @@
-"""Templates for most GUI components (including view navigation)."""
+"""Templates for most GUI components."""
 
 import tkinter as tk
-
-import calculator as calc
 
 
 # different kinds of text

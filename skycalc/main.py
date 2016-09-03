@@ -1,57 +1,48 @@
 import tkinter as tk
 
-import windowelements as elem
-import calculator as calc
+import views as v
 
 
-class ViewManager:
-    """Contain and manage all views of a branch.
+class ViewNavigator:
+    """Manage all views of a branch.
 
     Attributes:
         root (Tk): window that contains this frame
         content: tuple with a dictionary for each view
     """
 
-    def __init__(self, root, content):
+    def __init__(self, root, content, manager):
         self.__root = root
-        self.__collector = calc.InputValidator()
+        self.__manager = manager
+
         self.__n = len(content)
         self.__i = 0  # number of current view/page
+        self.__elements = self.__build_window_elements(content)
 
-        self.__elements = self.build_window_elements(content)
+        self.__update_content()
 
-        self.update_content()
-
-    def build_window_elements(self, content):
-        breadcrumbs = elem.Breadcrumbs(self.__root, len(content))
-        header = elem.Header(self.__root,
-                             [v["Title"] for v in content],
-                             [v["Instruction"] for v in content])
-        view_container = elem.ViewContainer(self.__root,
-                                            [v["View"] for v in content],
-                                            self.__collector)
-        footer = elem.Footer(self.__root, self, len(content))
+    def __build_window_elements(self, content):
+        breadcrumbs = v.Breadcrumbs(self.__root, len(content))
+        header = v.Header(self.__root,
+                          [entry["Title"] for entry in content],
+                          [entry["Instruction"] for entry in content])
+        view_container = v.ViewContainer(self.__root,
+                                         [entry["View"] for entry in content])
+        footer = v.Footer(self.__root, self, len(content))
         return breadcrumbs, header, view_container, footer
 
-    def update_content(self):
+    def __update_content(self):
         for element in self.__elements:
             element.refresh(self.__i)
-
-    def destroy_content(self):
-        for element in self.__elements:
-            element.destroy()
 
     def show_next(self):
         try:
             self.__elements[2].use_input(self.__i)
             if self.__i + 1 < self.__n:
                 self.__i += 1
-                self.update_content()
+                self.__update_content()
             else:
-                elem.Results(self.__root,
-                             calc.Calculator(self.__collector)).pack(
-                    fill="both", expand=True)
-                self.destroy_content()
+                self.__manager.show_results()
         except Exception as e:
             for element in self.__elements:
                 element.show_error(e)
@@ -59,30 +50,53 @@ class ViewManager:
     def show_prev(self):
         if self.__i - 1 >= 0:
             self.__i -= 1
-            self.update_content()
+            self.__update_content()
         else:
-            elem.Start(self.__root).pack(fill="both", expand=True)
-            self.destroy_content()
+            self.__manager.show_start()
 
 
-def configure_window(self):
-    """Set window title, size, minsize and position"""
+class GuiManager:
+    def __init__(self, root):
+        self.__root = root
 
-    self.iconbitmap("res/Skyrim.ico")
+        self.show_start()
+        self.__configure_window()
 
-    self.title("Skyrim Calculator")
+    def show_existing_branch(self):
+        self.__destroy_all_elements()
+        ViewNavigator(self.__root, v.ViewInfo.get_existing_char_content(),
+                      self)
 
-    width = 800
-    height = 600
-    self.minsize(width, height)
+    def show_new_branch(self):
+        self.__destroy_all_elements()
+        ViewNavigator(self.__root, v.ViewInfo.get_new_char_content(), self)
 
-    x_pos = (self.winfo_screenwidth() - width) / 2
-    y_pos = (self.winfo_screenheight() - height) / 2
-    self.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
+    def show_start(self):
+        self.__destroy_all_elements()
+        v.Start(self.__root, self)
+
+    def show_results(self):
+        self.__destroy_all_elements()
+
+    def __configure_window(self):
+        self.__root.iconbitmap("res/Skyrim.ico")
+        self.__root.title("Skyrim Calculator")
+
+        width = 800
+        height = 600
+        self.__root.minsize(width, height)
+
+        # place in screen center
+        x_pos = (self.__root.winfo_screenwidth() - width) / 2
+        y_pos = (self.__root.winfo_screenheight() - height) / 2
+        self.__root.geometry("%dx%d+%d+%d" % (width, height, x_pos, y_pos))
+
+    def __destroy_all_elements(self):
+        for child in self.__root.winfo_children():
+            child.destroy()
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    configure_window(root)
-    content = elem.Start(root)
-    root.mainloop()
+    __root = tk.Tk()
+    GuiManager(__root)
+    __root.mainloop()
