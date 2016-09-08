@@ -240,18 +240,18 @@ class Selectable(tk.Button):
         self.config(command=lambda: self.select())
         self.bind("<Return>", lambda x: self.select())
 
-        self.__mark_unselected()
+        self.mark_unselected()
 
     def get_label(self):
         return self.__text
 
     def select(self):
-        self.__mark_selected()
+        self.mark_selected()
 
-    def __mark_selected(self):
+    def mark_selected(self):
         self.config(image=self.__selected_img, fg=Colors.LIGHT)
 
-    def __mark_unselected(self):
+    def mark_unselected(self):
         self.config(image=self.__normal_img, fg=Colors.WHITE)
 
 
@@ -272,9 +272,9 @@ class MultiSelectable(Selectable):
 
     def select(self):
         if self.__selected:
-            self.__mark_unselected()
+            self.mark_unselected()
         else:
-            self.__mark_selected()
+            self.mark_selected()
         self.__selected = not self.__selected
 
 

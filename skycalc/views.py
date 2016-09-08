@@ -243,8 +243,8 @@ class ViewContainer(Element):
     def __init__(self, root, view_types):
         Element.__init__(self, root)
 
-        from calculation import DataCollector
-        self.__collector = DataCollector()
+        from calculation import InputCollector
+        self.__collector = InputCollector()
 
         self.__views = []
         for type_ in view_types:
@@ -264,10 +264,7 @@ class ViewContainer(Element):
 
     def use_input(self, i):
         view = self.__views[i]
-        try:
-            view.can_use_input()
-        except Exception as e:
-            raise e
+        view.collect_input()
 
 
 # Views
@@ -364,7 +361,8 @@ class GoalLevel(View):
     def collect_input(self):
         self.update()
         try:
-            self.__collector.set_char_levels(goal=self.__goal_level.get_input())
+            self.__collector.set_char_levels(
+                goal=self.__goal_level.get_input())
         except ValidationException as e:
             self.__show_errors(e.get_errors())
             raise e
@@ -430,9 +428,10 @@ class Races(View):
                 race.mark_unselected()  # deselect all other options
 
     def __build_headlines(self):
-        headlines = [comp.Headline(self.__container, "Human"),
-                     comp.Headline(self.__container, "Mer"),
-                     comp.Headline(self.__container, "Beast")]
+        from calculation import GameData
+        headlines = []
+        for word in GameData.RACE_TYPES:
+            headlines.append(comp.Headline(self.__container, word))
         return headlines
 
     def __build_race_container(self):
@@ -445,12 +444,9 @@ class Races(View):
         return container
 
     def __build_races(self):
-        race_names = ("Breton", "Nord", "Imperial", "Redguard",
-                      "Altmer", "Bosmer", "Dunmer", "Orc",
-                      "Argonian", "Khajiit"
-                      )
+        from calculation import GameData
         races = []
-        for name in race_names:
+        for name in GameData.RACE_NAMES:
             races.append(comp.Option(self.__container, name, self))
         return races
 
@@ -555,7 +551,7 @@ class SkillLevels(View):
         for child in self.__container.winfo_children():
             child.destroy()
         self.__skills = []
-        for skill in self.__collector.selected_skills:
+        for skill in self.__collector.get_selected_skills():
             self.__skills.append(
                 comp.SmallField(self.__container, skill))
         row_ = 0
@@ -629,9 +625,10 @@ class Skills(View):
             self.__sorted_by_type = True
 
     def __build_headlines(self):
-        headlines = [comp.Headline(self.__container, "Magic"),
-                     comp.Headline(self.__container, "Combat"),
-                     comp.Headline(self.__container, "Stealth")]
+        from calculation import GameData
+        headlines = []
+        for word in GameData.SKILL_TYPES:
+            headlines.append(comp.Headline(self.__container, word))
         return headlines
 
     def __build_skill_container(self):
@@ -644,19 +641,10 @@ class Skills(View):
         return container
 
     def __build_skills(self):
-        skill_names = ("Illusion", "Conjuration", "Destruction",
-                       "Restoration", "Alteration", "Enchanting",
-
-                       "Smithing", "Heavy Armor", "Block",
-                       "Two-handed", "One-handed", "Archery",
-
-                       "Light Armor", "Sneak", "Lockpicking",
-                       "Pickpocket", "Speech", "Alchemy"
-                       )
+        from calculation import GameData
         skills = []
-        for i in range(len(skill_names)):
-            skills.append(
-                comp.MultiSelectable(self.__container, skill_names[i]))
+        for name in GameData.SKILL_NAMES:
+            skills.append(comp.MultiSelectable(self.__container, name))
         return skills
 
     def __sort_by_name(self):
