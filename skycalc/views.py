@@ -3,6 +3,7 @@
 import tkinter as tk
 
 import components as comp
+from calculation import ValidationException
 
 
 # Elements
@@ -56,7 +57,7 @@ class Breadcrumbs(Element):
 
 
 class Footer(Element):
-    """Displays two NavButtons ('Back' and 'Next') and error messages.
+    """Displays two NavButtons and error messages.
 
     Attributes:
         root: parent window
@@ -88,7 +89,7 @@ class Footer(Element):
         self.pack_configure(side="bottom")
 
     def refresh(self, i=0):
-        self.clear_error_message()
+        self.__clear_error_message()
         if i == self.__n - 1:
             self.show_results_text()
         else:
@@ -97,19 +98,19 @@ class Footer(Element):
     def show_next(self):
         self.__manager.show_next()
 
+    def show_next_text(self):
+        self.__right.show_next_text()
+
     def show_prev(self):
         self.__manager.show_prev()
 
     def show_results_text(self):
         self.__right.show_results_text()
 
-    def show_next_text(self):
-        self.__right.show_next_text()
-
     def show_error(self, message):
         self.__error_message.config(text=message)
 
-    def clear_error_message(self):
+    def __clear_error_message(self):
         self.show_error("")
 
 
@@ -241,9 +242,9 @@ class ViewContainer(Element):
 
     def __init__(self, root, view_types):
         Element.__init__(self, root)
-        
-        from calculator import Collector
-        self.__collector = Collector()
+
+        from calculation import DataCollector
+        self.__collector = DataCollector()
 
         self.__views = []
         for type_ in view_types:
@@ -277,27 +278,28 @@ class View(tk.Frame):
     Attributes:
         parent (Frame): frame that contains this view
     """
+
     def __init__(self, parent: tk.Frame):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
         self.grid(row=0, column=0, sticky="nsew")
 
+    def collect_input(self):
+        pass  # expected
+
     def set_focus(self):
         self.focus_set()
 
-    def show_error(self):
-        pass
-
     def update(self):
-        pass
+        pass  # expected
 
 
-class CharLevelSelection(View):
+class CharLevels(View):
     """Frame where player levels (current and goal) are entered.
 
     Attributes:
         parent (Frame): frame that contains this frame
-        collector:
+        collector: object that collects input data
     """
 
     def __init__(self, parent, collector):
@@ -316,10 +318,15 @@ class CharLevelSelection(View):
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
         spacer.pack(side="bottom")
 
-    def can_use_input(self):
+    def collect_input(self):
         self.update()
-        self.__collector.set_char_levels(self.__current_level.get_input(),
-                                         self.__goal_level.get_input())
+        try:
+            self.__collector.set_char_levels(
+                now=self.__current_level.get_input(),
+                goal=self.__goal_level.get_input())
+        except ValidationException as e:
+            self.__show_errors(e.get_errors())
+            raise e
 
     def set_focus(self):
         self.__current_level.set_focus()
@@ -328,18 +335,25 @@ class CharLevelSelection(View):
         self.__current_level.mark_valid()
         self.__goal_level.mark_valid()
 
+    def __show_errors(self, errors):
+        for error in errors:
+            if error == "goal":
+                self.__goal_level.mark_invalid()
+            elif error == "now":
+                self.__current_level.mark_invalid()
 
-class GoalLevelSelection(View):
-    """Frame where goal level is entered.
+
+class GoalLevel(View):
+    """Frame where a goal level is entered.
 
     Attributes:
         parent (Frame): frame that contains this frame
-
+        collector: object that collects input data
     """
 
-    def __init__(self, parent, validator):
+    def __init__(self, parent, collector):
         View.__init__(self, parent)
-        self.__validator = validator
+        self.__collector = collector
 
         self.__goal_level = comp.BigField(self, "goal")
         self.__goal_level.pack(expand=True)
@@ -347,43 +361,81 @@ class GoalLevelSelection(View):
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
         spacer.pack(side="bottom")
 
-    def can_use_input(self):
-        self.__validator.set_goal(self.__goal_level.get_input())
+    def collect_input(self):
+        self.update()
+        try:
+            self.__collector.set_char_levels(goal=self.__goal_level.get_input())
+        except ValidationException as e:
+            self.__show_errors(e.get_errors())
+            raise e
 
     def set_focus(self):
         self.__goal_level.set_focus()
 
     def update(self):
-        self.__goal_level.mark_valid()  # remove error highlight
+        self.__goal_level.mark_valid()
+
+    def __show_errors(self, errors):
+        for error in errors:
+            if error == "goal":
+                self.__goal_level.mark_invalid()
 
 
 class Races(View):
     """Default race selection frame.
 
-    Sorted by category.
+    Can be sorted by type or by name.
     Attributes:
         parent (Frame): frame that contains this frame
-
+        collector: object that collects input data
     """
 
-    def __init__(self, parent, validator):
+    def __init__(self, parent, collector):
         View.__init__(self, parent)
-        self.__validator = validator
+        self.__collector = collector
 
-        self.__selected = ""
+        self.__selected = ""  # selected race
 
         self.__sorted_by_type = True
         self.__sort_button = comp.SortButton(self, "Sort alphabetically")
         self.__sort_button.pack(anchor="ne")
 
-        self.__container = self.build_race_container()
+        self.__container = self.__build_race_container()
         self.__container.pack(fill="both", expand=True)
 
-        self.__headlines = self.build_headlines()
-        self.__races = self.build_races()
-        self.sort_by_type()
+        self.__headlines = self.__build_headlines()
+        self.__races = self.__build_races()
+        self.__sort_by_type()
 
-    def build_race_container(self):
+    def collect_input(self):
+        self.update()
+        self.__collector.set_race(self.__selected)
+
+    def sort(self):
+        if self.__sorted_by_type:
+            self.__sort_by_name()
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
+        else:
+            self.__sort_by_type()
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
+
+    def select(self, selection):
+        self.__selected = selection
+        for race in self.__races:
+            if race.get_label() == selection:
+                race.mark_selected()  # select clicked option
+            else:
+                race.mark_unselected()  # deselect all other options
+
+    def __build_headlines(self):
+        headlines = [comp.Headline(self.__container, "Human"),
+                     comp.Headline(self.__container, "Mer"),
+                     comp.Headline(self.__container, "Beast")]
+        return headlines
+
+    def __build_race_container(self):
         container = tk.Frame(self, bg=self.cget("bg"), padx=50, pady=20)
         for i in range(3):
             container.grid_columnconfigure(i, weight=1)
@@ -392,13 +444,7 @@ class Races(View):
             container.grid_rowconfigure(i, weight=1)
         return container
 
-    def build_headlines(self):
-        headlines = [comp.Headline(self.__container, "Human"),
-                     comp.Headline(self.__container, "Mer"),
-                     comp.Headline(self.__container, "Beast")]
-        return headlines
-
-    def build_races(self):
+    def __build_races(self):
         race_names = ("Breton", "Nord", "Imperial", "Redguard",
                       "Altmer", "Bosmer", "Dunmer", "Orc",
                       "Argonian", "Khajiit"
@@ -408,24 +454,7 @@ class Races(View):
             races.append(comp.Option(self.__container, name, self))
         return races
 
-    def sort_by_type(self):
-        self.__container.grid_columnconfigure(2, weight=1)  # set column scale
-
-        for i in range(len(self.__headlines)):
-            self.__headlines[i].grid(row=0, column=i)
-
-        row_ = 1
-        column_ = 0
-        for race in self.__races:
-            race.grid(row=row_, column=column_)
-            race.tkraise()  # for expected tabbing order
-            if row_ == 4:
-                row_ = 1
-                column_ += 1
-            else:
-                row_ += 1
-
-    def sort_by_name(self):
+    def __sort_by_name(self):
         self.__container.grid_columnconfigure(2, weight=0)  # set column scale
 
         for headline in self.__headlines:
@@ -443,33 +472,30 @@ class Races(View):
             else:
                 row_ += 1
 
-    def sort(self):
-        if self.__sorted_by_type:
-            self.sort_by_name()
-            self.__sort_button.change_text("Sort by type")
-            self.__sorted_by_type = False
-        else:
-            self.sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
-            self.__sorted_by_type = True
+    def __sort_by_type(self):
+        self.__container.grid_columnconfigure(2, weight=1)  # set column scale
 
-    def select(self, selection):
-        self.__selected = selection
+        for i in range(len(self.__headlines)):
+            self.__headlines[i].grid(row=0, column=i)
+
+        row_ = 1
+        column_ = 0
         for race in self.__races:
-            if race.get_label() == selection:
-                race.mark_selected()  # select clicked option
+            race.grid(row=row_, column=column_)
+            race.tkraise()  # for expected tabbing order
+            if row_ == 4:
+                row_ = 1
+                column_ += 1
             else:
-                race.mark_unselected()  # deselect all other options
-
-    def can_use_input(self):
-        self.__validator.set_race(self.__selected)
+                row_ += 1
 
 
-class SkillLevelSelection(View):
+class SkillLevels(View):
     """Frame where skill levels are entered.
 
     Attributes:
         parent (Frame): frame that contains this frame
+        collector: object that collects input data
     """
 
     def __init__(self, parent, collector):
@@ -482,7 +508,30 @@ class SkillLevelSelection(View):
         self.__container.grid_rowconfigure(2, weight=1)
         self.__container.pack(fill="both", expand=True, padx=50, pady=50)
 
-        self.__selected_skills = []
+        self.__skills = []
+
+    def collect_input(self):
+        self.update()
+        skill_levels = {}
+        for skill in self.__skills:
+
+            try:
+                level = int(skill.get_input())
+            except ValueError:
+                skill.mark_invalid()
+                return False
+            if 15 <= level <= 100:
+                skill_levels[skill.get_label()] = level
+            else:
+                skill.mark_invalid()
+                return False
+
+            skill_levels[skill.get_label()] = level
+        try:
+            self.__collector.set_skill_levels(skill_levels)
+        except ValidationException as e:
+            self.__show_errors(e.get_errors())
+            raise e
 
     @staticmethod
     def get_max_column(n):
@@ -499,44 +548,21 @@ class SkillLevelSelection(View):
         else:
             return 5
 
-    def make_columns_grow(self, n):
-        for i in range(6):
-            self.__container.grid_columnconfigure(i, weight=0)  # reset
-        for i in range(n + 1):
-            self.__container.grid_columnconfigure(i, weight=1)  # set
-
-    def can_use_input(self):
-        skill_levels = {}
-        for skill in self.__selected_skills:
-            skill.mark_valid()  # reset error border
-            try:
-                level = int(skill.get_input())
-            except ValueError:
-                skill.mark_invalid()
-                return False
-            if 15 <= level <= 100:
-                skill_levels[skill.get_label()] = level
-            else:
-                skill.mark_invalid()
-                return False
-        self.__collector.set_skill_levels(skill_levels)
-        return True
-
     def set_focus(self):
-        self.__selected_skills[0].set_focus()
+        self.__skills[0].set_focus()
 
     def update(self):
         for child in self.__container.winfo_children():
             child.destroy()
-        self.__selected_skills = []
+        self.__skills = []
         for skill in self.__collector.selected_skills:
-            self.__selected_skills.append(
+            self.__skills.append(
                 comp.SmallField(self.__container, skill))
         row_ = 0
         column_ = 0
-        max_ = self.get_max_column(len(self.__selected_skills))
-        self.make_columns_grow(max_)
-        for skill in self.__selected_skills:
+        max_ = self.get_max_column(len(self.__skills))
+        self.__make_columns_grow(max_)
+        for skill in self.__skills:
             skill.grid(row=row_, column=column_, padx=5, pady=10)
             if column_ == max_:
                 column_ = 0
@@ -544,31 +570,71 @@ class SkillLevelSelection(View):
             else:
                 column_ += 1
 
+    def __make_columns_grow(self, n):
+        for i in range(6):
+            self.__container.grid_columnconfigure(i, weight=0)  # reset
+        for i in range(n + 1):
+            self.__container.grid_columnconfigure(i, weight=1)  # set
+
+    def __show_errors(self, errors):
+        first_invalid = None
+        for i in range(len(self.__skills)):
+            if i in errors:
+                self.__skills[i].mark_invalid()
+                if first_invalid is None:
+                    first_invalid = self.__skills[i]
+        first_invalid.set_focus()
+
 
 class Skills(View):
     """Default skill selection frame.
 
-    Sorted by category.
+    Can be sorted by category or alphabetically
     Attributes:
         parent (Frame): frame that contains this frame
+        collector: object that collects input data
     """
 
-    def __init__(self, parent, validator):
+    def __init__(self, parent, collector):
         View.__init__(self, parent)
-        self.__validator = validator
+        self.__collector = collector
 
         self.__sorted_by_type = True
         self.__sort_button = comp.SortButton(self, "Sort alphabetically")
         self.__sort_button.pack(anchor="ne")
 
-        self.__container = self.build_skill_container()
+        self.__container = self.__build_skill_container()
         self.__container.pack(fill="both", expand=True)
 
-        self.__headlines = self.build_headlines()
-        self.__skills = self.build_skills()
-        self.sort_by_type()
+        self.__headlines = self.__build_headlines()
+        self.__skills = self.__build_skills()
 
-    def build_skill_container(self):
+        self.__sort_by_type()
+
+    def collect_input(self):
+        selected = []
+        for skill in self.__skills:
+            if skill.is_selected():
+                selected.append(skill.get_label())
+        self.__collector.set_selected_skills(selected)
+
+    def sort(self):
+        if self.__sorted_by_type:
+            self.__sort_by_name()
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
+        else:
+            self.__sort_by_type()
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
+
+    def __build_headlines(self):
+        headlines = [comp.Headline(self.__container, "Magic"),
+                     comp.Headline(self.__container, "Combat"),
+                     comp.Headline(self.__container, "Stealth")]
+        return headlines
+
+    def __build_skill_container(self):
         container = tk.Frame(self, bg=self.cget("bg"), padx=50, pady=20)
         for i in range(3):
             container.grid_columnconfigure(i, weight=1)
@@ -577,13 +643,7 @@ class Skills(View):
             container.grid_rowconfigure(i, weight=1)
         return container
 
-    def build_headlines(self):
-        headlines = [comp.Headline(self.__container, "Magic"),
-                     comp.Headline(self.__container, "Combat"),
-                     comp.Headline(self.__container, "Stealth")]
-        return headlines
-
-    def build_skills(self):
+    def __build_skills(self):
         skill_names = ("Illusion", "Conjuration", "Destruction",
                        "Restoration", "Alteration", "Enchanting",
 
@@ -599,22 +659,7 @@ class Skills(View):
                 comp.MultiSelectable(self.__container, skill_names[i]))
         return skills
 
-    def sort_by_type(self):
-        for i in range(len(self.__headlines)):
-            self.__headlines[i].grid(row=0, column=i)
-
-        row_ = 1
-        column_ = 0
-        for skill in self.__skills:
-            skill.grid(row=row_, column=column_)
-            skill.tkraise()  # for tabbing order
-            if row_ == 6:
-                row_ = 1
-                column_ += 1
-            else:
-                row_ += 1
-
-    def sort_by_name(self):
+    def __sort_by_name(self):
         for headline in self.__headlines:
             headline.grid_forget()
 
@@ -630,31 +675,29 @@ class Skills(View):
             else:
                 row_ += 1
 
-    def sort(self):
-        if self.__sorted_by_type:
-            self.sort_by_name()
-            self.__sort_button.change_text("Sort by type")
-            self.__sorted_by_type = False
-        else:
-            self.sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
-            self.__sorted_by_type = True
+    def __sort_by_type(self):
+        for i in range(len(self.__headlines)):
+            self.__headlines[i].grid(row=0, column=i)
 
-    def can_use_input(self):
-        selected = []
+        row_ = 1
+        column_ = 0
         for skill in self.__skills:
-            if skill.is_selected():
-                selected.append(skill.get_label())
-        self.__validator.set_selected_skills(selected)
+            skill.grid(row=row_, column=column_)
+            skill.tkraise()  # for tabbing order
+            if row_ == 6:
+                row_ = 1
+                column_ += 1
+            else:
+                row_ += 1
 
 
 # Data
 
-class ViewInfo:
+class Recipe:
     @staticmethod
     def get_existing_char_content():
         return (
-            {"View": CharLevelSelection,
+            {"View": CharLevels,
              "Title": "Levels",
              "Instruction": "Enter the level of your character and the level "
                             "you "
@@ -663,7 +706,7 @@ class ViewInfo:
              "Title": "Skills",
              "Instruction": "Which skills would you like to train? Please "
                             "select:"},
-            {"View": SkillLevelSelection,
+            {"View": SkillLevels,
              "Title": "Skill Levels",
              "Instruction": "Enter your current skill levels below:"}
         )
@@ -678,7 +721,7 @@ class ViewInfo:
              "Title": "Skills",
              "Instruction": "Which skills would you like to train? Please "
                             "select:"},
-            {"View": GoalLevelSelection,
+            {"View": GoalLevel,
              "Title": "Level",
              "Instruction": "What's your goal level?"}
         )

@@ -128,8 +128,10 @@ class BreadcrumbButton(tk.Label):
     def __init__(self, parent, i):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"))
         self.__i = i
+
         self.__empty = ImageImporter.load("bread_empty")
         self.__filled = ImageImporter.load("bread_" + str(i))
+
         self.refresh()
 
     def refresh(self, n=0):
@@ -156,6 +158,8 @@ class NavButton(tk.Button):
         self.__back_img = ImageImporter.load("nav_BACK")
         self.__next_img = ImageImporter.load("nav_NEXT")
         self.__results_img = ImageImporter.load("nav_RESULTS")
+
+        self.show_next_text()
 
     def show_back_text(self):
         self.config(image=self.__back_img)
@@ -194,7 +198,7 @@ class SortButton(tk.Button):
 
 
 class TabButton(tk.Button):
-    """Tab index button
+    """Tab index button.
 
     For results view
     Attributes:
@@ -236,23 +240,23 @@ class Selectable(tk.Button):
         self.config(command=lambda: self.select())
         self.bind("<Return>", lambda x: self.select())
 
-        self.mark_unselected()
+        self.__mark_unselected()
 
     def get_label(self):
         return self.__text
 
-    def mark_selected(self):
+    def select(self):
+        self.__mark_selected()
+
+    def __mark_selected(self):
         self.config(image=self.__selected_img, fg=Colors.LIGHT)
 
-    def mark_unselected(self):
+    def __mark_unselected(self):
         self.config(image=self.__normal_img, fg=Colors.WHITE)
-
-    def select(self):
-        self.mark_selected()
 
 
 class MultiSelectable(Selectable):
-    """Selectable: more than one element can be selected.
+    """Selectable; more than one element can be selected.
 
     Attributes:
         parent (Frame): frame that contains this selectable
@@ -268,14 +272,14 @@ class MultiSelectable(Selectable):
 
     def select(self):
         if self.__selected:
-            self.mark_unselected()
+            self.__mark_unselected()
         else:
-            self.mark_selected()
+            self.__mark_selected()
         self.__selected = not self.__selected
 
 
 class Option(Selectable):
-    """Selectable: Only one element can be selected at a time.
+    """Selectable; only one element can be selected at a time.
 
     Attributes:
         parent (Frame): frame that contains this selectable
@@ -314,13 +318,11 @@ class BigField(tk.Frame):
                                 font="-size 38",
                                 bg=Colors.SHADOW, fg=Colors.TEXT)
         self.__entry.grid(row=0, column=0)
+
         self.mark_valid()
 
     def get_input(self):
         return self.__entry.get()
-
-    def set_focus(self):
-        self.__entry.focus_set()
 
     def mark_invalid(self):
         self.__background_label.config(image=self.__error_bg)
@@ -330,6 +332,9 @@ class BigField(tk.Frame):
     def mark_valid(self):
         self.__background_label.config(image=self.__selected_bg)
         self.__entry.config(insertbackground=Colors.MEDIUM)
+
+    def set_focus(self):
+        self.__entry.focus_set()
 
 
 class SmallField(tk.Frame):

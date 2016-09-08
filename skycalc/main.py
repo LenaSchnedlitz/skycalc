@@ -64,19 +64,19 @@ class GuiManager:
 
     def show_existing_branch(self):
         self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.ViewInfo.get_existing_char_content(),
+        ViewNavigator(self.__root, v.Recipe.get_existing_char_content(),
                       self)
 
     def show_new_branch(self):
         self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.ViewInfo.get_new_char_content(), self)
+        ViewNavigator(self.__root, v.Recipe.get_new_char_content(), self)
+
+    def show_results(self):
+        self.__destroy_all_elements()
 
     def show_start(self):
         self.__destroy_all_elements()
         v.Start(self.__root, self)
-
-    def show_results(self):
-        self.__destroy_all_elements()
 
     def __configure_window(self):
         self.__root.iconbitmap("res/Skyrim.ico")
