@@ -27,7 +27,8 @@ class ViewNavigator:
         breadcrumbs = v.Breadcrumbs(self.__root, len(content))
         view_container = v.ViewContainer(self.__root,
                                          [entry["View"] for entry in content])
-        footer = v.Footer(self.__root, self, len(content))
+        footer = v.Footer(self.__root, self, len(content),
+                          [entry["Instruction"] for entry in content])
         return breadcrumbs, header, view_container, footer
 
     def __update_content(self):

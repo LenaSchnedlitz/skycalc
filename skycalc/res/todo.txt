@@ -1,7 +1,7 @@
 alle views perfektionieren:
 	* breadcrumbs
-	title
-	instructions
+	* title
+	* instructions
 	main:
 		* race
 		* skills
@@ -13,6 +13,10 @@ alle views perfektionieren:
 input:
 	validation
 	collector
+
+refac:
+	views
+	components
 
 if name is main:
 	calc
@@ -31,3 +35,5 @@ start erstellen
 breadcrumbs als buttons?
 icons statt headline?
 tooltips bei titles
+breadcrumbs in header
+start size

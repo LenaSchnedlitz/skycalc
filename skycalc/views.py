@@ -63,7 +63,7 @@ class Breadcrumbs(Element):
 
 
 class Footer(Element):
-    """Displays two NavButtons and error messages.
+    """Displays two NavButtons and messages.
 
     Attributes:
         root: parent window
@@ -71,11 +71,12 @@ class Footer(Element):
         n (int): number of stages
     """
 
-    def __init__(self, root, manager, n):
+    def __init__(self, root, manager, n, instructions):
         Element.__init__(self, root)
         self.__root = root
         self.__manager = manager
         self.__n = n
+        self.__instructions = instructions
 
         self.__right = w.NavButton(self)
         self.__right.config(command=lambda: self.__show_next())
@@ -89,13 +90,13 @@ class Footer(Element):
         self.__left.show_back_text()
         self.__left.pack(side="left", padx=10, pady=11)
 
-        self.__error_message = w.ErrorMessage(self, "")
-        self.__error_message.pack(side="left", expand=True, fill="both")
+        self.__message = w.Message(self, "")
+        self.__message.pack(side="left", expand=True, fill="both")
 
         self.pack_configure(side="bottom")
 
     def refresh(self, i=0):
-        self.__clear_error_message()
+        self.__clear_error_message(i)
         if i == self.__n - 1:
             self.show_results_text()
         else:
@@ -107,11 +108,11 @@ class Footer(Element):
     def show_results_text(self):
         self.__right.show_results_text()
 
-    def show_error(self, message):
-        self.__error_message.config(text=message)
+    def show_error(self, text):
+        self.__message.error(text)
 
-    def __clear_error_message(self):
-        self.show_error("")
+    def __clear_error_message(self, i):
+        self.__message.normal(self.__instructions[i])
 
     def __show_next(self):
         self.__manager.show_next()
@@ -713,22 +714,22 @@ class Recipe:
         {"View": CharLevels,
          "Title": "LEVELS",
          "Instruction": "Enter the level of your character and the level "
-                        "you would like to reach:"},
+                        "you would like to reach."},
         {"View": Skills,
          "Title": "SKILLS",
-         "Instruction": "Pick some skills you would like to train:"},
+         "Instruction": "Pick some skills you would like to train."},
         {"View": SkillLevels,
          "Title": "SKILL_LEVELS",
-         "Instruction": "Enter your current skill levels below:"}
+         "Instruction": "Enter your current skill levels below."}
     )
 
     NEW_CHAR = (
         {"View": Races,
          "Title": "RACES",
-         "Instruction": "Select your character race:"},
+         "Instruction": "Select your character race."},
         {"View": Skills,
          "Title": "SKILLS",
-         "Instruction": "Pick some skills you would like to train:"},
+         "Instruction": "Pick some skills you would like to train."},
         {"View": GoalLevel,
          "Title": "GOAL",
          "Instruction": "What's your goal level?"}

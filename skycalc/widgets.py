@@ -86,8 +86,8 @@ class Text(tk.Label):
                           wraplength=700)
 
 
-class ErrorMessage(tk.Label):
-    """Error Message.
+class Message(tk.Label):
+    """Message.
 
     Attributes:
         parent (Frame): frame that contains this text
@@ -95,11 +95,17 @@ class ErrorMessage(tk.Label):
     """
 
     def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_,
+        tk.Label.__init__(self, parent,
                           bg=parent.cget("bg"),
-                          fg=Colors.ERROR,
                           font=("Helvetica", 10),
                           wraplength=500)
+        self.normal(text_)
+
+    def error(self, new_text):
+        self.config(text=new_text, fg=Colors.ERROR)
+
+    def normal(self, new_text):
+        self.config(text=new_text, fg=Colors.DARK)
 
 
 # classic buttons
