@@ -22,10 +22,9 @@ class ViewNavigator:
         self.__update_content()
 
     def __build_window_elements(self, content):
-        breadcrumbs = v.Breadcrumbs(self.__root, len(content))
         header = v.Header(self.__root,
-                          [entry["Title"] for entry in content],
-                          [entry["Instruction"] for entry in content])
+                          [entry["Title"] for entry in content])
+        breadcrumbs = v.Breadcrumbs(self.__root, len(content))
         view_container = v.ViewContainer(self.__root,
                                          [entry["View"] for entry in content])
         footer = v.Footer(self.__root, self, len(content))
@@ -64,12 +63,11 @@ class GuiManager:
 
     def show_existing_branch(self):
         self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.Recipe.get_existing_char_content(),
-                      self)
+        ViewNavigator(self.__root, v.Recipe.EXISTING_CHAR, self)
 
     def show_new_branch(self):
         self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.Recipe.get_new_char_content(), self)
+        ViewNavigator(self.__root, v.Recipe.NEW_CHAR, self)
 
     def show_results(self):
         self.__destroy_all_elements()

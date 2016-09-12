@@ -2,7 +2,7 @@
 
 import tkinter as tk
 
-import components as comp
+import widgets as w
 from calculation import ValidationException
 
 
@@ -16,7 +16,7 @@ class Element(tk.Frame):
     """
 
     def __init__(self, root):
-        tk.Frame.__init__(self, root, bg=comp.Colors.BG)
+        tk.Frame.__init__(self, root, bg=w.Colors.BG)
 
         self.pack(fill="x")
 
@@ -38,18 +38,24 @@ class Breadcrumbs(Element):
     def __init__(self, root, n):
         Element.__init__(self, root)
 
-        self.__line_img = comp.ImageImporter.load("bread_line")
+        self.__start_img = w.ImageImporter.load("bread_START")
+        self.__end_img = w.ImageImporter.load("bread_END")
+
         self.__points = []
 
         container = tk.Frame(self, bg=self.cget("bg"))
+        container.pack(expand=True, pady=10)
+
+        tk.Label(container, bg=self.cget("bg"), borderwidth=0,
+                 image=self.__start_img).pack(side="left")
+
         for i in range(n):
-            point = comp.BreadcrumbButton(container, i + 1)  # starts with 1
+            point = w.BreadcrumbButton(container, i)
             self.__points.append(point)
             point.pack(side="left")
-            if i + 1 < n:
-                tk.Label(container, bg=self.cget("bg"),
-                         image=self.__line_img).pack(side="left")
-        container.pack(expand=True, pady=10)
+
+        tk.Label(container, bg=self.cget("bg"), borderwidth=0,
+                 image=self.__end_img).pack(side="left")
 
     def refresh(self, i=0):
         for point in self.__points:
@@ -71,19 +77,19 @@ class Footer(Element):
         self.__manager = manager
         self.__n = n
 
-        self.__right = comp.NavButton(self)
-        self.__right.config(command=lambda: self.show_next())
-        self.__right.bind("<Return>", lambda x: self.show_next())
+        self.__right = w.NavButton(self)
+        self.__right.config(command=lambda: self.__show_next())
+        self.__right.bind("<Return>", lambda x: self.__show_next())
         self.__right.show_next_text()
         self.__right.pack(side="right", padx=10, pady=11)
 
-        self.__left = comp.NavButton(self)
-        self.__left.config(command=lambda: self.show_prev())
-        self.__left.bind("<Return>", lambda x: self.show_prev())
+        self.__left = w.NavButton(self)
+        self.__left.config(command=lambda: self.__show_prev())
+        self.__left.bind("<Return>", lambda x: self.__show_prev())
         self.__left.show_back_text()
         self.__left.pack(side="left", padx=10, pady=11)
 
-        self.__error_message = comp.ErrorMessage(self, "")
+        self.__error_message = w.ErrorMessage(self, "")
         self.__error_message.pack(side="left", expand=True, fill="both")
 
         self.pack_configure(side="bottom")
@@ -95,14 +101,8 @@ class Footer(Element):
         else:
             self.show_next_text()
 
-    def show_next(self):
-        self.__manager.show_next()
-
     def show_next_text(self):
         self.__right.show_next_text()
-
-    def show_prev(self):
-        self.__manager.show_prev()
 
     def show_results_text(self):
         self.__right.show_results_text()
@@ -113,6 +113,12 @@ class Footer(Element):
     def __clear_error_message(self):
         self.show_error("")
 
+    def __show_next(self):
+        self.__manager.show_next()
+
+    def __show_prev(self):
+        self.__manager.show_prev()
+
 
 class Header(Element):
     """Displays a title and an instruction.
@@ -120,24 +126,27 @@ class Header(Element):
     Attributes:
         root: parent window
         titles (str array): array with all titles
-        instructions (str array): array with all instructions
     """
 
-    def __init__(self, root, titles, instructions):
+    def __init__(self, root, titles):
         Element.__init__(self, root)
 
         self.__titles = titles
-        self.__instructions = instructions
+        self.__elements = []
 
-        self.__title = comp.ViewName(self, titles[0])
-        self.__title.pack(fill="x", expand=True, padx="15")
+        container = tk.Frame(self, bg=self.cget("bg"))
+        container.pack(expand=True)
 
-        self.__text = comp.Instruction(self, instructions[0])
-        self.__text.pack(fill="x", expand=True, padx="16")
+        for title in self.__titles:
+            item = w.TitleItem(container, title)
+            item.pack(side="left")
+            self.__elements.append(item)
+
+        self.refresh()
 
     def refresh(self, i=0):
-        self.__title.config(text=self.__titles[i])
-        self.__text.config(text=self.__instructions[i])
+        for item in self.__elements:
+            item.refresh(self.__titles[i])
 
 
 class Results(tk.Frame):
@@ -153,7 +162,7 @@ class Results(tk.Frame):
         self.__parent = parent
         self.__calculator = calculator
 
-        comp.Title(self, "Results", "white").pack()
+        w.Title(self, "Results", "white").pack()
         sel_container = tk.Frame(self)
         sel_container.pack(expand=True)
 
@@ -169,19 +178,19 @@ class Results(tk.Frame):
         self.__balanced_tab = self.build_tab("Balanced method",
                                              calculator.get_balanced_results())
 
-        self.a = comp.TabButton(sel_container, "a tab",
-                                self.__fastest_tab).pack(side="left")
-        self.a = comp.TabButton(sel_container, "b tab",
-                                self.__easiest_tab).pack(side="left")
-        self.a = comp.TabButton(sel_container, "c tab",
-                                self.__balanced_tab).pack(side="left")
+        self.a = w.TabButton(sel_container, "a tab",
+                             self.__fastest_tab).pack(side="left")
+        self.a = w.TabButton(sel_container, "b tab",
+                             self.__easiest_tab).pack(side="left")
+        self.a = w.TabButton(sel_container, "c tab",
+                             self.__balanced_tab).pack(side="left")
 
     def build_tab(self, title, results):
         tab = tk.Frame(self.__tab_container)
         tab.grid(row=0, column=0, sticky="nsew")
-        comp.Headline(tab, title).pack()
+        w.Headline(tab, title).pack()
         for skill in results:
-            comp.Instruction(tab, skill + ":\nCurrent Level: " + str(
+            w.ViewInstruction(tab, skill + ":\nCurrent Level: " + str(
                 results[skill]["start"]) + "\nGoal Level: " + str(
                 results[skill]["end"]) + "\nMade legendary " + str(
                 results[skill]["legendary"]) + " times\n\n").pack()
@@ -205,21 +214,21 @@ class Start(Element):
         label.image = img
         label.pack()
 
-        comp.Title(self, "Welcome!", comp.Colors.WHITE).pack()
-        comp.Text(self,
+        w.Title(self, "Welcome!", w.Colors.WHITE).pack()
+        w.Text(self,
                   "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
                   "sed diam nonumy eirmod tempor invidunt ut labore et "
                   "dolore magna aliquyam erat, sed diam voluptua.",
-                  comp.Colors.LIGHT).pack()
+               w.Colors.LIGHT).pack()
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)
-        new_ = comp.BranchSelectionButton(button_container, "NEW",
-                                          lambda: self.__start_new())
+        new_ = w.BranchSelectionButton(button_container, "NEW",
+                                       lambda: self.__start_new())
         new_.bind("<Return>", lambda x: self.__start_new())
         new_.pack(side="left", padx=5)
-        ex_ = comp.BranchSelectionButton(button_container, "EXISTING",
-                                         lambda: self.__start_ex())
+        ex_ = w.BranchSelectionButton(button_container, "EXISTING",
+                                      lambda: self.__start_ex())
         ex_.bind("<Return>", lambda x: self.__start_ex())
         ex_.pack(side="right", padx=5)
 
@@ -306,10 +315,10 @@ class CharLevels(View):
         container = tk.Frame(self, bg=self.cget("bg"))
         container.pack(expand=True)
 
-        self.__current_level = comp.BigField(container, "now")
+        self.__current_level = w.BigField(container, "now")
         self.__current_level.pack(side="left", padx=45)
 
-        self.__goal_level = comp.BigField(container, "goal")
+        self.__goal_level = w.BigField(container, "goal")
         self.__goal_level.pack(side="left", padx=45)
 
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
@@ -352,7 +361,7 @@ class GoalLevel(View):
         View.__init__(self, parent)
         self.__collector = collector
 
-        self.__goal_level = comp.BigField(self, "goal")
+        self.__goal_level = w.BigField(self, "goal")
         self.__goal_level.pack(expand=True)
 
         spacer = tk.Frame(self, height=50, bg=self.cget("bg"))
@@ -395,12 +404,13 @@ class Races(View):
         self.__selected = ""  # selected race
 
         self.__sorted_by_type = True
-        self.__sort_button = comp.SortButton(self, "Sort alphabetically")
+        self.__sort_button = w.SortButton(self, "Sort alphabetically")
         self.__sort_button.pack(anchor="ne")
 
         self.__container = self.__build_race_container()
         self.__container.pack(fill="both", expand=True)
 
+        self.__headline_images = self.__build_headline_images()
         self.__headlines = self.__build_headlines()
         self.__races = self.__build_races()
         self.__sort_by_type()
@@ -427,11 +437,20 @@ class Races(View):
             else:
                 race.mark_unselected()  # deselect all other options
 
-    def __build_headlines(self):
+    def __build_headline_images(self):
         from calculation import GameData
-        headlines = []
+        headline_images = []
         for word in GameData.RACE_TYPES:
-            headlines.append(comp.Headline(self.__container, word))
+            headline_images.append(w.ImageImporter.load("headline_" + word))
+        return headline_images
+
+    def __build_headlines(self):
+        headlines = []
+        for image in self.__headline_images:
+            headlines.append(tk.Label(self.__container,
+                                      bg=self.cget("bg"),
+                                      borderwidth=0,
+                                      image=image))
         return headlines
 
     def __build_race_container(self):
@@ -447,7 +466,7 @@ class Races(View):
         from calculation import GameData
         races = []
         for name in GameData.RACE_NAMES:
-            races.append(comp.Option(self.__container, name, self))
+            races.append(w.Option(self.__container, name, self))
         return races
 
     def __sort_by_name(self):
@@ -553,7 +572,7 @@ class SkillLevels(View):
         self.__skills = []
         for skill in self.__collector.get_selected_skills():
             self.__skills.append(
-                comp.SmallField(self.__container, skill))
+                w.SmallField(self.__container, skill))
         row_ = 0
         column_ = 0
         max_ = self.get_max_column(len(self.__skills))
@@ -596,12 +615,13 @@ class Skills(View):
         self.__collector = collector
 
         self.__sorted_by_type = True
-        self.__sort_button = comp.SortButton(self, "Sort alphabetically")
+        self.__sort_button = w.SortButton(self, "Sort alphabetically")
         self.__sort_button.pack(anchor="ne")
 
         self.__container = self.__build_skill_container()
         self.__container.pack(fill="both", expand=True)
 
+        self.__headline_images = self.__build_headline_images()
         self.__headlines = self.__build_headlines()
         self.__skills = self.__build_skills()
 
@@ -624,11 +644,20 @@ class Skills(View):
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
-    def __build_headlines(self):
+    def __build_headline_images(self):
         from calculation import GameData
-        headlines = []
+        headline_images = []
         for word in GameData.SKILL_TYPES:
-            headlines.append(comp.Headline(self.__container, word))
+            headline_images.append(w.ImageImporter.load("headline_" + word))
+        return headline_images
+
+    def __build_headlines(self):
+        headlines = []
+        for image in self.__headline_images:
+            headlines.append(tk.Label(self.__container,
+                                      bg=self.cget("bg"),
+                                      borderwidth=0,
+                                      image=image))
         return headlines
 
     def __build_skill_container(self):
@@ -644,7 +673,7 @@ class Skills(View):
         from calculation import GameData
         skills = []
         for name in GameData.SKILL_NAMES:
-            skills.append(comp.MultiSelectable(self.__container, name))
+            skills.append(w.MultiSelectable(self.__container, name))
         return skills
 
     def __sort_by_name(self):
@@ -679,37 +708,28 @@ class Skills(View):
                 row_ += 1
 
 
-# Data
-
 class Recipe:
-    @staticmethod
-    def get_existing_char_content():
-        return (
-            {"View": CharLevels,
-             "Title": "Levels",
-             "Instruction": "Enter the level of your character and the level "
-                            "you "
-                            "would like to reach:"},
-            {"View": Skills,
-             "Title": "Skills",
-             "Instruction": "Which skills would you like to train? Please "
-                            "select:"},
-            {"View": SkillLevels,
-             "Title": "Skill Levels",
-             "Instruction": "Enter your current skill levels below:"}
-        )
+    EXISTING_CHAR = (
+        {"View": CharLevels,
+         "Title": "LEVELS",
+         "Instruction": "Enter the level of your character and the level "
+                        "you would like to reach:"},
+        {"View": Skills,
+         "Title": "SKILLS",
+         "Instruction": "Pick some skills you would like to train:"},
+        {"View": SkillLevels,
+         "Title": "SKILL_LEVELS",
+         "Instruction": "Enter your current skill levels below:"}
+    )
 
-    @staticmethod
-    def get_new_char_content():
-        return (
-            {"View": Races,
-             "Title": "Races",
-             "Instruction": "Select your character race:"},
-            {"View": Skills,
-             "Title": "Skills",
-             "Instruction": "Which skills would you like to train? Please "
-                            "select:"},
-            {"View": GoalLevel,
-             "Title": "Level",
-             "Instruction": "What's your goal level?"}
-        )
+    NEW_CHAR = (
+        {"View": Races,
+         "Title": "RACES",
+         "Instruction": "Select your character race:"},
+        {"View": Skills,
+         "Title": "SKILLS",
+         "Instruction": "Pick some skills you would like to train:"},
+        {"View": GoalLevel,
+         "Title": "GOAL",
+         "Instruction": "What's your goal level?"}
+    )

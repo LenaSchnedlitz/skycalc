@@ -1,0 +1,33 @@
+alle views perfektionieren:
+	* breadcrumbs
+	title
+	instructions
+	main:
+		* race
+		* skills
+		skill levels
+		* char levels
+		* goal level
+	* footer
+
+input:
+	validation
+	collector
+
+if name is main:
+	calc
+	views
+	components
+
+calc perfektionieren
+	rewrite
+	data object validieren
+
+start erstellen
+	bg
+	buttons
+	icon
+
+breadcrumbs als buttons?
+icons statt headline?
+tooltips bei titles

@@ -206,7 +206,7 @@ class GameData:
                   "Altmer", "Bosmer", "Dunmer", "Orc",
                   "Argonian", "Khajiit"
                   )
-    RACE_TYPES = ("Human", "Mer", "Beast")  # TODO
+    RACE_TYPES = ("HUMAN", "MER", "BEAST")
 
     SKILL_NAMES = ("Illusion", "Conjuration", "Destruction",
                    "Restoration", "Alteration", "Enchanting",
@@ -217,7 +217,7 @@ class GameData:
                    "Light Armor", "Sneak", "Lockpicking",
                    "Pickpocket", "Speech", "Alchemy"
                    )
-    SKILL_TYPES = ("Magic", "Combat", "Stealth")
+    SKILL_TYPES = ("MAGIC", "COMBAT", "STEALTH")
 
 
 class ValidationException(Exception):
@@ -283,7 +283,7 @@ class InputCollector:
         if InputValidator.are_valid_skill_levels(skill_levels):
             self.__skill_levels = skill_levels
         else:
-            raise ValidationException("Please enter correct skill levels.")
+            raise ValidationException("Skill levels must be between 15 and 100.")
 
 
 class InputValidator:

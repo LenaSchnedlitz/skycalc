@@ -36,22 +36,7 @@ class Headline(tk.Label):
                           pady=20)
 
 
-class ViewName(tk.Label):
-    """View name text.
-
-    Attributes:
-        parent (Frame): frame that contains the title, usually a header
-        text_ (str): displayed text
-    """
-
-    def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_, pady=0, anchor="sw",
-                          font="-size 22 -weight bold",
-                          bg=parent.cget("bg"), fg=Colors.DARK)
-        self.__parent = parent
-
-
-class Instruction(tk.Label):
+class ViewInstruction(tk.Label):
     """Instruction text.
 
     Attributes:
@@ -68,6 +53,21 @@ class Instruction(tk.Label):
                           justify="left",
                           pady=0,
                           wraplength=700)
+
+
+class ViewTitle(tk.Label):
+    """View name text.
+
+    Attributes:
+        parent (Frame): frame that contains the text, usually a header
+        text_ (str): displayed text
+    """
+
+    def __init__(self, parent, text_):
+        tk.Label.__init__(self, parent, text=text_, pady=0, anchor="sw",
+                          font="-size 20 -weight bold",
+                          bg=parent.cget("bg"), fg=Colors.DARK)
+        self.__parent = parent
 
 
 class Text(tk.Label):
@@ -124,21 +124,47 @@ class BranchSelectionButton(tk.Button):
         self.__parent = parent
 
 
-class BreadcrumbButton(tk.Label):
-    def __init__(self, parent, i):
-        tk.Label.__init__(self, parent, bg=parent.cget("bg"))
-        self.__i = i
+class TitleItem(tk.Label):
 
-        self.__empty = ImageImporter.load("bread_empty")
-        self.__filled = ImageImporter.load("bread_" + str(i))
+    def __init__(self, parent, text):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
+        self.__text = text
+
+        self.__empty = ImageImporter.load("title_empty")
+        self.__filled = ImageImporter.load("title_" + text)
+
+    def refresh(self, text):
+        if self.__text == text:
+            self.config(image=self.__filled)
+        else:
+            self.config(image=self.__empty)
+
+
+class BreadcrumbButton(tk.Label):
+    """Breadcrumb label/button.
+
+    Attributes:
+        parent (Frame): frame that contains this image
+        i (int): position/index
+    """
+
+    def __init__(self, parent, i):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
+        self.__i = i  # index/id
+
+        self.__old = ImageImporter.load("bread_OLD")
+        self.__now = ImageImporter.load("bread_NOW")
+        self.__new = ImageImporter.load("bread_NEW")
 
         self.refresh()
 
     def refresh(self, n=0):
-        if self.__i <= n + 1:  # 'n + 1' because count starts with 1
-            self.config(image=self.__filled)
+        if self.__i < n:
+            self.config(image=self.__old)
+        elif self.__i == n:
+            self.config(image=self.__now)
         else:
-            self.config(image=self.__empty)
+            self.config(image=self.__new)
 
 
 class NavButton(tk.Button):
@@ -186,7 +212,7 @@ class SortButton(tk.Button):
                            bg=parent.cget("bg"),
                            borderwidth=0,
                            cursor="hand2",
-                           fg=Colors.MEDIUM,
+                           fg=Colors.DARK,
                            font="-size 10",
                            padx=14,
                            relief="flat")
