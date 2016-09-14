@@ -375,7 +375,7 @@ class SmallField(tk.Frame):
     Made for skill level input.
     Attributes:
         parent (Frame): frame that contains this field
-        text_ (str): Label
+        name (str): Label
     """
 
     def __init__(self, parent, name):
@@ -395,7 +395,7 @@ class SmallField(tk.Frame):
                                 relief="flat", justify="center",
                                 font="-size 24",
                                 bg=Colors.SHADOW, fg=Colors.TEXT)
-        self.__entry.grid(row=0, column=0)
+        self.__entry.grid(row=0, column=0, sticky="s", pady=24)
 
         self.mark_valid()
 

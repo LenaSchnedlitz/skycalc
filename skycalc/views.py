@@ -253,8 +253,8 @@ class ViewContainer(Element):
     def __init__(self, root, view_types):
         Element.__init__(self, root)
 
-        from calculation import InputCollector
-        self.__collector = InputCollector()
+        from calculation import InputCollector, InputValidator
+        self.__collector = InputCollector(InputValidator)
 
         self.__views = []
         for type_ in view_types:
@@ -527,22 +527,11 @@ class SkillLevels(View):
         self.__skills = []
 
     def collect_input(self):
-        self.update()
         skill_levels = {}
         for skill in self.__skills:
+            skill_levels[skill.get_label()] = skill.get_input()
+            print(skill_levels)
 
-            try:
-                level = int(skill.get_input())
-            except ValueError:
-                skill.mark_invalid()
-                return False
-            if 15 <= level <= 100:
-                skill_levels[skill.get_label()] = level
-            else:
-                skill.mark_invalid()
-                return False
-
-            skill_levels[skill.get_label()] = level
         try:
             self.__collector.set_skill_levels(skill_levels)
         except ValidationException as e:
@@ -555,7 +544,7 @@ class SkillLevels(View):
             return 5
         elif n % 5 == 0:
             return 4
-        elif n % 4 == 0:
+        elif n % 4 == 0 or n == 7:
             return 3
         elif n % 3 == 0:
             return 2
@@ -594,11 +583,12 @@ class SkillLevels(View):
 
     def __show_errors(self, errors):
         first_invalid = None
-        for i in range(len(self.__skills)):
-            if i in errors:
-                self.__skills[i].mark_invalid()
+        for skill in self.__skills:
+            skill.mark_valid()
+            if skill.get_label() in errors:
+                skill.mark_invalid()
                 if first_invalid is None:
-                    first_invalid = self.__skills[i]
+                    first_invalid = skill
         first_invalid.set_focus()
 
 
@@ -633,6 +623,8 @@ class Skills(View):
         for skill in self.__skills:
             if skill.is_selected():
                 selected.append(skill.get_label())
+        if not self.__sorted_by_type:
+            selected = sorted(selected)
         self.__collector.set_selected_skills(selected)
 
     def sort(self):
