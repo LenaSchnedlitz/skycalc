@@ -38,8 +38,8 @@ class Breadcrumbs(Element):
     def __init__(self, root, n):
         Element.__init__(self, root)
 
-        self.__start_img = w.ImageImporter.load("bread_START")
-        self.__end_img = w.ImageImporter.load("bread_END")
+        self.__start_img = w.ImageImporter.load("bread/START")
+        self.__end_img = w.ImageImporter.load("bread/END")
 
         self.__points = []
 
@@ -442,7 +442,7 @@ class Races(View):
         from calculation import GameData
         headline_images = []
         for word in GameData.RACE_TYPES:
-            headline_images.append(w.ImageImporter.load("headline_" + word))
+            headline_images.append(w.ImageImporter.load("category_names/" + word))
         return headline_images
 
     def __build_headlines(self):
@@ -649,7 +649,7 @@ class Skills(View):
         from calculation import GameData
         headline_images = []
         for word in GameData.SKILL_TYPES:
-            headline_images.append(w.ImageImporter.load("headline_" + word))
+            headline_images.append(w.ImageImporter.load("category_names/" + word))
         return headline_images
 
     def __build_headlines(self):

@@ -136,8 +136,8 @@ class TitleItem(tk.Label):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
         self.__text = text
 
-        self.__empty = ImageImporter.load("title_empty")
-        self.__filled = ImageImporter.load("title_" + text)
+        self.__empty = ImageImporter.load("bread/titles/empty")
+        self.__filled = ImageImporter.load("bread/titles/" + text)
 
     def refresh(self, text):
         if self.__text == text:
@@ -158,9 +158,9 @@ class BreadcrumbButton(tk.Label):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
         self.__i = i  # index/id
 
-        self.__old = ImageImporter.load("bread_OLD")
-        self.__now = ImageImporter.load("bread_NOW")
-        self.__new = ImageImporter.load("bread_NEW")
+        self.__old = ImageImporter.load("bread/OLD")
+        self.__now = ImageImporter.load("bread/NOW")
+        self.__new = ImageImporter.load("bread/NEW")
 
         self.refresh()
 
@@ -187,9 +187,9 @@ class NavButton(tk.Button):
                            borderwidth=0,
                            cursor="hand2",
                            relief="flat")
-        self.__back_img = ImageImporter.load("nav_BACK")
-        self.__next_img = ImageImporter.load("nav_NEXT")
-        self.__results_img = ImageImporter.load("nav_RESULTS")
+        self.__back_img = ImageImporter.load("nav/BACK")
+        self.__next_img = ImageImporter.load("nav/NEXT")
+        self.__results_img = ImageImporter.load("nav/RESULTS")
 
         self.show_next_text()
 
@@ -266,8 +266,8 @@ class Selectable(tk.Button):
                            font="-size 11",
                            relief="flat")
         self.__text = text_
-        self.__normal_img = ImageImporter.load("selectable")
-        self.__selected_img = ImageImporter.load("selectable_SELECTED")
+        self.__normal_img = ImageImporter.load("selectable/empty")
+        self.__selected_img = ImageImporter.load("selectable/SELECTED")
 
         self.config(command=lambda: self.select())
         self.bind("<Return>", lambda x: self.select())
@@ -339,8 +339,8 @@ class BigField(tk.Frame):
     def __init__(self, parent, name):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
-        self.__selected_bg = ImageImporter.load("bigfield_SELECTED_" + name)
-        self.__error_bg = ImageImporter.load("bigfield_ERROR_" + name)
+        self.__selected_bg = ImageImporter.load("bigfield/SELECTED_" + name)
+        self.__error_bg = ImageImporter.load("bigfield/ERROR_" + name)
 
         self.__background_label = tk.Label(self, bg=self.cget("bg"))
         self.__background_label.grid(row=0, column=0)
@@ -378,46 +378,44 @@ class SmallField(tk.Frame):
         text_ (str): Label
     """
 
-    def __init__(self, parent, text_):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"),
-                          width=95, height=91)
-        self.__text = text_
+    def __init__(self, parent, name):
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
-        self.__bg_image = ImageImporter.load("smallfield")
-        self.__error_bg_image = ImageImporter.load("smallfield_ERROR")
+        self.__name = name
 
-        self.__background_label = tk.Label(self, bg=self.cget("bg"),
-                                           image=self.__bg_image)
-        self.__background_label.place(x=0, y=0, relwidth=1, relheight=1)
-        self.pack_propagate(0)
+        name = name.replace(" ", "_")
 
-        tk.Label(self, text=text_, anchor="sw", bg=Colors.WHITE,
-                 fg=Colors.MEDIUM).pack(fill="x", padx=10, pady=5)
-        self.__entry = tk.Entry(self, width=4, borderwidth=0,
-                                insertwidth=2,
-                                insertbackground=Colors.DARK,
+        self.__selected_bg = ImageImporter.load("smallfield/" + name)
+        self.__error_bg = ImageImporter.load("smallfield/ERROR_" + name)
+
+        self.__background_label = tk.Label(self, bg=self.cget("bg"))
+        self.__background_label.grid(row=0, column=0)
+
+        self.__entry = tk.Entry(self, width=3, borderwidth=0, insertwidth=2,
                                 relief="flat", justify="center",
                                 font="-size 24",
-                                bg=Colors.WHITE)
-        self.__entry.pack()
+                                bg=Colors.SHADOW, fg=Colors.TEXT)
+        self.__entry.grid(row=0, column=0)
 
-        # spacer
-        tk.Frame(self, bg=self.cget("bg"), height=12).pack(pady=2)
+        self.mark_valid()
 
     def get_input(self):
         return self.__entry.get()
 
     def get_label(self):
-        return self.__text
+        return self.__name
+
+    def mark_invalid(self):
+        self.__background_label.config(image=self.__error_bg)
+        self.__entry.config(insertbackground=Colors.ERROR)
+        self.set_focus()
+
+    def mark_valid(self):
+        self.__background_label.config(image=self.__selected_bg)
+        self.__entry.config(insertbackground=Colors.MEDIUM)
 
     def set_focus(self):
         self.__entry.focus_set()
-
-    def mark_invalid(self):
-        self.__background_label.config(image=self.__error_bg_image)
-
-    def mark_valid(self):
-        self.__background_label.config(image=self.__bg_image)
 
 
 class Colors:
