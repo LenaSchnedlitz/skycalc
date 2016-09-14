@@ -109,10 +109,10 @@ class Footer(Element):
         self.__right.show_results_text()
 
     def show_error(self, text):
-        self.__message.error(text)
+        self.__message.show_error(text)
 
     def __clear_error_message(self, i):
-        self.__message.normal(self.__instructions[i])
+        self.__message.show_normal(self.__instructions[i])
 
     def __show_next(self):
         self.__manager.show_next()
@@ -139,7 +139,7 @@ class Header(Element):
         container.pack(expand=True)
 
         for title in self.__titles:
-            item = w.TitleItem(container, title)
+            item = w.BreadcrumbLabel(container, title)
             item.pack(side="left")
             self.__elements.append(item)
 
@@ -215,21 +215,14 @@ class Start(Element):
         label.image = img
         label.pack()
 
-        w.Title(self, "Welcome!", w.Colors.WHITE).pack()
-        w.Text(self,
-                  "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, "
-                  "sed diam nonumy eirmod tempor invidunt ut labore et "
-                  "dolore magna aliquyam erat, sed diam voluptua.",
-               w.Colors.LIGHT).pack()
-
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.pack(pady=30)
-        new_ = w.BranchSelectionButton(button_container, "NEW",
-                                       lambda: self.__start_new())
+        new_ = w.PathSelectionButton(button_container, "NEW",
+                                     lambda: self.__start_new())
         new_.bind("<Return>", lambda x: self.__start_new())
         new_.pack(side="left", padx=5)
-        ex_ = w.BranchSelectionButton(button_container, "EXISTING",
-                                      lambda: self.__start_ex())
+        ex_ = w.PathSelectionButton(button_container, "EXISTING",
+                                    lambda: self.__start_ex())
         ex_.bind("<Return>", lambda x: self.__start_ex())
         ex_.pack(side="right", padx=5)
 
