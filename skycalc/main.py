@@ -62,11 +62,11 @@ class GuiManager:
         self.show_start()
         self.__configure_window()
 
-    def show_existing_branch(self):
+    def show_existing_path(self):
         self.__destroy_all_elements()
         ViewNavigator(self.__root, v.Recipe.EXISTING_CHAR, self)
 
-    def show_new_branch(self):
+    def show_new_path(self):
         self.__destroy_all_elements()
         ViewNavigator(self.__root, v.Recipe.NEW_CHAR, self)
 

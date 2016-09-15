@@ -126,7 +126,7 @@ class NavButton(tk.Button):
         self.config(image=self.__results_img)
 
 
-class PathSelectionButton(tk.Button):
+class PathSelector(tk.Button):
     """Layout for 'NEW'- and 'EXISTING'-button.
 
     Attributes:
@@ -148,7 +148,7 @@ class PathSelectionButton(tk.Button):
                            relief="flat",
                            width=12
                            )
-        self.__parent = parent
+        self.bind("<Return>", command_)
 
 
 class SortButton(tk.Button):
@@ -283,7 +283,7 @@ class BigField(tk.Frame):
     Perfect for character level input.
     Attributes:
         parent (Frame): frame that contains this field
-        name (str): suffix of bg image file name
+        name (str): bg image file name
     """
 
     def __init__(self, parent, name):
@@ -379,6 +379,8 @@ class SmallField(tk.Frame):
         self.__entry.focus_set()
 
 
+# other
+
 class Colors:
     """Some predefined colors."""
     BG = "#1A1816"
@@ -395,8 +397,23 @@ class Colors:
     DARKER = "#2F2924"
 
 
+class Image(tk.Label):
+    """Displays an image imported by the ImageImporter.
+
+    Attributes:
+        parent (Frame): parent frame
+        name (str): image file name
+    """
+    def __init__(self, parent, name):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
+
+        self.__image = ImageImporter.load(name)
+        self.config(image=self.__image)
+
+
 class ImageImporter:
     """Imports .png-images from /res/-folder."""
+
     @staticmethod
     def load(image):
         from PIL import Image, ImageTk
@@ -407,12 +424,9 @@ if __name__ == "__main__":
     import sys
     import inspect
 
+    print(__doc__, "\n")
+    for name, obj in inspect.getmembers(sys.modules[__name__]):
+        if inspect.isclass(obj):
+            print(obj.__name__, "\n",
+                  obj.__doc__, "\n\n")
 
-    def print_docs():
-        print(__doc__, "\n")
-        for name, obj in inspect.getmembers(sys.modules[__name__]):
-            if inspect.isclass(obj):
-                print(obj.__name__, "\n",
-                      obj.__doc__, "\n\n")
-
-    print_docs()

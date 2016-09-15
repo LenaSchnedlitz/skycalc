@@ -3,10 +3,11 @@
 import tkinter as tk
 
 import widgets as w
+
 from calculation import ValidationException
 
 
-# Elements
+# Window Elements
 
 class Element(tk.Frame):
     """Standard element packed in a window. Packs automatically!
@@ -17,7 +18,6 @@ class Element(tk.Frame):
 
     def __init__(self, root):
         tk.Frame.__init__(self, root, bg=w.Colors.BG)
-
         self.pack(fill="x")
 
     def refresh(self, i=0):
@@ -38,24 +38,17 @@ class Breadcrumbs(Element):
     def __init__(self, root, n):
         Element.__init__(self, root)
 
-        self.__start_img = w.ImageImporter.load("bread/START")
-        self.__end_img = w.ImageImporter.load("bread/END")
-
         self.__points = []
 
         container = tk.Frame(self, bg=self.cget("bg"))
         container.pack(expand=True, pady=10)
 
-        tk.Label(container, bg=self.cget("bg"), borderwidth=0,
-                 image=self.__start_img).pack(side="left")
-
+        w.Image(container, "bread/START").pack(side="left")
         for i in range(n):
             point = w.BreadcrumbButton(container, i)
             self.__points.append(point)
             point.pack(side="left")
-
-        tk.Label(container, bg=self.cget("bg"), borderwidth=0,
-                 image=self.__end_img).pack(side="left")
+        w.Image(container, "bread/END").pack(side="left")
 
     def refresh(self, i=0):
         for point in self.__points:
@@ -63,12 +56,13 @@ class Breadcrumbs(Element):
 
 
 class Footer(Element):
-    """Displays two NavButtons and messages.
+    """Displays two NavButtons and a Message.
 
     Attributes:
         root: parent window
         manager (ViewManager): a view manager
         n (int): number of stages
+        instructions (str list):
     """
 
     def __init__(self, root, manager, n, instructions):
@@ -199,40 +193,35 @@ class Results(tk.Frame):
 
 
 class Start(Element):
-    """Welcome screen
+    """Welcome screen.
 
-    Choose between two buttons, 'NEW' and 'EXISTING'
+    Lets user choose whether you want to level a new character or an
+    existing one.
     Attributes:
         parent (Tk): window that contains this element
+        manager: gui manager
     """
 
     def __init__(self, parent, manager):
         Element.__init__(self, parent)
         self.__manager = manager
 
-        img = tk.PhotoImage(file="res/skyrim.gif")
-        label = tk.Label(self, image=img, bg=self.cget("bg"))
-        label.image = img
-        label.pack()
+        w.Image(self, "start").grid(row=0, column=0)
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
-        button_container.pack(pady=30)
-        new_ = w.PathSelectionButton(button_container, "NEW",
-                                     lambda: self.__start_new())
-        new_.bind("<Return>", lambda x: self.__start_new())
+        button_container.grid(row=0, column=0, pady=30)
+
+        new_ = w.PathSelector(button_container,
+                              "NEW",
+                              lambda: self.__manager.show_new_path())
         new_.pack(side="left", padx=5)
-        ex_ = w.PathSelectionButton(button_container, "EXISTING",
-                                    lambda: self.__start_ex())
-        ex_.bind("<Return>", lambda x: self.__start_ex())
+
+        ex_ = w.PathSelector(button_container,
+                             "EXISTING",
+                             lambda: self.__manager.show_existing_path())
         ex_.pack(side="right", padx=5)
 
         self.pack(fill="both", expand=True)
-
-    def __start_new(self):
-        self.__manager.show_new_branch()
-
-    def __start_ex(self):
-        self.__manager.show_existing_branch()
 
 
 class ViewContainer(Element):
@@ -240,7 +229,7 @@ class ViewContainer(Element):
 
     Attributes:
         root: parent window
-        view_types (View array): array with all available view types
+        view_types (list): contains all available view types
     """
 
     def __init__(self, root, view_types):
@@ -273,13 +262,13 @@ class ViewContainer(Element):
 # Views
 
 class View(tk.Frame):
-    """Standard View.
+    """Standard View, put into (0,0) of the parent grid.
 
     Attributes:
         parent (Frame): frame that contains this view
     """
 
-    def __init__(self, parent: tk.Frame):
+    def __init__(self, parent):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
         self.grid(row=0, column=0, sticky="nsew")
@@ -404,14 +393,21 @@ class Races(View):
         self.__container = self.__build_race_container()
         self.__container.pack(fill="both", expand=True)
 
-        self.__headline_images = self.__build_headline_images()
         self.__headlines = self.__build_headlines()
         self.__races = self.__build_races()
         self.__sort_by_type()
 
     def collect_input(self):
         self.update()
-        self.__collector.set_race(self.__selected)
+        self.__collector.set_race(self.__selected)  # no try block necessary
+
+    def select(self, selection):
+        self.__selected = selection
+        for race in self.__races:
+            if race.get_label() == selection:
+                race.mark_selected()  # select clicked option
+            else:
+                race.mark_unselected()  # deselect all other options
 
     def sort(self):
         if self.__sorted_by_type:
@@ -423,37 +419,24 @@ class Races(View):
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
-    def select(self, selection):
-        self.__selected = selection
-        for race in self.__races:
-            if race.get_label() == selection:
-                race.mark_selected()  # select clicked option
-            else:
-                race.mark_unselected()  # deselect all other options
-
-    def __build_headline_images(self):
-        from calculation import GameData
-        headline_images = []
-        for word in GameData.RACE_TYPES:
-            headline_images.append(w.ImageImporter.load("category_names/" + word))
-        return headline_images
-
     def __build_headlines(self):
+        from calculation import GameData
+
         headlines = []
-        for image in self.__headline_images:
-            headlines.append(tk.Label(self.__container,
-                                      bg=self.cget("bg"),
-                                      borderwidth=0,
-                                      image=image))
+        for word in GameData.RACE_TYPES:
+            headlines.append(
+                w.Image(self.__container, "category_names/" + word))
+
         return headlines
 
     def __build_race_container(self):
         container = tk.Frame(self, bg=self.cget("bg"), padx=50, pady=20)
+
         for i in range(3):
             container.grid_columnconfigure(i, weight=1)
-
         for i in range(6):  # looks better than range(5)
             container.grid_rowconfigure(i, weight=1)
+
         return container
 
     def __build_races(self):
@@ -474,7 +457,7 @@ class Races(View):
         column_ = 0
         for race in sorted_races:
             race.grid(row=row_, column=column_)
-            race.tkraise()  # for expected tabbing order
+            race.tkraise()  # for keyboard only navigation
             if row_ == 4:
                 row_ = 0
                 column_ += 1
@@ -491,7 +474,7 @@ class Races(View):
         column_ = 0
         for race in self.__races:
             race.grid(row=row_, column=column_)
-            race.tkraise()  # for expected tabbing order
+            race.tkraise()  # for keyboard only navigation
             if row_ == 4:
                 row_ = 1
                 column_ += 1
@@ -531,8 +514,30 @@ class SkillLevels(View):
             self.__show_errors(e.get_errors())
             raise e
 
+    def set_focus(self):
+        self.__skills[0].set_focus()
+
+    def update(self):
+        for child in self.__container.winfo_children():
+            child.destroy()
+
+        self.__skills = []
+        for skill in self.__collector.get_selected_skills():
+            self.__skills.append(w.SmallField(self.__container, skill))
+        row_ = 0
+        column_ = 0
+        max_ = self.__calculate_max_index(len(self.__skills))
+        self.__update_column_scale(max_)
+        for skill in self.__skills:
+            skill.grid(row=row_, column=column_, padx=5, pady=10)
+            if column_ == max_:
+                column_ = 0
+                row_ += 1
+            else:
+                column_ += 1
+
     @staticmethod
-    def get_max_column(n):
+    def __calculate_max_index(n):
         if n > 15:
             return 5
         elif n % 5 == 0:
@@ -546,34 +551,6 @@ class SkillLevels(View):
         else:
             return 5
 
-    def set_focus(self):
-        self.__skills[0].set_focus()
-
-    def update(self):
-        for child in self.__container.winfo_children():
-            child.destroy()
-        self.__skills = []
-        for skill in self.__collector.get_selected_skills():
-            self.__skills.append(
-                w.SmallField(self.__container, skill))
-        row_ = 0
-        column_ = 0
-        max_ = self.get_max_column(len(self.__skills))
-        self.__make_columns_grow(max_)
-        for skill in self.__skills:
-            skill.grid(row=row_, column=column_, padx=5, pady=10)
-            if column_ == max_:
-                column_ = 0
-                row_ += 1
-            else:
-                column_ += 1
-
-    def __make_columns_grow(self, n):
-        for i in range(6):
-            self.__container.grid_columnconfigure(i, weight=0)  # reset
-        for i in range(n + 1):
-            self.__container.grid_columnconfigure(i, weight=1)  # set
-
     def __show_errors(self, errors):
         first_invalid = None
         for skill in self.__skills:
@@ -584,11 +561,17 @@ class SkillLevels(View):
                     first_invalid = skill
         first_invalid.set_focus()
 
+    def __update_column_scale(self, n):
+        for i in range(6):
+            self.__container.grid_columnconfigure(i, weight=0)  # reset
+        for i in range(n + 1):
+            self.__container.grid_columnconfigure(i, weight=1)  # set
+
 
 class Skills(View):
     """Default skill selection frame.
 
-    Can be sorted by category or alphabetically
+    Can be sorted by category or alphabetically.
     Attributes:
         parent (Frame): frame that contains this frame
         collector: object that collects input data
@@ -605,7 +588,6 @@ class Skills(View):
         self.__container = self.__build_skill_container()
         self.__container.pack(fill="both", expand=True)
 
-        self.__headline_images = self.__build_headline_images()
         self.__headlines = self.__build_headlines()
         self.__skills = self.__build_skills()
 
@@ -630,33 +612,29 @@ class Skills(View):
             self.__sort_button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
 
-    def __build_headline_images(self):
-        from calculation import GameData
-        headline_images = []
-        for word in GameData.SKILL_TYPES:
-            headline_images.append(w.ImageImporter.load("category_names/" + word))
-        return headline_images
-
     def __build_headlines(self):
+        from calculation import GameData
+
         headlines = []
-        for image in self.__headline_images:
-            headlines.append(tk.Label(self.__container,
-                                      bg=self.cget("bg"),
-                                      borderwidth=0,
-                                      image=image))
+        for word in GameData.SKILL_TYPES:
+            headlines.append(
+                w.Image(self.__container, "category_names/" + word))
+
         return headlines
 
     def __build_skill_container(self):
         container = tk.Frame(self, bg=self.cget("bg"), padx=50, pady=20)
+
         for i in range(3):
             container.grid_columnconfigure(i, weight=1)
-
         for i in range(7):
             container.grid_rowconfigure(i, weight=1)
+
         return container
 
     def __build_skills(self):
         from calculation import GameData
+
         skills = []
         for name in GameData.SKILL_NAMES:
             skills.append(w.MultiSelectable(self.__container, name))
@@ -694,7 +672,10 @@ class Skills(View):
                 row_ += 1
 
 
+# other
+
 class Recipe:
+    """Contains data about possible 'View Paths'."""
     EXISTING_CHAR = (
         {"View": CharLevels,
          "Title": "LEVELS",
@@ -719,3 +700,31 @@ class Recipe:
          "Title": "GOAL",
          "Instruction": "What's your goal level?"}
     )
+
+
+if __name__ == "__main__":
+    def __make_window(type_):
+        import main as m
+        __root = tk.Tk()
+        __root.lift()
+        __root.attributes('-topmost', True)
+        __root.after_idle(__root.attributes, '-topmost', False)
+
+        if type_ == "e":
+            m.GuiManager(__root).show_existing_path()
+        else:
+            m.GuiManager(__root).show_new_path()
+        __root.mainloop()
+
+    def __get_valid_type(prompt):
+        choice = input(prompt)
+        if choice == "e" or choice == "n":
+            return choice
+
+        else:
+            return __get_valid_type("You need to enter either 'e' or 'n'.\n>")
+
+
+    __make_window(__get_valid_type(
+        "Hello. Would you like to calculate progress for an existing "
+        "character [e] or a new one [n]?\n>"))
