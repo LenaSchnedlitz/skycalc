@@ -26,7 +26,7 @@ class ViewNavigator:
                           [entry["Title"] for entry in content])
         view_container = v.ViewContainer(self.__root,
                                          [entry["View"] for entry in content])
-        footer = v.Footer(self.__root, self, len(content),
+        footer = v.Footer(self.__root, self,
                           [entry["Instruction"] for entry in content])
         return header, view_container, footer
 
@@ -61,7 +61,7 @@ class GuiManager:
         self.show_start()
         self.__configure_window()
 
-    def show_existing_path(self):
+    def show_ex_path(self):
         self.__destroy_all_elements()
         ViewNavigator(self.__root, v.Recipe.EXISTING_CHAR, self)
 

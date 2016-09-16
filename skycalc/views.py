@@ -33,27 +33,24 @@ class Footer(Element):
     Attributes:
         root: parent window
         manager (ViewManager): a view manager
-        n (int): number of stages
-        instructions (str list):
+        instructions (str list): all instruction messages
     """
 
-    def __init__(self, root, manager, n, instructions):
+    def __init__(self, root, manager, instructions):
         Element.__init__(self, root)
         self.__root = root
         self.__manager = manager
-        self.__n = n
         self.__instructions = instructions
 
-        self.__right = w.NavButton(self)
-        self.__right.config(command=lambda: self.__show_next())
-        self.__right.bind("<Return>", lambda x: self.__show_next())
-        self.__right.show_next_text()
-        self.__right.pack(side="right", padx=10, pady=11)
+        self.__right = w.NavButton(self,
+                                   lambda x=None: self.__manager.show_next(),
+                                   "NEXT",
+                                   "RESULTS")
+        self.__left = w.NavButton(self,
+                                  lambda x=None: self.__manager.show_prev(),
+                                  "BACK")
 
-        self.__left = w.NavButton(self)
-        self.__left.config(command=lambda: self.__show_prev())
-        self.__left.bind("<Return>", lambda x: self.__show_prev())
-        self.__left.show_back_text()
+        self.__right.pack(side="right", padx=10, pady=11)
         self.__left.pack(side="left", padx=10, pady=11)
 
         self.__message = w.Message(self, "")
@@ -62,29 +59,18 @@ class Footer(Element):
         self.pack_configure(side="bottom")
 
     def refresh(self, i=0):
-        self.__clear_error_message(i)
-        if i == self.__n - 1:
-            self.show_results_text()
+        self.__show_instruction(self.__instructions[i])
+
+        if i == len(self.__instructions) - 1:
+            self.__right.show_alternative_text()
         else:
-            self.show_next_text()
+            self.__right.show_standard_text()
 
-    def show_next_text(self):
-        self.__right.show_next_text()
+    def show_error(self, message):
+        self.__message.show_error(message)
 
-    def show_results_text(self):
-        self.__right.show_results_text()
-
-    def show_error(self, text):
-        self.__message.show_error(text)
-
-    def __clear_error_message(self, i):
-        self.__message.show_normal(self.__instructions[i])
-
-    def __show_next(self):
-        self.__manager.show_next()
-
-    def __show_prev(self):
-        self.__manager.show_prev()
+    def __show_instruction(self, message):
+        self.__message.show_normal(message)
 
 
 class Header(Element):
@@ -117,8 +103,6 @@ class Header(Element):
             self.__breadcrumb_buttons.append(button)
             button.pack(side="left")
         w.Image(breadcrumbs_container, "bread/END").pack(side="left")
-
-        self.refresh()
 
     def refresh(self, i=0):
         for label in self.__labels:
@@ -196,12 +180,12 @@ class Start(Element):
 
         new_ = w.PathSelector(button_container,
                               "NEW",
-                              lambda: self.__manager.show_new_path())
+                              lambda x=None: self.__manager.show_new_path())
         new_.pack(side="left", padx=5)
 
         ex_ = w.PathSelector(button_container,
                              "EXISTING",
-                             lambda: self.__manager.show_existing_path())
+                             lambda x=None: self.__manager.show_ex_path())
         ex_.pack(side="right", padx=5)
 
         self.pack(fill="both", expand=True)
@@ -694,10 +678,11 @@ if __name__ == "__main__":
         __root.after_idle(__root.attributes, '-topmost', False)
 
         if type_ == "e":
-            m.GuiManager(__root).show_existing_path()
+            m.GuiManager(__root).show_ex_path()
         else:
             m.GuiManager(__root).show_new_path()
         __root.mainloop()
+
 
     def __get_valid_type(prompt):
         choice = input(prompt)

@@ -99,30 +99,35 @@ class NavButton(tk.Button):
 
     Attributes:
         parent (Frame): frame that contains this button
+        command_: button command
+        label (str): default text
+        alt_label (str): optional, alternative text
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, command_, label, alt_label=None):
         tk.Button.__init__(self, parent,
                            activebackground=parent.cget("bg"),
                            bg=parent.cget("bg"),
                            borderwidth=0,
+                           command=command_,
                            cursor="hand2",
                            relief="flat")
-        self.__back_img = ImageImporter.load("nav/BACK")
-        self.__next_img = ImageImporter.load("nav/NEXT")
-        self.__results_img = ImageImporter.load("nav/RESULTS")
+        self.bind("<Return>", command_)
 
-        self.show_next_text()  # default
+        self.__image = ImageImporter.load("nav/" + label)
 
-    # methods for changing button text/style
-    def show_back_text(self):
-        self.config(image=self.__back_img)
+        self.__alt_image = None
+        if alt_label is not None:
+            self.__alt_image = ImageImporter.load("nav/" + alt_label)
 
-    def show_next_text(self):
-        self.config(image=self.__next_img)
+        self.show_standard_text()
 
-    def show_results_text(self):
-        self.config(image=self.__results_img)
+    def show_standard_text(self):
+        self.config(image=self.__image)
+
+    def show_alternative_text(self):
+        if self.__alt_image is not None:
+            self.config(image=self.__alt_image)
 
 
 class PathSelector(tk.Button):
