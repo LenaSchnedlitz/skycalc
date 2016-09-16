@@ -24,12 +24,11 @@ class ViewNavigator:
     def __build_window_elements(self, content):
         header = v.Header(self.__root,
                           [entry["Title"] for entry in content])
-        breadcrumbs = v.Breadcrumbs(self.__root, len(content))
         view_container = v.ViewContainer(self.__root,
                                          [entry["View"] for entry in content])
         footer = v.Footer(self.__root, self, len(content),
                           [entry["Instruction"] for entry in content])
-        return breadcrumbs, header, view_container, footer
+        return header, view_container, footer
 
     def __update_content(self):
         for element in self.__elements:
@@ -37,7 +36,7 @@ class ViewNavigator:
 
     def show_next(self):
         try:
-            self.__elements[2].use_input(self.__i)
+            self.__elements[1].use_input(self.__i)  # TODO
             if self.__i + 1 < self.__n:
                 self.__i += 1
                 self.__update_content()

@@ -27,34 +27,6 @@ class Element(tk.Frame):
         pass  # expected method
 
 
-class Breadcrumbs(Element):
-    """Displays progress by highlighting completed stages.
-
-    Attributes:
-        root: parent window
-        n (int): number of stages
-    """
-
-    def __init__(self, root, n):
-        Element.__init__(self, root)
-
-        self.__points = []
-
-        container = tk.Frame(self, bg=self.cget("bg"))
-        container.pack(expand=True, pady=10)
-
-        w.Image(container, "bread/START").pack(side="left")
-        for i in range(n):
-            point = w.BreadcrumbButton(container, i)
-            self.__points.append(point)
-            point.pack(side="left")
-        w.Image(container, "bread/END").pack(side="left")
-
-    def refresh(self, i=0):
-        for point in self.__points:
-            point.refresh(i)
-
-
 class Footer(Element):
     """Displays two NavButtons and a Message.
 
@@ -116,32 +88,43 @@ class Footer(Element):
 
 
 class Header(Element):
-    """Displays a title and an instruction.
+    """Displays progress by highlighting the current stage. Allows to navigate
+    back to already completed stages.
 
     Attributes:
         root: parent window
-        titles (str array): array with all titles
+        titles (str list): list of all titles
     """
 
     def __init__(self, root, titles):
         Element.__init__(self, root)
 
-        self.__titles = titles
-        self.__elements = []
+        self.__labels = []
+        labels_container = tk.Frame(self, bg=self.cget("bg"))
+        labels_container.pack(expand=True)
 
-        container = tk.Frame(self, bg=self.cget("bg"))
-        container.pack(expand=True)
+        self.__breadcrumb_buttons = []
+        breadcrumbs_container = tk.Frame(self, bg=self.cget("bg"))
+        breadcrumbs_container.pack(expand=True, pady=10)
 
-        for title in self.__titles:
-            item = w.BreadcrumbLabel(container, title)
-            item.pack(side="left")
-            self.__elements.append(item)
+        w.Image(breadcrumbs_container, "bread/START").pack(side="left")
+        for i in range(len(titles)):
+            label = w.BreadcrumbLabel(labels_container, titles[i], i)
+            self.__labels.append(label)
+            label.pack(side="left")
+
+            button = w.BreadcrumbButton(breadcrumbs_container, i)
+            self.__breadcrumb_buttons.append(button)
+            button.pack(side="left")
+        w.Image(breadcrumbs_container, "bread/END").pack(side="left")
 
         self.refresh()
 
     def refresh(self, i=0):
-        for item in self.__elements:
-            item.refresh(self.__titles[i])
+        for label in self.__labels:
+            label.refresh(i)
+        for button in self.__breadcrumb_buttons:
+            button.refresh(i)
 
 
 class Results(tk.Frame):

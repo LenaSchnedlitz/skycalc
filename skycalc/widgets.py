@@ -21,24 +21,23 @@ class Title(tk.Label):
 
 
 class BreadcrumbLabel(tk.Label):
-    """Displays title of current step/view.
+    """Displays title of current stage.
 
     Attributes:
         parent (Frame): parent frame
-        name (str): label text/image file suffix
+        text (str): label text/image file suffix
+        i (int): position/index
     """
 
-    def __init__(self, parent, name):
+    def __init__(self, parent, text, i):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
-        self.__name = name
+        self.__i = i  # index/id
 
         self.__empty = ImageImporter.load("bread/labels/empty")
-        self.__filled = ImageImporter.load("bread/labels/" + name)
+        self.__filled = ImageImporter.load("bread/labels/" + text)
 
-        self.refresh("")
-
-    def refresh(self, text):
-        if self.__name == text:
+    def refresh(self, n=0):
+        if self.__i == n:
             self.config(image=self.__filled)
         else:
             self.config(image=self.__empty)
