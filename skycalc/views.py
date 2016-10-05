@@ -4,7 +4,7 @@ import tkinter as tk
 
 import widgets as w
 
-from calculation import ValidationException
+from parser import ValidationException
 
 
 # Window Elements
@@ -124,40 +124,6 @@ class Results(tk.Frame):
         self.__parent = parent
         self.__calculator = calculator
 
-        w.Title(self, "Results", "white").pack()
-        sel_container = tk.Frame(self)
-        sel_container.pack(expand=True)
-
-        self.__tab_container = tk.Frame(self)
-        self.__tab_container.grid_rowconfigure(0, weight=1)
-        self.__tab_container.grid_columnconfigure(0, weight=1)
-        self.__tab_container.pack(fill="both", expand=True)
-
-        self.__fastest_tab = self.build_tab("Fastest method",
-                                            calculator.get_fastest_results())
-        self.__easiest_tab = self.build_tab("Easiest method",
-                                            calculator.get_easiest_results())
-        self.__balanced_tab = self.build_tab("Balanced method",
-                                             calculator.get_balanced_results())
-
-        self.a = w.TabButton(sel_container, "a tab",
-                             self.__fastest_tab).pack(side="left")
-        self.a = w.TabButton(sel_container, "b tab",
-                             self.__easiest_tab).pack(side="left")
-        self.a = w.TabButton(sel_container, "c tab",
-                             self.__balanced_tab).pack(side="left")
-
-    def build_tab(self, title, results):
-        tab = tk.Frame(self.__tab_container)
-        tab.grid(row=0, column=0, sticky="nsew")
-        w.Headline(tab, title).pack()
-        for skill in results:
-            w.ViewInstruction(tab, skill + ":\nCurrent Level: " + str(
-                results[skill]["start"]) + "\nGoal Level: " + str(
-                results[skill]["end"]) + "\nMade legendary " + str(
-                results[skill]["legendary"]) + " times\n\n").pack()
-        return tab
-
 
 class Start(Element):
     """Welcome screen.
@@ -202,7 +168,7 @@ class ViewContainer(Element):
     def __init__(self, root, view_types):
         Element.__init__(self, root)
 
-        from calculation import InputCollector, InputValidator
+        from parser import InputCollector, InputValidator
         self.__collector = InputCollector(InputValidator)
 
         self.__views = []
@@ -387,7 +353,7 @@ class Races(View):
             self.__sorted_by_type = True
 
     def __build_headlines(self):
-        from calculation import GameData
+        from parser import GameData
 
         headlines = []
         for word in GameData.RACE_TYPES:
@@ -407,7 +373,7 @@ class Races(View):
         return container
 
     def __build_races(self):
-        from calculation import GameData
+        from parser import GameData
         races = []
         for name in GameData.RACE_NAMES:
             races.append(w.Option(self.__container, name, self))
@@ -473,7 +439,6 @@ class SkillLevels(View):
         skill_levels = {}
         for skill in self.__skills:
             skill_levels[skill.get_label()] = skill.get_input()
-            print(skill_levels)
 
         try:
             self.__collector.set_skill_levels(skill_levels)
@@ -580,7 +545,7 @@ class Skills(View):
             self.__sorted_by_type = True
 
     def __build_headlines(self):
-        from calculation import GameData
+        from parser import GameData
 
         headlines = []
         for word in GameData.SKILL_TYPES:
@@ -600,7 +565,7 @@ class Skills(View):
         return container
 
     def __build_skills(self):
-        from calculation import GameData
+        from parser import GameData
 
         skills = []
         for name in GameData.SKILL_NAMES:

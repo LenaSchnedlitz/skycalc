@@ -1,4 +1,6 @@
 class GameData:
+    """Contains information about Skyrim."""
+
     NEW_CHAR_LEVEL_INFO = {
         "Breton": {
             "Illusion": 20,
@@ -221,6 +223,13 @@ class GameData:
 
 
 class ValidationException(Exception):
+    """Contains an error list.
+
+    Attributes:
+        message (str): error message
+        errors (list): list of all errors
+    """
+
     def __init__(self, message, errors=None):
         super(ValidationException, self).__init__(message)
         self.__errors = errors
@@ -246,8 +255,8 @@ class InputCollector:
         self.__selected_skills = None
         self.__skill_levels = None
 
-    def get_char_level(self):
-        return self.__now, self.__goal
+    def get_char_levels(self):
+        return {"now": self.__now, "goal": self.__goal}
 
     def get_race(self):
         return self.__race
@@ -351,7 +360,6 @@ class InputValidator:
 
     @staticmethod
     def is_valid_skill_dictionary(dictionary):
-        print(dictionary)
         if not isinstance(dictionary, dict) or len(dictionary) == 0:
             return False
 
@@ -367,18 +375,27 @@ class InputValidator:
         return 15 <= level <= 100
 
 
-class Calculator:
-    def __init__(self, data: InputCollector):
+class CalculatorOld:
+    """Calculates how a player could reach a certain level effectively.
+
+    Attributes:
+        data: object that contains necessary data, e.g. an InputCollector
+    """
+
+    def __init__(self, data):
+
+        # old
         self.current_xp = data.char_levels[0]
         self.goal_xp = data.char_levels[1]
-        self.needed_xp = self.calculate_needed_xp()
+        self.__needed_xp = self.__calculate_needed_xp()
         self.current_skill_levels = data.skill_levels
 
-    def calculate_needed_xp(self):
+    def __calculate_needed_xp(self):
         a = 12.5 * (self.goal_xp ** 2 - self.current_xp ** 2)
         b = 62.5 * (self.goal_xp - self.current_xp)
         return a + b
 
+    # old
     def get_fastest_results(self):
         still_needed = self.needed_xp
         end_levels = self.current_skill_levels.copy()
