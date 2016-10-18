@@ -223,7 +223,7 @@ class GameData:
 
 
 class ValidationException(Exception):
-    """Contains an error list.
+    """Exception with 'error list'.
 
     Attributes:
         message (str): error message
@@ -256,7 +256,7 @@ class InputCollector:
         self.__skill_levels = None
 
     def get_char_levels(self):
-        return {"now": self.__now, "goal": self.__goal}
+        return {"Now": self.__now, "Goal": self.__goal}
 
     def get_race(self):
         return self.__race
@@ -280,16 +280,16 @@ class InputCollector:
             else:
                 raise ValidationException(
                     "Your goal level must be higher than your current level.",
-                    ["goal", "now"])
+                    ["Goal", "Now"])
         elif valid_goal:
             raise ValidationException("Please enter a valid character level.",
-                                      ["now"])
+                                      ["Now"])
         elif valid_now:
             raise ValidationException("Please enter a valid goal level.",
-                                      ["goal"])
+                                      ["Goal"])
         else:
             raise ValidationException("Please enter valid levels.",
-                                      ["goal", "now"])
+                                      ["Goal", "Now"])
 
     def set_race(self, race):
         if self.__validator.is_valid_race(race):
@@ -322,7 +322,7 @@ class InputCollector:
 
 
 class InputValidator:
-    """Checks if given input is valid Skyrim game data."""
+    """Check if given input is possible (Skyrim game data)."""
 
     @staticmethod
     def are_valid_skills(skills):
@@ -373,98 +373,3 @@ class InputValidator:
             return False
 
         return 15 <= level <= 100
-
-
-class CalculatorOld:
-    """Calculates how a player could reach a certain level effectively.
-
-    Attributes:
-        data: object that contains necessary data, e.g. an InputCollector
-    """
-
-    def __init__(self, data):
-
-        # old
-        self.current_xp = data.char_levels[0]
-        self.goal_xp = data.char_levels[1]
-        self.__needed_xp = self.__calculate_needed_xp()
-        self.current_skill_levels = data.skill_levels
-
-    def __calculate_needed_xp(self):
-        a = 12.5 * (self.goal_xp ** 2 - self.current_xp ** 2)
-        b = 62.5 * (self.goal_xp - self.current_xp)
-        return a + b
-
-    # old
-    def get_fastest_results(self):
-        still_needed = self.needed_xp
-        end_levels = self.current_skill_levels.copy()
-        times_legendary = {}
-        for skill in end_levels:
-            times_legendary[skill] = 0
-
-        while still_needed > 0:
-            selected = max(end_levels, key=lambda key: end_levels[key])
-            training_result = self.train_skill(end_levels[selected])
-            end_levels[selected] = training_result
-            if training_result == 15:
-                times_legendary[selected] += 1
-                still_needed -= 100
-            else:
-                still_needed -= training_result
-        return self.reformat_results(end_levels, times_legendary)
-
-    def get_easiest_results(self):
-        still_needed = self.needed_xp
-        end_levels = self.current_skill_levels.copy()
-        times_legendary = {}
-        for skill in end_levels:
-            times_legendary[skill] = 0
-
-        while still_needed > 0:
-            selected = min(end_levels, key=lambda key: end_levels[key])
-            training_result = self.train_skill(end_levels[selected])
-            end_levels[selected] = training_result
-            if training_result == 15:
-                times_legendary[selected] += 1
-                still_needed -= 100
-            else:
-                still_needed -= training_result
-        return self.reformat_results(end_levels, times_legendary)
-
-    def get_balanced_results(self):
-        still_needed = self.needed_xp
-        end_levels = self.current_skill_levels.copy()
-        times_legendary = {}
-        for skill in end_levels:
-            times_legendary[skill] = 0
-
-        over = False
-        while not over:
-            for skill in end_levels:
-                training_result = self.train_skill(end_levels[skill])
-                end_levels[skill] = training_result
-                if training_result == 15:
-                    times_legendary[skill] += 1
-                    still_needed -= 100
-                else:
-                    still_needed -= training_result
-                over = still_needed <= 0
-                if over:
-                    break
-        return self.reformat_results(end_levels, times_legendary)
-
-    def train_skill(self, level):
-        level += 1
-        if level == 100:
-            level = 15
-        return level
-
-    def reformat_results(self, end_levels, times_legendary):
-        results = {}
-        for skill in end_levels:
-            results[skill] = {"start": self.current_skill_levels[skill],
-                              "end": end_levels[skill],
-                              "legendary": times_legendary[skill]
-                              }
-        return results

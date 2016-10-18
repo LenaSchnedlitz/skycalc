@@ -26,10 +26,10 @@ def simulate_training(original_skill_levels, current, goal, selected_from):
 
         def reformat(entry):
             """Reformat dictionary entry."""
-            return {"START_LEVEL": original_dict[entry],
-                    "TIMES_LEVELED": 0,
-                    "TIMES_LEGENDARY": 0,
-                    "FINAL_LEVEL": original_dict[entry]}
+            return {"Start Level": original_dict[entry],
+                    "Times Leveled": 0,
+                    "Times Legendary": 0,
+                    "Final Level": original_dict[entry]}
 
         return {entry: reformat(entry) for entry in original_dict}
 
@@ -58,8 +58,8 @@ def simulate_training(original_skill_levels, current, goal, selected_from):
             else:
                 return skill_level + 1
 
-        data[skill]["FINAL_LEVEL"] = trained(data[skill]["FINAL_LEVEL"])
-        data[skill]["TIMES_LEVELED"] += 1
+        data[skill]["Final Level"] = trained(data[skill]["Final Level"])
+        data[skill]["Times Leveled"] += 1
 
     # TODO: make 'prettier'
     needed_xp = total_xp(current, goal)
@@ -68,7 +68,7 @@ def simulate_training(original_skill_levels, current, goal, selected_from):
     while not done(needed_xp):
         selected_skill = selected_from(skill_data)
         train(skill_data, selected_skill)
-        needed_xp -= skill_data[selected_skill]["FINAL_LEVEL"]
+        needed_xp -= skill_data[selected_skill]["Final Level"]
     return skill_data
 
 
@@ -85,7 +85,7 @@ def simulate_balanced_training(original_skill_levels,
 
     def least_leveled(skill_dict):
         """Return the skill that was trained least."""
-        stripped_dict = {s: skill_dict[s]["TIMES_LEVELED"] for s in skill_dict}
+        stripped_dict = {s: skill_dict[s]["Times Leveled"] for s in skill_dict}
         return min(stripped_dict, key=stripped_dict.get)
 
     return simulate_training(original_skill_levels,
@@ -105,7 +105,7 @@ def simulate_easy_training(original_skill_levels, current_level, goal_level):
 
     def lowest(skill_dict):
         """Return the skill with the lowest final level."""
-        stripped_dict = {s: skill_dict[s]["FINAL_LEVEL"] for s in skill_dict}
+        stripped_dict = {s: skill_dict[s]["Final Level"] for s in skill_dict}
         return min(stripped_dict, key=stripped_dict.get)
 
     return simulate_training(original_skill_levels,
@@ -125,7 +125,7 @@ def simulate_fast_training(original_skill_levels, current_level, goal_level):
 
     def highest(skill_dict):
         """Return the skill with the highest final level."""
-        stripped_dict = {s: skill_dict[s]["FINAL_LEVEL"] for s in skill_dict}
+        stripped_dict = {s: skill_dict[s]["Final Level"] for s in skill_dict}
         return max(stripped_dict, key=stripped_dict.get)
 
     return simulate_training(original_skill_levels,

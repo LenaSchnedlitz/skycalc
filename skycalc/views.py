@@ -4,20 +4,109 @@ import tkinter as tk
 
 import widgets as w
 
-from parser import ValidationException
 
+# Full Views
 
-# Window Elements
-
-class Element(tk.Frame):
-    """Standard element packed in a window. Packs automatically!
+class FullView(tk.Frame):
+    """Standard view inside a window. Automatically packed!
 
     Attributes:
-        root: a window element's parent
+        root (Tk): window that contains this element
     """
 
     def __init__(self, root):
         tk.Frame.__init__(self, root, bg=w.Colors.BG)
+        self.pack(fill="both", expand=True)
+
+
+class InputViewPath(FullView):
+    """
+
+    Attributes:
+        root (Tk): window that contains this element
+        controller: gui controller
+        recipe: information about path content
+    """
+
+    def __init__(self, root, controller, recipe):
+        FullView.__init__(self, root)
+        import main as m
+        from parser import InputCollector, InputValidator
+        self.__collector = InputCollector(InputValidator)
+
+        header = Header(self, [entry["Title"] for entry in recipe])
+        views = InputViewContainer(self,
+                                   [entry["View"] for entry in recipe],
+                                   self.__collector)
+        footer = Footer(self, [entry["Instruction"] for entry in recipe])
+
+        self.navigator = m.PathNavigator(controller,
+                                         {"Header": header,
+                                          "Views": views,
+                                          "Footer": footer})
+
+    def get_collector(self):
+        return self.__collector
+
+
+class Results(FullView):
+    """Display calculated results.
+
+    Three tabs + option to export.
+    Attributes:
+        parent (Tk): window that contains this frame
+    """
+
+    def __init__(self, parent, data):
+        tk.Frame.__init__(self, parent)
+        self.__parent = parent
+        self.__original_data = data
+
+
+class Start(FullView):
+    """Welcome screen.
+
+    Lets user choose whether you want to level a new character or an
+    existing one.
+    Attributes:
+        root (Tk): window that contains this element
+        manager: gui manager
+    """
+
+    def __init__(self, root, manager):
+        FullView.__init__(self, root)
+        self.__manager = manager
+
+        w.Image(self, "start").grid(row=0, column=0)
+
+        button_container = tk.Frame(self, bg=self.cget("bg"))
+        button_container.grid(row=0, column=0, pady=30)
+
+        new_ = w.PathStarter(button_container,
+                             "NEW",
+                             lambda x=None: self.__manager.show_path(
+                                 Recipe.NEW_CHAR))
+        new_.pack(side="left", padx=5)
+
+        ex_ = w.PathStarter(button_container,
+                            "EXISTING",
+                            lambda x=None: self.__manager.show_path(
+                                Recipe.EXISTING_CHAR))
+        ex_.pack(side="right", padx=5)
+
+
+# View Elements
+
+class ViewElement(tk.Frame):
+    """Standard element that fills part of a window and can be refreshed.
+
+    Automatically packed!
+    Attributes:
+        parent: a view element's parent
+    """
+
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent, bg=w.Colors.BG)
         self.pack(fill="x")
 
     def refresh(self, i=0):
@@ -27,28 +116,20 @@ class Element(tk.Frame):
         pass  # expected method
 
 
-class Footer(Element):
-    """Displays two NavButtons and a Message.
+class Footer(ViewElement):
+    """Display two NavButtons and a Message at the bottom of a window.
 
     Attributes:
-        root: parent window
-        manager (ViewManager): a view manager
+        parent: parent frame/view/window
         instructions (str list): all instruction messages
     """
 
-    def __init__(self, root, manager, instructions):
-        Element.__init__(self, root)
-        self.__root = root
-        self.__manager = manager
+    def __init__(self, parent, instructions):
+        ViewElement.__init__(self, parent)
         self.__instructions = instructions
 
-        self.__right = w.NavButton(self,
-                                   lambda x=None: self.__manager.show_next(),
-                                   "NEXT",
-                                   "RESULTS")
-        self.__left = w.NavButton(self,
-                                  lambda x=None: self.__manager.show_prev(),
-                                  "BACK")
+        self.__right = w.NavButton(self, "NEXT", "RESULTS")
+        self.__left = w.NavButton(self, "BACK")
 
         self.__right.pack(side="right", padx=10, pady=11)
         self.__left.pack(side="left", padx=10, pady=11)
@@ -62,9 +143,13 @@ class Footer(Element):
         self.__show_instruction(self.__instructions[i])
 
         if i == len(self.__instructions) - 1:
-            self.__right.show_alternative_text()
+            self.__right.show_alternative()
         else:
-            self.__right.show_standard_text()
+            self.__right.show_default()
+
+    def set_commands(self, left, right):
+        self.__left.set_command(left)
+        self.__right.set_command(right)
 
     def show_error(self, message):
         self.__message.show_error(message)
@@ -73,17 +158,17 @@ class Footer(Element):
         self.__message.show_normal(message)
 
 
-class Header(Element):
-    """Displays progress by highlighting the current stage. Allows to navigate
-    back to already completed stages.
+class Header(ViewElement):
+    """Display progress by highlighting the current stage.
 
+    Option to navigate back to already completed stages.
     Attributes:
-        root: parent window
+        parent: parent frame/view/window
         titles (str list): list of all titles
     """
 
-    def __init__(self, root, titles):
-        Element.__init__(self, root)
+    def __init__(self, parent, titles):
+        ViewElement.__init__(self, parent)
 
         self.__labels = []
         labels_container = tk.Frame(self, bg=self.cget("bg"))
@@ -111,69 +196,21 @@ class Header(Element):
             button.refresh(i)
 
 
-class Results(tk.Frame):
-    """Display calculated results.
-
-    Three tabs + option to export.
-    Attributes:
-        parent (Tk): window that contains this frame
-    """
-
-    def __init__(self, parent, calculator):
-        tk.Frame.__init__(self, parent)
-        self.__parent = parent
-        self.__calculator = calculator
-
-
-class Start(Element):
-    """Welcome screen.
-
-    Lets user choose whether you want to level a new character or an
-    existing one.
-    Attributes:
-        parent (Tk): window that contains this element
-        manager: gui manager
-    """
-
-    def __init__(self, parent, manager):
-        Element.__init__(self, parent)
-        self.__manager = manager
-
-        w.Image(self, "start").grid(row=0, column=0)
-
-        button_container = tk.Frame(self, bg=self.cget("bg"))
-        button_container.grid(row=0, column=0, pady=30)
-
-        new_ = w.PathSelector(button_container,
-                              "NEW",
-                              lambda x=None: self.__manager.show_new_path())
-        new_.pack(side="left", padx=5)
-
-        ex_ = w.PathSelector(button_container,
-                             "EXISTING",
-                             lambda x=None: self.__manager.show_ex_path())
-        ex_.pack(side="right", padx=5)
-
-        self.pack(fill="both", expand=True)
-
-
-class ViewContainer(Element):
-    """Displays the current view.
+class InputViewContainer(ViewElement):
+    """Display the current input view.
 
     Attributes:
-        root: parent window
+        parent: parent frame/view/window
+        collector: data collector
         view_types (list): contains all available view types
     """
 
-    def __init__(self, root, view_types):
-        Element.__init__(self, root)
-
-        from parser import InputCollector, InputValidator
-        self.__collector = InputCollector(InputValidator)
+    def __init__(self, parent, collector, view_types):
+        ViewElement.__init__(self, parent)
 
         self.__views = []
         for type_ in view_types:
-            self.__views.append(type_(self, self.__collector))
+            self.__views.append(type_(self, collector))
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -187,16 +224,17 @@ class ViewContainer(Element):
         view.tkraise()
         view.set_focus()
 
-    def use_input(self, i):
+    def collect_input(self, i):
         view = self.__views[i]
         view.collect_input()
 
 
-# Views
+# Input Views
 
-class View(tk.Frame):
-    """Standard View, put into (0,0) of the parent grid.
+class InputView(tk.Frame):
+    """Default view type, used for getting user input.
 
+    Put into (0,0) of the parent grid. Use of collectors recommended.
     Attributes:
         parent (Frame): frame that contains this view
     """
@@ -216,7 +254,7 @@ class View(tk.Frame):
         pass  # expected
 
 
-class CharLevels(View):
+class CharLevels(InputView):
     """Frame where player levels (current and goal) are entered.
 
     Attributes:
@@ -225,7 +263,7 @@ class CharLevels(View):
     """
 
     def __init__(self, parent, collector):
-        View.__init__(self, parent)
+        InputView.__init__(self, parent)
         self.__collector = collector
 
         container = tk.Frame(self, bg=self.cget("bg"))
@@ -241,6 +279,7 @@ class CharLevels(View):
         spacer.pack(side="bottom")
 
     def collect_input(self):
+        from parser import ValidationException
         self.update()
         try:
             self.__collector.set_char_levels(
@@ -265,7 +304,7 @@ class CharLevels(View):
                 self.__current_level.mark_invalid()
 
 
-class GoalLevel(View):
+class GoalLevel(InputView):
     """Frame where a goal level is entered.
 
     Attributes:
@@ -274,7 +313,7 @@ class GoalLevel(View):
     """
 
     def __init__(self, parent, collector):
-        View.__init__(self, parent)
+        InputView.__init__(self, parent)
         self.__collector = collector
 
         self.__goal_level = w.BigField(self, "goal")
@@ -284,6 +323,7 @@ class GoalLevel(View):
         spacer.pack(side="bottom")
 
     def collect_input(self):
+        from parser import ValidationException
         self.update()
         try:
             self.__collector.set_char_levels(
@@ -304,7 +344,7 @@ class GoalLevel(View):
                 self.__goal_level.mark_invalid()
 
 
-class Races(View):
+class Races(InputView):
     """Default race selection frame.
 
     Can be sorted by type or by name.
@@ -314,7 +354,7 @@ class Races(View):
     """
 
     def __init__(self, parent, collector):
-        View.__init__(self, parent)
+        InputView.__init__(self, parent)
         self.__collector = collector
 
         self.__selected = ""  # selected race
@@ -415,7 +455,7 @@ class Races(View):
                 row_ += 1
 
 
-class SkillLevels(View):
+class SkillLevels(InputView):
     """Frame where skill levels are entered.
 
     Attributes:
@@ -424,7 +464,7 @@ class SkillLevels(View):
     """
 
     def __init__(self, parent, collector):
-        View.__init__(self, parent)
+        InputView.__init__(self, parent)
         self.__collector = collector
 
         self.__container = tk.Frame(self, bg=self.cget("bg"))
@@ -436,6 +476,7 @@ class SkillLevels(View):
         self.__skills = []
 
     def collect_input(self):
+        from parser import ValidationException
         skill_levels = {}
         for skill in self.__skills:
             skill_levels[skill.get_label()] = skill.get_input()
@@ -500,7 +541,7 @@ class SkillLevels(View):
             self.__container.grid_columnconfigure(i, weight=1)  # set
 
 
-class Skills(View):
+class Skills(InputView):
     """Default skill selection frame.
 
     Can be sorted by category or alphabetically.
@@ -510,7 +551,7 @@ class Skills(View):
     """
 
     def __init__(self, parent, collector):
-        View.__init__(self, parent)
+        InputView.__init__(self, parent)
         self.__collector = collector
 
         self.__sorted_by_type = True
@@ -643,9 +684,9 @@ if __name__ == "__main__":
         __root.after_idle(__root.attributes, '-topmost', False)
 
         if type_ == "e":
-            m.GuiManager(__root).show_ex_path()
+            m.GuiController(__root).show_path(Recipe.EXISTING_CHAR)
         else:
-            m.GuiManager(__root).show_new_path()
+            m.GuiController(__root).show_path(Recipe.NEW_CHAR)
         __root.mainloop()
 
 

@@ -21,7 +21,7 @@ class Title(tk.Label):
 
 
 class BreadcrumbLabel(tk.Label):
-    """Displays title of current stage.
+    """Display title of current stage.
 
     Attributes:
         parent (Frame): parent frame
@@ -68,7 +68,7 @@ class Message(tk.Label):
 # classic buttons
 
 class BreadcrumbButton(tk.Label):
-    """Breadcrumb label/button.
+    """Breadcrumb button displaying status of a step.
 
     Attributes:
         parent (Frame): frame that contains this image
@@ -99,20 +99,17 @@ class NavButton(tk.Button):
 
     Attributes:
         parent (Frame): frame that contains this button
-        command_: button command
         label (str): default text
         alt_label (str): optional, alternative text
     """
 
-    def __init__(self, parent, command_, label, alt_label=None):
+    def __init__(self, parent, label, alt_label=None):
         tk.Button.__init__(self, parent,
                            activebackground=parent.cget("bg"),
                            bg=parent.cget("bg"),
                            borderwidth=0,
-                           command=command_,
                            cursor="hand2",
                            relief="flat")
-        self.bind("<Return>", command_)
 
         self.__image = ImageImporter.load("nav/" + label)
 
@@ -120,17 +117,21 @@ class NavButton(tk.Button):
         if alt_label is not None:
             self.__alt_image = ImageImporter.load("nav/" + alt_label)
 
-        self.show_standard_text()
+        self.show_default()
 
-    def show_standard_text(self):
+    def show_default(self):
         self.config(image=self.__image)
 
-    def show_alternative_text(self):
+    def set_command(self, command_):
+        self.config(command=command_)
+        self.bind("<Return>", command_)
+
+    def show_alternative(self):
         if self.__alt_image is not None:
             self.config(image=self.__alt_image)
 
 
-class PathSelector(tk.Button):
+class PathStarter(tk.Button):
     """Layout for 'NEW'- and 'EXISTING'-button.
 
     Attributes:
@@ -287,14 +288,14 @@ class BigField(tk.Frame):
     Perfect for character level input.
     Attributes:
         parent (Frame): frame that contains this field
-        name (str): bg image file name
+        name_ (str): bg image file name
     """
 
-    def __init__(self, parent, name):
+    def __init__(self, parent, name_):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
-        self.__selected_bg = ImageImporter.load("bigfield/SELECTED_" + name)
-        self.__error_bg = ImageImporter.load("bigfield/ERROR_" + name)
+        self.__selected_bg = ImageImporter.load("bigfield/SELECTED_" + name_)
+        self.__error_bg = ImageImporter.load("bigfield/ERROR_" + name_)
 
         self.__background_label = tk.Label(self, bg=self.cget("bg"))
         self.__background_label.grid(row=0, column=0)
@@ -335,17 +336,17 @@ class SmallField(tk.Frame):
     Made for skill level input.
     Attributes:
         parent (Frame): frame that contains this field
-        name (str): field name
+        name_ (str): field name
     """
 
-    def __init__(self, parent, name):
+    def __init__(self, parent, name_):
         tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
 
-        self.__name = name
-        name = name.replace(" ", "_")  # no whitespace in file names
+        self.__name = name_
+        file_name = name_.replace(" ", "_")  # no whitespace in file names
 
-        self.__selected_bg = ImageImporter.load("smallfield/" + name)
-        self.__error_bg = ImageImporter.load("smallfield/ERROR_" + name)
+        self.__selected_bg = ImageImporter.load("smallfield/" + file_name)
+        self.__error_bg = ImageImporter.load("smallfield/ERROR_" + file_name)
 
         self.__background_label = tk.Label(self, bg=self.cget("bg"))
         self.__background_label.grid(row=0, column=0)
@@ -402,21 +403,21 @@ class Colors:
 
 
 class Image(tk.Label):
-    """Displays an image imported by the ImageImporter.
+    """Display an image imported by the ImageImporter.
 
     Attributes:
         parent (Frame): parent frame
-        name (str): image file name
+        name_ (str): image file name
     """
-    def __init__(self, parent, name):
+    def __init__(self, parent, name_):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
 
-        self.__image = ImageImporter.load(name)
+        self.__image = ImageImporter.load(name_)
         self.config(image=self.__image)
 
 
 class ImageImporter:
-    """Imports .png-images from /res/-folder."""
+    """Import .png-images from /res/-folder."""
 
     @staticmethod
     def load(image):
@@ -433,4 +434,3 @@ if __name__ == "__main__":
         if inspect.isclass(obj):
             print(obj.__name__, "\n",
                   obj.__doc__, "\n\n")
-

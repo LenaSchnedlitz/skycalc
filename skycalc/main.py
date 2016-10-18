@@ -3,47 +3,39 @@ import tkinter as tk
 import views as v
 
 
-class ViewNavigator:
-    """Manage all views of a branch.
+class PathNavigator:
+    """Manage all views of an input path.
 
     Attributes:
-        root (Tk): window that contains this frame
-        content: tuple with a dictionary for each view
+        controller: gui controller
+        content: dict of big gui components like header, footer, view,...
     """
 
-    def __init__(self, root, content, manager):
-        self.__root = root
-        self.__manager = manager
+    def __init__(self, controller, content):
+        self.__controller = controller
 
-        self.__n = len(content)
         self.__i = 0  # number of current view/page
-        self.__elements = self.__build_window_elements(content)
+        self.__n = len(content)
+        self.__content = content
 
+        self.__content["Footer"].set_commands(lambda x=None: self.show_prev(),
+                                              lambda x=None: self.show_next())
         self.__update_content()
 
-    def __build_window_elements(self, content):
-        header = v.Header(self.__root,
-                          [entry["Title"] for entry in content])
-        view_container = v.ViewContainer(self.__root,
-                                         [entry["View"] for entry in content])
-        footer = v.Footer(self.__root, self,
-                          [entry["Instruction"] for entry in content])
-        return header, view_container, footer
-
     def __update_content(self):
-        for element in self.__elements:
+        for element in self.__content:
             element.refresh(self.__i)
 
     def show_next(self):
         try:
-            self.__elements[1].use_input(self.__i)  # TODO
+            self.__content["Views"].collect_input(self.__i)
             if self.__i + 1 < self.__n:
                 self.__i += 1
                 self.__update_content()
             else:
-                self.__manager.show_results()
+                self.__controller.show_results()
         except Exception as e:
-            for element in self.__elements:
+            for element in self.__content:
                 element.show_error(e)
 
     def show_prev(self):
@@ -51,26 +43,29 @@ class ViewNavigator:
             self.__i -= 1
             self.__update_content()
         else:
-            self.__manager.show_start()
+            self.__controller.show_start()
 
 
-class GuiManager:
+class GuiController:
+    """Configure the main window and swap its content.
+
+    Attributes:
+        root (Tk): window that contains this frame
+    """
+
     def __init__(self, root):
         self.__root = root
 
         self.show_start()
         self.__configure_window()
 
-    def show_ex_path(self):
+    def show_path(self, recipe):
         self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.Recipe.EXISTING_CHAR, self)
-
-    def show_new_path(self):
-        self.__destroy_all_elements()
-        ViewNavigator(self.__root, v.Recipe.NEW_CHAR, self)
+        v.InputViewPath(self.__root, self, recipe)
 
     def show_results(self):
         self.__destroy_all_elements()
+        v.Results(self.__root, self, self.__data_collector)
 
     def show_start(self):
         self.__destroy_all_elements()
@@ -96,5 +91,5 @@ class GuiManager:
 
 if __name__ == "__main__":
     __root = tk.Tk()
-    GuiManager(__root)
+    GuiController(__root)
     __root.mainloop()
