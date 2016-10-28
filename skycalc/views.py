@@ -5,10 +5,10 @@ import tkinter as tk
 import widgets as w
 
 
-# Full Views
+# Window Content
 
-class FullView(tk.Frame):
-    """Standard view inside a window. Automatically packed!
+class WindowContent(tk.Frame):
+    """Standard view filling a window. Automatically packed!
 
     Attributes:
         root (Tk): window that contains this element
@@ -19,78 +19,75 @@ class FullView(tk.Frame):
         self.pack(fill="both", expand=True)
 
 
-class InputViewPath(FullView):
-    """
+# TODO: add navigator somehow
+class InputGetter(WindowContent):
+    """Contain input forms consisting of headers, input views and footers.
 
     Attributes:
         root (Tk): window that contains this element
-        controller: gui controller
-        recipe: information about path content
+        recipe: information which views are needed
+        navigator: responsible for navigation between forms
     """
 
-    def __init__(self, root, controller, recipe):
-        FullView.__init__(self, root)
-        import main as m
-        from parser import InputCollector, InputValidator
-        self.__collector = InputCollector(InputValidator)
+    def __init__(self, root, recipe, navigator):
+        WindowContent.__init__(self, root)
+
+        import inputparser as p
+        self.__collector = p.InputCollector()
 
         header = Header(self, [entry["Title"] for entry in recipe])
-        views = InputViewContainer(self,
+        views = InputFormContainer(self,
                                    [entry["View"] for entry in recipe],
                                    self.__collector)
         footer = Footer(self, [entry["Instruction"] for entry in recipe])
 
-        self.navigator = m.PathNavigator(controller,
-                                         {"Header": header,
-                                          "Views": views,
-                                          "Footer": footer})
+        navigator.set_content(
+            {"Header": header, "Views": views, "Footer": footer})
 
     def get_collector(self):
         return self.__collector
 
 
-class Results(FullView):
+class Results(WindowContent):
     """Display calculated results.
 
     Three tabs + option to export.
     Attributes:
-        parent (Tk): window that contains this frame
+        root (Tk): container window
     """
 
-    def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent)
-        self.__parent = parent
-        self.__original_data = data
+    def __init__(self, root):
+        tk.Frame.__init__(self, root)
 
 
-class Start(FullView):
+class Start(WindowContent):
     """Welcome screen.
 
-    Lets user choose whether you want to level a new character or an
+    Let users choose whether they want to level a new character or an
     existing one.
     Attributes:
-        root (Tk): window that contains this element
-        manager: gui manager
+        root (Tk): container window
+        controller: gui controller
     """
 
-    def __init__(self, root, manager):
-        FullView.__init__(self, root)
-        self.__manager = manager
+    def __init__(self, root, controller):
+        WindowContent.__init__(self, root)
+        self.__controller = controller
 
         w.Image(self, "start").grid(row=0, column=0)
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.grid(row=0, column=0, pady=30)
 
-        new_ = w.PathStarter(button_container,
+        new_ = w.StartButton(button_container,
                              "NEW",
-                             lambda x=None: self.__manager.show_path(
+                             lambda x=None: self.__controller.show_input_forms(
                                  Recipe.NEW_CHAR))
         new_.pack(side="left", padx=5)
 
-        ex_ = w.PathStarter(button_container,
+        ex_ = w.StartButton(button_container,
                             "EXISTING",
-                            lambda x=None: self.__manager.show_path(
+                            lambda x=None: self.__controller.show_input_forms(
                                 Recipe.EXISTING_CHAR))
         ex_.pack(side="right", padx=5)
 
@@ -98,11 +95,11 @@ class Start(FullView):
 # View Elements
 
 class ViewElement(tk.Frame):
-    """Standard element that fills part of a window and can be refreshed.
+    """Standard element that fills part of a window and can be updated.
 
     Automatically packed!
     Attributes:
-        parent: a view element's parent
+        parent: a view element's container
     """
 
     def __init__(self, parent):
@@ -142,7 +139,7 @@ class Footer(ViewElement):
     def refresh(self, i=0):
         self.__show_instruction(self.__instructions[i])
 
-        if i == len(self.__instructions) - 1:
+        if i == len(self.__instructions) - 1:  # last page
             self.__right.show_alternative()
         else:
             self.__right.show_default()
@@ -158,12 +155,13 @@ class Footer(ViewElement):
         self.__message.show_normal(message)
 
 
+# TODO navigate back
 class Header(ViewElement):
-    """Display progress by highlighting the current stage.
+    """Highlight the current stage and display its name to show progress.
 
     Option to navigate back to already completed stages.
     Attributes:
-        parent: parent frame/view/window
+        parent: container frame/view/window
         titles (str list): list of all titles
     """
 
@@ -196,16 +194,16 @@ class Header(ViewElement):
             button.refresh(i)
 
 
-class InputViewContainer(ViewElement):
-    """Display the current input view.
+class InputFormContainer(ViewElement):
+    """Display the current input form.
 
     Attributes:
         parent: parent frame/view/window
+        view_types (list): all available view types
         collector: data collector
-        view_types (list): contains all available view types
     """
 
-    def __init__(self, parent, collector, view_types):
+    def __init__(self, parent, view_types, collector):
         ViewElement.__init__(self, parent)
 
         self.__views = []
@@ -231,8 +229,8 @@ class InputViewContainer(ViewElement):
 
 # Input Views
 
-class InputView(tk.Frame):
-    """Default view type, used for getting user input.
+class InputForm(tk.Frame):
+    """Default form type, used for getting user input.
 
     Put into (0,0) of the parent grid. Use of collectors recommended.
     Attributes:
@@ -245,25 +243,25 @@ class InputView(tk.Frame):
         self.grid(row=0, column=0, sticky="nsew")
 
     def collect_input(self):
-        pass  # expected
+        pass  # expected method
 
     def set_focus(self):
         self.focus_set()
 
     def update(self):
-        pass  # expected
+        pass  # expected method
 
 
-class CharLevels(InputView):
+class CharLevels(InputForm):
     """Frame where player levels (current and goal) are entered.
 
     Attributes:
-        parent (Frame): frame that contains this frame
-        collector: object that collects input data
+        parent (Frame): container frame
+        collector: collects input data
     """
 
     def __init__(self, parent, collector):
-        InputView.__init__(self, parent)
+        InputForm.__init__(self, parent)
         self.__collector = collector
 
         container = tk.Frame(self, bg=self.cget("bg"))
@@ -279,14 +277,14 @@ class CharLevels(InputView):
         spacer.pack(side="bottom")
 
     def collect_input(self):
-        from parser import ValidationException
+        from inputparser import ValidationException
         self.update()
         try:
             self.__collector.set_char_levels(
                 now=self.__current_level.get_input(),
                 goal=self.__goal_level.get_input())
         except ValidationException as e:
-            self.__show_errors(e.get_errors())
+            self.__show_problems(e.get_problems())
             raise e
 
     def set_focus(self):
@@ -296,24 +294,24 @@ class CharLevels(InputView):
         self.__current_level.mark_valid()
         self.__goal_level.mark_valid()
 
-    def __show_errors(self, errors):
-        for error in errors:
-            if error == "goal":
+    def __show_problems(self, problems):
+        for problem in problems:
+            if problem == "goal":
                 self.__goal_level.mark_invalid()
-            elif error == "now":
+            elif problem == "now":
                 self.__current_level.mark_invalid()
 
 
-class GoalLevel(InputView):
+class GoalLevel(InputForm):
     """Frame where a goal level is entered.
 
     Attributes:
-        parent (Frame): frame that contains this frame
-        collector: object that collects input data
+        parent (Frame): container frame
+        collector: collects input data
     """
 
     def __init__(self, parent, collector):
-        InputView.__init__(self, parent)
+        InputForm.__init__(self, parent)
         self.__collector = collector
 
         self.__goal_level = w.BigField(self, "goal")
@@ -323,13 +321,13 @@ class GoalLevel(InputView):
         spacer.pack(side="bottom")
 
     def collect_input(self):
-        from parser import ValidationException
+        from inputparser import ValidationException
         self.update()
         try:
             self.__collector.set_char_levels(
                 goal=self.__goal_level.get_input())
         except ValidationException as e:
-            self.__show_errors(e.get_errors())
+            self.__show_problems(e.get_problems())
             raise e
 
     def set_focus(self):
@@ -338,23 +336,23 @@ class GoalLevel(InputView):
     def update(self):
         self.__goal_level.mark_valid()
 
-    def __show_errors(self, errors):
-        for error in errors:
-            if error == "goal":
+    def __show_problems(self, problems):
+        for problem in problems:
+            if problem == "goal":
                 self.__goal_level.mark_invalid()
 
 
-class Races(InputView):
-    """Default race selection frame.
+class Races(InputForm):
+    """Let user select their character's race.
 
     Can be sorted by type or by name.
     Attributes:
-        parent (Frame): frame that contains this frame
-        collector: object that collects input data
+        parent (Frame): container frame
+        collector: collects input data
     """
 
     def __init__(self, parent, collector):
-        InputView.__init__(self, parent)
+        InputForm.__init__(self, parent)
         self.__collector = collector
 
         self.__selected = ""  # selected race
@@ -393,7 +391,7 @@ class Races(InputView):
             self.__sorted_by_type = True
 
     def __build_headlines(self):
-        from parser import GameData
+        from inputparser import GameData
 
         headlines = []
         for word in GameData.RACE_TYPES:
@@ -413,7 +411,7 @@ class Races(InputView):
         return container
 
     def __build_races(self):
-        from parser import GameData
+        from inputparser import GameData
         races = []
         for name in GameData.RACE_NAMES:
             races.append(w.Option(self.__container, name, self))
@@ -455,16 +453,16 @@ class Races(InputView):
                 row_ += 1
 
 
-class SkillLevels(InputView):
+class SkillLevels(InputForm):
     """Frame where skill levels are entered.
 
     Attributes:
-        parent (Frame): frame that contains this frame
-        collector: object that collects input data
+        parent (Frame): container frame
+        collector: collects input data
     """
 
     def __init__(self, parent, collector):
-        InputView.__init__(self, parent)
+        InputForm.__init__(self, parent)
         self.__collector = collector
 
         self.__container = tk.Frame(self, bg=self.cget("bg"))
@@ -476,7 +474,7 @@ class SkillLevels(InputView):
         self.__skills = []
 
     def collect_input(self):
-        from parser import ValidationException
+        from inputparser import ValidationException
         skill_levels = {}
         for skill in self.__skills:
             skill_levels[skill.get_label()] = skill.get_input()
@@ -484,7 +482,7 @@ class SkillLevels(InputView):
         try:
             self.__collector.set_skill_levels(skill_levels)
         except ValidationException as e:
-            self.__show_errors(e.get_errors())
+            self.__show_problems(e.get_problems())
             raise e
 
     def set_focus(self):
@@ -524,11 +522,11 @@ class SkillLevels(InputView):
         else:
             return 5
 
-    def __show_errors(self, errors):
+    def __show_problems(self, problems):
         first_invalid = None
         for skill in self.__skills:
             skill.mark_valid()
-            if skill.get_label() in errors:
+            if skill.get_label() in problems:
                 skill.mark_invalid()
                 if first_invalid is None:
                     first_invalid = skill
@@ -541,17 +539,17 @@ class SkillLevels(InputView):
             self.__container.grid_columnconfigure(i, weight=1)  # set
 
 
-class Skills(InputView):
-    """Default skill selection frame.
+class Skills(InputForm):
+    """Let player select some skills.
 
     Can be sorted by category or alphabetically.
     Attributes:
-        parent (Frame): frame that contains this frame
-        collector: object that collects input data
+        parent (Frame): container frame
+        collector: collects input data
     """
 
     def __init__(self, parent, collector):
-        InputView.__init__(self, parent)
+        InputForm.__init__(self, parent)
         self.__collector = collector
 
         self.__sorted_by_type = True
@@ -586,7 +584,7 @@ class Skills(InputView):
             self.__sorted_by_type = True
 
     def __build_headlines(self):
-        from parser import GameData
+        from inputparser import GameData
 
         headlines = []
         for word in GameData.SKILL_TYPES:
@@ -606,7 +604,7 @@ class Skills(InputView):
         return container
 
     def __build_skills(self):
-        from parser import GameData
+        from inputparser import GameData
 
         skills = []
         for name in GameData.SKILL_NAMES:
@@ -648,7 +646,7 @@ class Skills(InputView):
 # other
 
 class Recipe:
-    """Contains data about possible 'View Paths'."""
+    """Contain data about possible 'View Paths'."""
     EXISTING_CHAR = (
         {"View": CharLevels,
          "Title": "LEVELS",
@@ -684,9 +682,9 @@ if __name__ == "__main__":
         __root.after_idle(__root.attributes, '-topmost', False)
 
         if type_ == "e":
-            m.GuiController(__root).show_path(Recipe.EXISTING_CHAR)
+            m.GuiController(__root).show_input_forms(Recipe.EXISTING_CHAR)
         else:
-            m.GuiController(__root).show_path(Recipe.NEW_CHAR)
+            m.GuiController(__root).show_input_forms(Recipe.NEW_CHAR)
         __root.mainloop()
 
 

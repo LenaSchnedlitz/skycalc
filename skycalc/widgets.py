@@ -5,6 +5,7 @@ import tkinter as tk
 
 # different kinds of text and labels
 
+# TODO use or remove
 class Title(tk.Label):
     """Title - biggest text.
 
@@ -25,7 +26,7 @@ class BreadcrumbLabel(tk.Label):
 
     Attributes:
         parent (Frame): parent frame
-        text (str): label text/image file suffix
+        text (str): label text/image file name
         i (int): position/index
     """
 
@@ -44,7 +45,7 @@ class BreadcrumbLabel(tk.Label):
 
 
 class Message(tk.Label):
-    """Standard text message with 2 modes (normal and error).
+    """Standard message with 2 modes (normal and error).
 
     Attributes:
         parent (Frame): frame that contains this text
@@ -67,6 +68,7 @@ class Message(tk.Label):
 
 # classic buttons
 
+# TODO Button functionality
 class BreadcrumbButton(tk.Label):
     """Breadcrumb button displaying status of a step.
 
@@ -95,7 +97,7 @@ class BreadcrumbButton(tk.Label):
 
 
 class NavButton(tk.Button):
-    """Standard layout for 'previous'- & 'next'-button.
+    """Standard layout for 'previous'- or 'next'-buttons.
 
     Attributes:
         parent (Frame): frame that contains this button
@@ -131,8 +133,8 @@ class NavButton(tk.Button):
             self.config(image=self.__alt_image)
 
 
-class PathStarter(tk.Button):
-    """Layout for 'NEW'- and 'EXISTING'-button.
+class StartButton(tk.Button):
+    """Default button layout, mainly used in 'Start'.
 
     Attributes:
         parent (Frame): frame that contains this button
@@ -160,8 +162,8 @@ class SortButton(tk.Button):
     """'Toggle button' used for sorting method selection.
 
     Attributes:
-        parent (Frame): frame that contains this button
-        text_ (str): button text, usually 'alphabetically' or 'by category'
+        parent (Frame): container frame
+        text_ (str): button text, usually 'alphabetically', 'by category', ...
     """
 
     def __init__(self, parent, text_):
@@ -183,6 +185,7 @@ class SortButton(tk.Button):
         self.config(text=new_text)
 
 
+# TODO use or remove
 class TabButton(tk.Button):
     """Tab index button.
 
@@ -205,7 +208,7 @@ class Selectable(tk.Button):
     """Selectable text, can be toggled (selected - deselected).
 
     Attributes:
-        parent (Frame): frame that contains this button
+        parent (Frame): container frame
         text_ (str): displayed text
     """
 
@@ -246,7 +249,7 @@ class MultiSelectable(Selectable):
     """Selectable; more than one element can be selected.
 
     Attributes:
-        parent (Frame): frame that contains this selectable
+        parent (Frame): container frame
         text_ (str): displayed text
     """
 
@@ -265,13 +268,14 @@ class MultiSelectable(Selectable):
         self.__selected = not self.__selected
 
 
+# TODO: rename object_
 class Option(Selectable):
     """Selectable; only one element can be selected at a time.
 
     Attributes:
-        parent (Frame): frame that contains this selectable
+        parent (Frame): container frame
         text_ (str): displayed text
-        object_ (any with 'selected' attribute): object that offers this option
+        object_: object that offers this option
     """
 
     def __init__(self, parent, text_, object_):
@@ -287,7 +291,7 @@ class BigField(tk.Frame):
 
     Perfect for character level input.
     Attributes:
-        parent (Frame): frame that contains this field
+        parent (Frame): container frame
         name_ (str): bg image file name
     """
 
@@ -335,7 +339,7 @@ class SmallField(tk.Frame):
 
     Made for skill level input.
     Attributes:
-        parent (Frame): frame that contains this field
+        parent (Frame): container frame
         name_ (str): field name
     """
 
@@ -403,21 +407,21 @@ class Colors:
 
 
 class Image(tk.Label):
-    """Display an image imported by the ImageImporter.
+    """Display a .png-image imported by the ImageImporter.
 
     Attributes:
         parent (Frame): parent frame
         name_ (str): image file name
     """
+
     def __init__(self, parent, name_):
         tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
-
         self.__image = ImageImporter.load(name_)
         self.config(image=self.__image)
 
 
 class ImageImporter:
-    """Import .png-images from /res/-folder."""
+    """Import a .png-image from /res."""
 
     @staticmethod
     def load(image):

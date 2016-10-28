@@ -1,5 +1,5 @@
 class GameData:
-    """Contains information about Skyrim."""
+    """Information about Skyrim."""
 
     NEW_CHAR_LEVEL_INFO = {
         "Breton": {
@@ -223,30 +223,84 @@ class GameData:
 
 
 class ValidationException(Exception):
-    """Exception with 'error list'.
+    """Exception with 'problem list'.
 
     Attributes:
         message (str): error message
-        errors (list): list of all errors
+        problems (list): list of all errors
     """
 
-    def __init__(self, message, errors=None):
+    def __init__(self, message, problems=None):
         super(ValidationException, self).__init__(message)
-        self.__errors = errors
+        self.__problems = problems
 
-    def get_errors(self):
-        return self.__errors
+    def get_problems(self):
+        return self.__problems
+
+
+class InputValidator:
+    """Check if given input is valid (= could be Skyrim game data)."""
+
+    @staticmethod
+    def are_valid_skills(skills):
+        for skill in skills:
+            if skill not in GameData.SKILL_NAMES:
+                return False
+        return True
+
+    @staticmethod
+    def is_valid_char_level(level):
+        try:
+            level = int(level)
+        except ValueError:
+            return False
+
+        return 0 < level < 300  # arbitrary cap, >= 252
+
+    @staticmethod
+    def is_valid_level_combination(now, goal):
+        try:
+            now = int(now)
+            goal = int(goal)
+        except ValueError:
+            return False
+
+        return now < goal
+
+    @staticmethod
+    def is_valid_race(race):
+        return race in GameData.RACE_NAMES
+
+    @staticmethod
+    def is_valid_selection(selection):
+        return isinstance(selection, list) and len(selection) > 0
+
+    @staticmethod
+    def is_valid_skill_dictionary(dictionary):
+        if not isinstance(dictionary, dict) or len(dictionary) == 0:
+            return False
+
+        return InputValidator.are_valid_skills(dictionary)
+
+    @staticmethod
+    def is_valid_skill_level(level):
+        try:
+            level = int(level)
+        except ValueError:
+            return False
+
+        return 15 <= level <= 100
 
 
 class InputCollector:
-    """Collects valid user input.
+    """Collect valid user input.
 
     Validation is handled by the validator passed to the constructor.
     Attributes:
         validator: any validator class/object.
     """
 
-    def __init__(self, validator):
+    def __init__(self, validator=InputValidator):
         self.__validator = validator
 
         self.__goal = None
@@ -319,57 +373,3 @@ class InputCollector:
         else:
             raise ValidationException(
                 "Skill levels can range from 15 to 100.", invalid_skills)
-
-
-class InputValidator:
-    """Check if given input is possible (Skyrim game data)."""
-
-    @staticmethod
-    def are_valid_skills(skills):
-        for skill in skills:
-            if skill not in GameData.SKILL_NAMES:
-                return False
-        return True
-
-    @staticmethod
-    def is_valid_char_level(level):
-        try:
-            level = int(level)
-        except ValueError:
-            return False
-
-        return 0 < level < 300  # arbitrary cap, >= 252
-
-    @staticmethod
-    def is_valid_level_combination(now, goal):
-        try:
-            now = int(now)
-            goal = int(goal)
-        except ValueError:
-            return False
-
-        return now < goal
-
-    @staticmethod
-    def is_valid_race(race):
-        return race in GameData.RACE_NAMES
-
-    @staticmethod
-    def is_valid_selection(selection):
-        return isinstance(selection, list) and len(selection) > 0
-
-    @staticmethod
-    def is_valid_skill_dictionary(dictionary):
-        if not isinstance(dictionary, dict) or len(dictionary) == 0:
-            return False
-
-        return InputValidator.are_valid_skills(dictionary)
-
-    @staticmethod
-    def is_valid_skill_level(level):
-        try:
-            level = int(level)
-        except ValueError:
-            return False
-
-        return 15 <= level <= 100

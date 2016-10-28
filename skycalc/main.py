@@ -3,28 +3,27 @@ import tkinter as tk
 import views as v
 
 
-class PathNavigator:
-    """Manage all views of an input path.
+# TODO: make more reusable
+class Navigator:
+    """Manage all views of an input getter.
 
     Attributes:
         controller: gui controller
-        content: dict of big gui components like header, footer, view,...
     """
 
-    def __init__(self, controller, content):
+    def __init__(self, controller):
         self.__controller = controller
 
         self.__i = 0  # number of current view/page
+        self.__n = 0  # must be set by set_content
+        self.__content = None  # must be set by set_content
+
+    def set_content(self, content):
         self.__n = len(content)
         self.__content = content
-
         self.__content["Footer"].set_commands(lambda x=None: self.show_prev(),
                                               lambda x=None: self.show_next())
         self.__update_content()
-
-    def __update_content(self):
-        for element in self.__content:
-            element.refresh(self.__i)
 
     def show_next(self):
         try:
@@ -35,7 +34,7 @@ class PathNavigator:
             else:
                 self.__controller.show_results()
         except Exception as e:
-            for element in self.__content:
+            for element in self.__content.values():
                 element.show_error(e)
 
     def show_prev(self):
@@ -45,12 +44,16 @@ class PathNavigator:
         else:
             self.__controller.show_start()
 
+    def __update_content(self):
+        for element in self.__content.values():
+            element.refresh(self.__i)
+
 
 class GuiController:
     """Configure the main window and swap its content.
 
     Attributes:
-        root (Tk): window that contains this frame
+        root (Tk): main window
     """
 
     def __init__(self, root):
@@ -59,13 +62,13 @@ class GuiController:
         self.show_start()
         self.__configure_window()
 
-    def show_path(self, recipe):
+    def show_input_forms(self, recipe):
         self.__destroy_all_elements()
-        v.InputViewPath(self.__root, self, recipe)
+        v.InputGetter(self.__root, recipe, Navigator(self))
 
     def show_results(self):
         self.__destroy_all_elements()
-        v.Results(self.__root, self, self.__data_collector)
+        v.Results(self.__root, self)
 
     def show_start(self):
         self.__destroy_all_elements()
