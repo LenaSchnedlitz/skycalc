@@ -268,19 +268,18 @@ class MultiSelectable(Selectable):
         self.__selected = not self.__selected
 
 
-# TODO: rename object_
 class Option(Selectable):
     """Selectable; only one element can be selected at a time.
 
     Attributes:
         parent (Frame): container frame
         text_ (str): displayed text
-        object_: object that offers this option
+        provider: object that offers this option
     """
 
-    def __init__(self, parent, text_, object_):
+    def __init__(self, parent, text_, provider):
         Selectable.__init__(self, parent, text_)
-        self.__object = object_
+        self.__object = provider
 
     def select(self):
         self.__object.select(self.get_label())

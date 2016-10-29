@@ -58,17 +58,19 @@ class GuiController:
 
     def __init__(self, root):
         self.__root = root
+        self.__collector = None
 
         self.show_start()
         self.__configure_window()
 
     def show_input_forms(self, recipe):
         self.__destroy_all_elements()
-        v.InputGetter(self.__root, recipe, Navigator(self))
+        self.__reset_collector()
+        v.InputGetter(self.__root, recipe, Navigator(self), self.__collector)
 
     def show_results(self):
         self.__destroy_all_elements()
-        v.Results(self.__root, self)
+        v.Results(self.__root, self.__collector)
 
     def show_start(self):
         self.__destroy_all_elements()
@@ -90,6 +92,10 @@ class GuiController:
     def __destroy_all_elements(self):
         for child in self.__root.winfo_children():
             child.destroy()
+
+    def __reset_collector(self):
+        import inputparser as p
+        self.__collector = p.InputCollector()
 
 
 if __name__ == "__main__":

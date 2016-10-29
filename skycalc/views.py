@@ -19,7 +19,6 @@ class WindowContent(tk.Frame):
         self.pack(fill="both", expand=True)
 
 
-# TODO: add navigator somehow
 class InputGetter(WindowContent):
     """Contain input forms consisting of headers, input views and footers.
 
@@ -27,13 +26,12 @@ class InputGetter(WindowContent):
         root (Tk): window that contains this element
         recipe: information which views are needed
         navigator: responsible for navigation between forms
+        collector: collects input from forms
     """
 
-    def __init__(self, root, recipe, navigator):
+    def __init__(self, root, recipe, navigator, collector):
         WindowContent.__init__(self, root)
-
-        import inputparser as p
-        self.__collector = p.InputCollector()
+        self.__collector = collector
 
         header = Header(self, [entry["Title"] for entry in recipe])
         views = InputFormContainer(self,
@@ -54,10 +52,23 @@ class Results(WindowContent):
     Three tabs + option to export.
     Attributes:
         root (Tk): container window
+        collector: data object
     """
 
-    def __init__(self, root):
+    def __init__(self, root, collector):
         tk.Frame.__init__(self, root)
+        import calculator as calc
+
+        levels = collector.get_skill_levels()
+        now, goal = collector.get_char_levels()
+
+        self.__fast_results = calc.simulate_fast_training(levels, now, goal)
+        self.__easy_results = calc.simulate_easy_training(levels, now, goal)
+        self.__balanced_results = calc.simulate_balanced_training(levels,
+                                                                  now, goal)
+        print(self.__fast_results)
+        print(self.__easy_results)
+        print(self.__balanced_results)
 
 
 class Start(WindowContent):

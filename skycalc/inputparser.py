@@ -292,6 +292,7 @@ class InputValidator:
         return 15 <= level <= 100
 
 
+# TODO check if complete
 class InputCollector:
     """Collect valid user input.
 
@@ -310,7 +311,7 @@ class InputCollector:
         self.__skill_levels = None
 
     def get_char_levels(self):
-        return {"Now": self.__now, "Goal": self.__goal}
+        return self.__now, self.__goal
 
     def get_race(self):
         return self.__race
@@ -319,6 +320,8 @@ class InputCollector:
         return self.__selected_skills
 
     def get_skill_levels(self):
+        if self.__skill_levels is None:
+            self.__set_default_skill_levels()
         return self.__skill_levels
 
     def set_char_levels(self, goal, now=1):
@@ -369,7 +372,13 @@ class InputCollector:
             if not self.__validator.is_valid_skill_level(skill_levels[s]):
                 invalid_skills.append(s)
         if not invalid_skills:
-            self.__skill_levels = skill_levels
+            self.__skill_levels = {skill: int(skill_levels[skill]) for skill in
+                                   skill_levels}
         else:
             raise ValidationException(
                 "Skill levels can range from 15 to 100.", invalid_skills)
+
+    def __set_default_skill_levels(self):
+        default_levels = GameData.NEW_CHAR_LEVEL_INFO[self.__race]
+        self.__skill_levels = {skill: default_levels[skill] for skill in
+                               self.__selected_skills}
