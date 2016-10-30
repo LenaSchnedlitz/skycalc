@@ -66,6 +66,25 @@ class Message(tk.Label):
         self.config(text=new_text, fg=Colors.DARK)
 
 
+class TableEntry(tk.Label):
+    """Text, usually a table entry.
+
+    Attributes:
+        parent (Frame): frame that contains this text
+        text_ (str): displayed text
+        highlighted (boolean): text will be bigger and brighter if True
+    """
+
+    def __init__(self, parent, text_, highlighted=False):
+        tk.Label.__init__(self, parent,
+                          bg=parent.cget("bg"),
+                          text=text_)
+        if highlighted:
+            self.config(fg=Colors.TEXT, font=("Helvetica", 11, "bold"))
+        else:
+            self.config(fg=Colors.LIGHT, font=("Helvetica", 10))
+
+
 # classic buttons
 
 # TODO Button functionality

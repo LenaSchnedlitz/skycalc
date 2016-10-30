@@ -56,7 +56,7 @@ class Results(WindowContent):
     """
 
     def __init__(self, root, collector):
-        tk.Frame.__init__(self, root)
+        WindowContent.__init__(self, root)
         import calculator as calc
 
         levels = collector.get_skill_levels()
@@ -69,6 +69,8 @@ class Results(WindowContent):
         print(self.__fast_results)
         print(self.__easy_results)
         print(self.__balanced_results)
+
+        ResultTable(self, self.__fast_results)
 
 
 class Start(WindowContent):
@@ -655,6 +657,34 @@ class Skills(InputForm):
 
 
 # other
+class ResultTable(tk.Frame):
+    """Displays result data (returned by calculator-functions) in a table.
+
+    Positioned at (0,0) of parent grid.
+    Attributes:
+        parent (tk.Frame): container
+        data (dict): displayed result data
+    """
+
+    def __init__(self, parent, data):
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
+
+        sorted_relevant_skills = sorted(skill for skill in data.keys() if
+                                        data[skill]["Times Leveled"] != 0)
+
+        for i in range(len(sorted_relevant_skills)):
+            skill = sorted_relevant_skills[i]
+            entry = data[skill]
+            w.TableEntry(self, skill, True).grid(row=i + 1, column=0)
+            w.TableEntry(self, entry["Start Level"]).grid(row=i + 1, column=1)
+            w.TableEntry(self, entry["Final Level"]).grid(row=i + 1, column=2)
+            w.TableEntry(self, str(entry["Times Leveled"]) + "x", True).grid(
+                row=i + 1, column=3)
+            w.TableEntry(self, str(entry["Times Legendary"]) + "x").grid(
+                row=i + 1, column=4)
+
+        self.grid(row=0, column=0, sticky="nsew")
+
 
 class Recipe:
     """Contain data about possible 'View Paths'."""
