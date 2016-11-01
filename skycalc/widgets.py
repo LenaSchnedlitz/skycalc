@@ -80,40 +80,12 @@ class TableEntry(tk.Label):
                           bg=parent.cget("bg"),
                           text=text_)
         if highlighted:
-            self.config(fg=Colors.TEXT, font=("Helvetica", 11, "bold"))
+            self.config(fg=Colors.TEXT, font=("Helvetica", 11))
         else:
             self.config(fg=Colors.LIGHT, font=("Helvetica", 10))
 
 
 # classic buttons
-
-# TODO Button functionality
-class BreadcrumbButton(tk.Label):
-    """Breadcrumb button displaying status of a step.
-
-    Attributes:
-        parent (Frame): frame that contains this image
-        i (int): position/index
-    """
-
-    def __init__(self, parent, i):
-        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
-        self.__i = i  # index/id
-
-        self.__old = ImageImporter.load("bread/OLD")
-        self.__now = ImageImporter.load("bread/NOW")
-        self.__new = ImageImporter.load("bread/NEW")
-
-        self.refresh()
-
-    def refresh(self, n=0):
-        if self.__i < n:
-            self.config(image=self.__old)
-        elif self.__i == n:
-            self.config(image=self.__now)
-        else:
-            self.config(image=self.__new)
-
 
 class NavButton(tk.Button):
     """Standard layout for 'previous'- or 'next'-buttons.
@@ -204,21 +176,51 @@ class SortButton(tk.Button):
         self.config(text=new_text)
 
 
-# TODO use or remove
+# TODO: make prettier
 class TabButton(tk.Button):
     """Tab index button.
 
     For results view
     Attributes:
-        parent (Frame): frame that contains this button
+        parent (Frame): container frame
         text_ (str): displayed text
         tab (Frame): frame that will be shown when the button is clicked
+        marker: corresponding tab marker
     """
 
-    def __init__(self, parent, text_, tab):
-        tk.Button.__init__(self, parent, text=text_)
+    def __init__(self, parent, text_, tab, buttons, marker=None):
+        tk.Button.__init__(self, parent,
+                           activebackground=parent.cget("bg"),
+                           bg=parent.cget("bg"),
+                           borderwidth=0,
+                           cursor="hand2",
+                           relief="flat")
         self.__parent = parent
-        self.config(command=lambda: tab.tkraise())
+        self.__tab = tab
+        self.__buttons = buttons
+        self.__marker = marker
+
+        self.__deselected = ImageImporter.load("tab/names/" + text_)
+        self.__selected = ImageImporter.load(
+            "tab/names/" + text_ + "_SELECTED")
+
+        self.config(command=lambda: self.__on_call())
+
+        self.deselect()
+
+    def deselect(self):
+        self.config(image=self.__deselected)
+
+    def select(self):
+        for button in self.__buttons:
+            button.deselect()
+        self.config(image=self.__selected)
+        if self.__marker is not None:
+            self.__marker.select()
+
+    def __on_call(self):
+        self.__tab.tkraise()
+        self.select()
 
 
 # getting user input
@@ -404,6 +406,94 @@ class SmallField(tk.Frame):
 
     def set_focus(self):
         self.__entry.focus_set()
+
+
+# visualisation
+
+class BreadcrumbMarker(tk.Label):
+    """Breadcrumb button displaying status of a step.
+
+    Attributes:
+        parent (Frame): frame that contains this image
+        i (int): position/index
+    """
+
+    def __init__(self, parent, i):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
+        self.__i = i  # index/id
+
+        self.__old = ImageImporter.load("bread/OLD")
+        self.__now = ImageImporter.load("bread/NOW")
+        self.__new = ImageImporter.load("bread/NEW")
+
+        self.refresh()
+
+    def refresh(self, n=0):
+        if self.__i < n:
+            self.config(image=self.__old)
+        elif self.__i == n:
+            self.config(image=self.__now)
+        else:
+            self.config(image=self.__new)
+
+
+# TODO: make prettier
+class ResultTable(tk.Frame):
+    """Displays result data (returned by calculator-functions) in a table.
+
+    Attributes:
+        parent (tk.Frame): container
+        data (dict): displayed result data
+    """
+
+    def __init__(self, parent, data):
+        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
+
+        headlines = ["SKILL", "CURRENT", "GOAL", "TRAIN", "LEGENDARY"]
+        for i in range(len(headlines)):
+            Image(self, "headlines/" + headlines[i]).grid(row=0, column=i,
+                                                          pady=15)
+
+        sorted_relevant_skills = sorted(skill for skill in data.keys() if
+                                        data[skill]["Times Leveled"] != 0)
+
+        for i in range(len(sorted_relevant_skills)):
+            skill = sorted_relevant_skills[i]
+            entry = data[skill]
+            TableEntry(self, skill, True).grid(row=i + 1, column=0, pady=7)
+            TableEntry(self, entry["Start Level"]).grid(row=i + 1, column=1)
+            TableEntry(self, entry["Final Level"]).grid(row=i + 1, column=2)
+            TableEntry(self, str(entry["Times Leveled"]) + "x", True).grid(
+                row=i + 1, column=3)
+            TableEntry(self, str(entry["Times Legendary"]) + "x").grid(
+                row=i + 1, column=4)
+
+
+class TabMarker(tk.Label):
+    """Display if a tab is selected. Can be controlled by a TabButton.
+
+    Attributes:
+        parent (Frame): container frame
+        markers (list): list of all markers
+    """
+
+    def __init__(self, parent, markers):
+        tk.Label.__init__(self, parent, bg=parent.cget("bg"), borderwidth=0)
+
+        self.__markers = markers
+
+        self.__deselected = ImageImporter.load("tab/markers/deselected")
+        self.__selected = ImageImporter.load("tab/markers/selected")
+
+        self.deselect()
+
+    def deselect(self):
+        self.config(image=self.__deselected)
+
+    def select(self):
+        for marker in self.__markers:
+            marker.deselect()
+        self.config(image=self.__selected)
 
 
 # other

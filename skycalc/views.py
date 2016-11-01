@@ -46,6 +46,7 @@ class InputGetter(WindowContent):
         return self.__collector
 
 
+# TODO: make prettier
 class Results(WindowContent):
     """Display calculated results.
 
@@ -62,15 +63,52 @@ class Results(WindowContent):
         levels = collector.get_skill_levels()
         now, goal = collector.get_char_levels()
 
-        self.__fast_results = calc.simulate_fast_training(levels, now, goal)
-        self.__easy_results = calc.simulate_easy_training(levels, now, goal)
-        self.__balanced_results = calc.simulate_balanced_training(levels,
-                                                                  now, goal)
-        print(self.__fast_results)
-        print(self.__easy_results)
-        print(self.__balanced_results)
+        self.__button_container = tk.Frame(self, bg=self.cget("bg"))
+        self.__button_container.pack()
 
-        ResultTable(self, self.__fast_results)
+        self.__marker_container = tk.Frame(self, bg=self.cget("bg"))
+        self.__marker_container.pack()
+
+        self.__tab_container = tk.Frame(self, bg=self.cget("bg"))
+        self.__tab_container.pack()
+
+        self.__tabs = []
+        self.__markers = []
+        self.__buttons = []
+
+        w.Image(self.__button_container, "tab/names/empty").pack(side="left")
+        w.Image(self.__marker_container, "tab/markers/left").pack(side="left")
+
+        # tabs
+        self.__make_tab("fast", calc.simulate_fast_training(levels, now, goal))
+        self.__make_tab("balanced",
+                        calc.simulate_balanced_training(levels, now, goal))
+        self.__make_tab("easy", calc.simulate_easy_training(levels, now, goal))
+
+        w.Image(self.__button_container, "tab/names/empty").pack(side="left")
+        w.Image(self.__marker_container, "tab/markers/right").pack(side="left")
+
+        self.__tabs[1].tkraise()
+        self.__markers[1].select()
+        self.__buttons[1].select()
+
+    def get_markers(self):
+        return self.__markers
+
+    def __make_tab(self, name, data):
+        tab = tk.Frame(self.__tab_container, bg=self.cget("bg"))
+        self.__tabs.append(tab)
+        w.ResultTable(tab, data).pack()
+        tab.grid(row=0, column=0, sticky="nsew")
+
+        marker = w.TabMarker(self.__marker_container, self.__markers)
+        self.__markers.append(marker)
+        marker.pack(side="left")
+
+        button = w.TabButton(self.__button_container, name, tab,
+                             self.__buttons, marker)
+        self.__buttons.append(button)
+        button.pack(side="left")
 
 
 class Start(WindowContent):
@@ -195,7 +233,7 @@ class Header(ViewElement):
             self.__labels.append(label)
             label.pack(side="left")
 
-            button = w.BreadcrumbButton(breadcrumbs_container, i)
+            button = w.BreadcrumbMarker(breadcrumbs_container, i)
             self.__breadcrumb_buttons.append(button)
             button.pack(side="left")
         w.Image(breadcrumbs_container, "bread/END").pack(side="left")
@@ -657,33 +695,6 @@ class Skills(InputForm):
 
 
 # other
-class ResultTable(tk.Frame):
-    """Displays result data (returned by calculator-functions) in a table.
-
-    Positioned at (0,0) of parent grid.
-    Attributes:
-        parent (tk.Frame): container
-        data (dict): displayed result data
-    """
-
-    def __init__(self, parent, data):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
-
-        sorted_relevant_skills = sorted(skill for skill in data.keys() if
-                                        data[skill]["Times Leveled"] != 0)
-
-        for i in range(len(sorted_relevant_skills)):
-            skill = sorted_relevant_skills[i]
-            entry = data[skill]
-            w.TableEntry(self, skill, True).grid(row=i + 1, column=0)
-            w.TableEntry(self, entry["Start Level"]).grid(row=i + 1, column=1)
-            w.TableEntry(self, entry["Final Level"]).grid(row=i + 1, column=2)
-            w.TableEntry(self, str(entry["Times Leveled"]) + "x", True).grid(
-                row=i + 1, column=3)
-            w.TableEntry(self, str(entry["Times Legendary"]) + "x").grid(
-                row=i + 1, column=4)
-
-        self.grid(row=0, column=0, sticky="nsew")
 
 
 class Recipe:
