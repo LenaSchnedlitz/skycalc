@@ -46,7 +46,6 @@ class InputGetter(WindowContent):
         return self.__collector
 
 
-# TODO: make prettier
 class Results(WindowContent):
     """Display calculated results.
 
@@ -54,61 +53,76 @@ class Results(WindowContent):
     Attributes:
         root (Tk): container window
         collector: data object
+        return_command: allows to navigate back
     """
 
-    def __init__(self, root, collector):
+    def __init__(self, root, collector, return_command):
         WindowContent.__init__(self, root)
         import calculator as calc
+
+        self.config(bg=w.Colors.SHADOW)
 
         levels = collector.get_skill_levels()
         now, goal = collector.get_char_levels()
 
-        self.__button_container = tk.Frame(self, bg=self.cget("bg"))
-        self.__button_container.pack()
+        data = [calc.simulate_fast_training(levels, now, goal),
+                calc.simulate_balanced_training(levels, now, goal),
+                calc.simulate_easy_training(levels, now, goal)]
+        names = ["fast", "balanced", "easy"]
 
-        self.__marker_container = tk.Frame(self, bg=self.cget("bg"))
-        self.__marker_container.pack()
+        top = tk.Frame(self, bg=w.Colors.BG)
+        w.Image(top, "tab/results").pack(pady=20)
+        button_container = tk.Frame(top, bg=top.cget("bg"))
+        button_container.pack()
+        marker_container = tk.Frame(top, bg=top.cget("bg"))
+        marker_container.pack()
+        top.pack(fill="x")
 
-        self.__tab_container = tk.Frame(self, bg=self.cget("bg"))
-        self.__tab_container.pack()
+        tab_container = tk.Frame(self, bg=self.cget("bg"))
+        tab_container.pack()
 
-        self.__tabs = []
-        self.__markers = []
-        self.__buttons = []
+        bottom = tk.Frame(self, bg=self.cget("bg"))
+        w.ImageButton(bottom,
+                      "start_over",
+                      return_command).pack(side="left", padx=10, pady=11)
+        bottom.pack(fill="x", side="bottom")
 
-        w.Image(self.__button_container, "tab/names/empty").pack(side="left")
-        w.Image(self.__marker_container, "tab/markers/left").pack(side="left")
+        tabs = self.__make_tabs(tab_container, data)
+        markers = self.__make_markers(marker_container, len(tabs))
+        buttons = self.__make_buttons(button_container, names, tabs, markers)
 
-        # tabs
-        self.__make_tab("fast", calc.simulate_fast_training(levels, now, goal))
-        self.__make_tab("balanced",
-                        calc.simulate_balanced_training(levels, now, goal))
-        self.__make_tab("easy", calc.simulate_easy_training(levels, now, goal))
+        buttons[1].invoke()
 
-        w.Image(self.__button_container, "tab/names/empty").pack(side="left")
-        w.Image(self.__marker_container, "tab/markers/right").pack(side="left")
+    @staticmethod
+    def __make_buttons(parent, names, tabs, markers):
+        buttons = []
+        for i in range(len(tabs)):
+            button = w.TabButton(parent, names[i], tabs[i], buttons,
+                                 markers[i])
+            button.pack(side="left")
+            buttons.append(button)
+        return buttons
 
-        self.__tabs[1].tkraise()
-        self.__markers[1].select()
-        self.__buttons[1].select()
+    @staticmethod
+    def __make_markers(parent, amount):
+        markers = []
+        w.Image(parent, "tab/markers/left").pack(side="left")
+        for i in range(amount):
+            marker = w.TabMarker(parent, markers)
+            marker.pack(side="left")
+            markers.append(marker)
+        w.Image(parent, "tab/markers/right").pack(side="left")
+        return markers
 
-    def get_markers(self):
-        return self.__markers
-
-    def __make_tab(self, name, data):
-        tab = tk.Frame(self.__tab_container, bg=self.cget("bg"))
-        self.__tabs.append(tab)
-        w.ResultTable(tab, data).pack()
-        tab.grid(row=0, column=0, sticky="nsew")
-
-        marker = w.TabMarker(self.__marker_container, self.__markers)
-        self.__markers.append(marker)
-        marker.pack(side="left")
-
-        button = w.TabButton(self.__button_container, name, tab,
-                             self.__buttons, marker)
-        self.__buttons.append(button)
-        button.pack(side="left")
+    @staticmethod
+    def __make_tabs(parent, data):
+        tabs = []
+        for data_set in data:
+            tab = tk.Frame(parent, bg=parent.cget("bg"))
+            w.ResultTable(tab, data_set).pack()
+            tab.grid(row=0, column=0, sticky="nsew")
+            tabs.append(tab)
+        return tabs
 
 
 class Start(WindowContent):
@@ -125,7 +139,7 @@ class Start(WindowContent):
         WindowContent.__init__(self, root)
         self.__controller = controller
 
-        w.Image(self, "start").grid(row=0, column=0)
+        w.Image(self, "start03").grid(row=0, column=0)
 
         button_container = tk.Frame(self, bg=self.cget("bg"))
         button_container.grid(row=0, column=0, pady=30)
@@ -174,6 +188,7 @@ class Footer(ViewElement):
 
     def __init__(self, parent, instructions):
         ViewElement.__init__(self, parent)
+
         self.__instructions = instructions
 
         self.__right = w.NavButton(self, "NEXT", "RESULTS")
@@ -206,7 +221,6 @@ class Footer(ViewElement):
         self.__message.show_normal(message)
 
 
-# TODO navigate back
 class Header(ViewElement):
     """Highlight the current stage and display its name to show progress.
 
@@ -289,7 +303,7 @@ class InputForm(tk.Frame):
     """
 
     def __init__(self, parent):
-        tk.Frame.__init__(self, parent, bg=parent.cget("bg"))
+        tk.Frame.__init__(self, parent, bg=w.Colors.SHADOW)
 
         self.grid(row=0, column=0, sticky="nsew")
 
@@ -410,7 +424,7 @@ class Races(InputForm):
 
         self.__sorted_by_type = True
         self.__sort_button = w.SortButton(self, "Sort alphabetically")
-        self.__sort_button.pack(anchor="ne")
+        self.__sort_button.pack(anchor="ne", pady=10)
 
         self.__container = self.__build_race_container()
         self.__container.pack(fill="both", expand=True)
@@ -605,7 +619,7 @@ class Skills(InputForm):
 
         self.__sorted_by_type = True
         self.__sort_button = w.SortButton(self, "Sort alphabetically")
-        self.__sort_button.pack(anchor="ne")
+        self.__sort_button.pack(anchor="ne", pady=10)
 
         self.__container = self.__build_skill_container()
         self.__container.pack(fill="both", expand=True)

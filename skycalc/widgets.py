@@ -5,20 +5,19 @@ import tkinter as tk
 
 # different kinds of text and labels
 
-# TODO use or remove
-class Title(tk.Label):
-    """Title - biggest text.
+class Instruction(tk.Label):
+    """Instruction text.
 
     Attributes:
         parent (Frame): frame that contains this title
         text_ (str): displayed text
-        color_ (str): text color
     """
 
-    def __init__(self, parent, text_, color_):
-        tk.Label.__init__(self, parent, text=text_, fg=color_,
+    def __init__(self, parent, text_):
+        tk.Label.__init__(self, parent, text=text_,
                           bg=parent.cget("bg"),
-                          font="-size 34 -weight bold")
+                          fg=Colors.DARK,
+                          font=("Helvetica", 10))
 
 
 class BreadcrumbLabel(tk.Label):
@@ -86,6 +85,28 @@ class TableEntry(tk.Label):
 
 
 # classic buttons
+
+class ImageButton(tk.Button):
+    """Button with an image.
+
+    Attributes:
+        parent (Frame): frame that contains this button
+        label (str): default text / name
+        command_: what happens when button is active
+    """
+
+    def __init__(self, parent, label, command_):
+        tk.Button.__init__(self, parent,
+                           activebackground=parent.cget("bg"),
+                           bg=parent.cget("bg"),
+                           borderwidth=0,
+                           command=command_,
+                           cursor="hand2",
+                           relief="flat")
+
+        self.__image = ImageImporter.load("button/" + label)
+        self.config(image=self.__image)
+
 
 class NavButton(tk.Button):
     """Standard layout for 'previous'- or 'next'-buttons.
@@ -176,7 +197,6 @@ class SortButton(tk.Button):
         self.config(text=new_text)
 
 
-# TODO: make prettier
 class TabButton(tk.Button):
     """Tab index button.
 
@@ -437,7 +457,7 @@ class BreadcrumbMarker(tk.Label):
             self.config(image=self.__new)
 
 
-# TODO: make prettier
+# TODO: make more reusable
 class ResultTable(tk.Frame):
     """Displays result data (returned by calculator-functions) in a table.
 
@@ -501,11 +521,11 @@ class TabMarker(tk.Label):
 class Colors:
     """Some predefined colors."""
     BG = "#1A1816"
+    SHADOW = "#12110F"
     TEXT = "#C0BFBF"
     ERROR = "#F22613"
 
     WHITE = "#EFEFEF"
-    SHADOW = "#12110F"
     BLACK = "#080706"
 
     LIGHT = "#D0B180"

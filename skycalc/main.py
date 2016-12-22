@@ -70,7 +70,8 @@ class GuiController:
 
     def show_results(self):
         self.__destroy_all_elements()
-        v.Results(self.__root, self.__collector)
+        v.Results(self.__root, self.__collector,
+                  lambda x=None: self.show_start())
 
     def show_start(self):
         self.__destroy_all_elements()

@@ -292,7 +292,6 @@ class InputValidator:
         return 15 <= level <= 100
 
 
-# TODO check if complete
 class InputCollector:
     """Collect valid user input.
 
