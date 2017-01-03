@@ -138,23 +138,26 @@ class Start(WindowContent):
     def __init__(self, root, controller):
         WindowContent.__init__(self, root)
         self.__controller = controller
+        self.config(bg=w.Colors.SHADOW)
 
-        w.Image(self, "start").grid(row=0, column=0)
+        w.Image(self, "bg").place(relx=0.5, rely=0.5, anchor="center")
 
-        button_container = tk.Frame(self, bg=w.Colors.SHADOW)
-        button_container.place(relx=0.5, rely=0.7, anchor="s")
+        rel_x = 0.48
+        rel_y = 0.65
 
-        new_ = w.StartButton(button_container,
-                             "NEW",
+        new_ = w.ImageButton(self,
+                             "new",
                              lambda x=None: self.__controller.show_input_forms(
                                  Recipe.NEW_CHAR))
-        new_.pack(side="left", padx=5)
+        new_.config(bg=w.Colors.BG)
+        new_.place(relx=rel_x, rely=rel_y, anchor="e")
 
-        ex_ = w.StartButton(button_container,
-                            "EXISTING",
+        ex_ = w.ImageButton(self,
+                            "pretrained",
                             lambda x=None: self.__controller.show_input_forms(
                                 Recipe.EXISTING_CHAR))
-        ex_.pack(side="right", padx=5)
+        ex_.config(bg=w.Colors.BG)
+        ex_.place(relx=1-rel_x, rely=rel_y, anchor="w")
 
 
 # View Elements
