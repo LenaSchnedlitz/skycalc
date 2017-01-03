@@ -139,10 +139,10 @@ class Start(WindowContent):
         WindowContent.__init__(self, root)
         self.__controller = controller
 
-        w.Image(self, "start03").grid(row=0, column=0)
+        w.Image(self, "start").grid(row=0, column=0)
 
-        button_container = tk.Frame(self, bg=self.cget("bg"))
-        button_container.grid(row=0, column=0, pady=30)
+        button_container = tk.Frame(self, bg=w.Colors.SHADOW)
+        button_container.place(relx=0.5, rely=0.7, anchor="s")
 
         new_ = w.StartButton(button_container,
                              "NEW",

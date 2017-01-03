@@ -78,7 +78,7 @@ class GuiController:
         v.Start(self.__root, self)
 
     def __configure_window(self):
-        self.__root.iconbitmap("res/Skyrim.ico")
+        self.__root.iconbitmap("res/arrow.ico")
         self.__root.title("Skyrim Calculator")
 
         width = 800
