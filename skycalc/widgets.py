@@ -5,21 +5,6 @@ import tkinter as tk
 
 # different kinds of text and labels
 
-class Instruction(tk.Label):
-    """Instruction text.
-
-    Attributes:
-        parent (Frame): frame that contains this title
-        text_ (str): displayed text
-    """
-
-    def __init__(self, parent, text_):
-        tk.Label.__init__(self, parent, text=text_,
-                          bg=parent.cget("bg"),
-                          fg=Colors.DARK,
-                          font=("Helvetica", 10))
-
-
 class BreadcrumbLabel(tk.Label):
     """Display title of current stage.
 

@@ -65,9 +65,9 @@ class Results(WindowContent):
         levels = collector.get_skill_levels()
         now, goal = collector.get_char_levels()
 
-        data = [calc.simulate_fast_training(levels, now, goal),
-                calc.simulate_balanced_training(levels, now, goal),
-                calc.simulate_easy_training(levels, now, goal)]
+        self.__data = [calc.simulate_fast_training(levels, now, goal),
+                       calc.simulate_balanced_training(levels, now, goal),
+                       calc.simulate_easy_training(levels, now, goal)]
         names = ["fast", "balanced", "easy"]
 
         top = tk.Frame(self, bg=w.Colors.BG)
@@ -76,6 +76,10 @@ class Results(WindowContent):
         button_container.pack()
         marker_container = tk.Frame(top, bg=top.cget("bg"))
         marker_container.pack()
+        w.ImageButton(top, "export",
+                      lambda x=None: self.__export_popup()).place(anchor="ne",
+                                                                  relx=1, x=-5,
+                                                                  y=5)
         top.pack(fill="x")
 
         tab_container = tk.Frame(self, bg=self.cget("bg"))
@@ -87,11 +91,51 @@ class Results(WindowContent):
                       return_command).pack(side="left", padx=10, pady=11)
         bottom.pack(fill="x", side="bottom")
 
-        tabs = self.__make_tabs(tab_container, data)
+        tabs = self.__make_tabs(tab_container)
         markers = self.__make_markers(marker_container, len(tabs))
         buttons = self.__make_buttons(button_container, names, tabs, markers)
 
         buttons[1].invoke()
+
+    def __export(self):
+        import inputparser as parse
+        text = "{:=^53}\n{:=^53}\n{:=^53}\n".format("", " FAST METHOD ", "")
+        text += parse.OutputFormatter.reformat(self.__data[0])
+        text += "{:-^53}\n\n\n\n".format("")
+        text += "{:=^53}\n{:=^53}\n{:=^53}\n".format("", " BALANCED METHOD ",
+                                                     "")
+        text += parse.OutputFormatter.reformat(self.__data[1])
+        text += "{:-^53}\n\n\n\n".format("")
+        text += "{:=^53}\n{:=^53}\n{:=^53}\n".format("", " EASY METHOD ", "")
+        text += parse.OutputFormatter.reformat(self.__data[2])
+        text += "{:-^53}\n".format("")
+        output = open('YOUR_RESULTS.txt', 'w')
+        output.write(text)
+        output.close()
+
+    def __export_popup(self):
+        frame = tk.Frame(self, bg=w.Colors.BG, height=130, width=260)
+
+        text = w.Message(frame, "Do you really want to export these results?")
+        text.config(wraplength=180)
+        text.place(anchor="n", relx=0.5, y=15)
+
+        yes = w.ImageButton(frame, "YES", lambda x=None: __finish())
+        yes.place(anchor="se", relx=1, rely=1, x=-10, y=-10)
+        no = w.ImageButton(frame, "CANCEL", lambda x=None: frame.destroy())
+        no.place(anchor="sw", rely=1, x=10, y=-10)
+
+        frame.place(anchor="center", relx=0.5, rely=0.45)
+
+        def __finish():
+            self.__export()
+            yes.destroy()
+            no.destroy()
+            text.show_normal("Your results have been exported.")
+            w.ImageButton(frame, "CLOSE",
+                          lambda x=None: frame.destroy()).place(anchor="s",
+                                                                relx=0.5,
+                                                                rely=1, y=-10)
 
     @staticmethod
     def __make_buttons(parent, names, tabs, markers):
@@ -114,10 +158,9 @@ class Results(WindowContent):
         w.Image(parent, "tab/markers/right").pack(side="left")
         return markers
 
-    @staticmethod
-    def __make_tabs(parent, data):
+    def __make_tabs(self, parent):
         tabs = []
-        for data_set in data:
+        for data_set in self.__data:
             tab = tk.Frame(parent, bg=parent.cget("bg"))
             w.ResultTable(tab, data_set).pack()
             tab.grid(row=0, column=0, sticky="nsew")

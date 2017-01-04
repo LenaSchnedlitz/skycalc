@@ -402,3 +402,24 @@ class InputCollector:
         default_levels = GameData.NEW_CHAR_LEVEL_INFO[self.__race]
         self.__skill_levels = {skill: default_levels[skill] for skill in
                                self.__selected_skills}
+
+
+class OutputFormatter:
+    """Return formatted Strings that can be printed or written to a file"""
+
+    @staticmethod
+    def reformat(data):
+        text = "                |     Levels     |       |   times   \n"
+        text += "   Skill name   | current | goal | train | legendary \n"
+        text += "----------------+---------+------+-------+-----------\n"
+
+        for skill in sorted(data):
+            if data[skill]["Times Leveled"] != 0:
+                text += " {:<14} | ".format(skill)
+                text += "{:>7} | ".format(str(data[skill]["Start Level"]))
+                text += "{:>4} | ".format(str(data[skill]["Final Level"]))
+                text += "{:>4}x | ".format(str(data[skill]["Times Leveled"]))
+                text += "{:>8}x\n".format(str(data[skill]["Times Legendary"]))
+
+        return text
+
