@@ -666,10 +666,8 @@ class Skills(InputForm):
         self.__sorter = Sorter(self.__headlines, self.__skills,
                                self.__sort_button, 6)
 
-        self.__template_button = w.ImageButton(self, "templates",
-                                               lambda
-                                                   x=None:
-                                               self.__toggle_template_menu())
+        self.__template_button = w.ImageButton(
+            self, "templates", lambda x=None: self.__toggle_template_menu())
         self.__template_button.place(anchor="w", relx=0, rely=0.5)
 
     def collect_input(self):

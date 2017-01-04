@@ -422,4 +422,3 @@ class OutputFormatter:
                 text += "{:>8}x\n".format(str(data[skill]["Times Legendary"]))
 
         return text
-
