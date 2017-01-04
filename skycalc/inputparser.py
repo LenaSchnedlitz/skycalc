@@ -221,6 +221,11 @@ class GameData:
 
     SKILL_TYPES = ("MAGIC", "COMBAT", "STEALTH")
 
+    PLAY_STYLES = {
+        "Crafty Merchant": ("Speech", "Alchemy", "Smithing", "Enchanting"),
+        "Basic Criminal": ("Sneak", "Lockpicking", "Pickpocket")
+    }
+
 
 class ValidationException(Exception):
     """Exception with 'problem list'.
@@ -308,6 +313,7 @@ class InputCollector:
         self.__race = None
         self.__selected_skills = None
         self.__skill_levels = None
+        self.__template = None
 
     def get_char_levels(self):
         return self.__now, self.__goal
@@ -322,6 +328,18 @@ class InputCollector:
         if self.__skill_levels is None:
             self.__set_default_skill_levels()
         return self.__skill_levels
+
+    def get_template(self):
+        temp = self.__template
+        if temp is None:
+            return ()
+        if temp in GameData.PLAY_STYLES:
+            return GameData.PLAY_STYLES[temp]
+        return [k for k, v in GameData.NEW_CHAR_LEVEL_INFO[temp].items() if
+                v > 15]
+
+    def has_template(self):
+        return self.__template is not None
 
     def set_char_levels(self, goal, now=1):
         valid_goal = self.__validator.is_valid_char_level(goal)
@@ -376,6 +394,9 @@ class InputCollector:
         else:
             raise ValidationException(
                 "Skill levels can range from 15 to 100.", invalid_skills)
+
+    def set_template(self, template):
+        self.__template = template  # no validation!
 
     def __set_default_skill_levels(self):
         default_levels = GameData.NEW_CHAR_LEVEL_INFO[self.__race]

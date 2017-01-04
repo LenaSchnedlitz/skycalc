@@ -149,15 +149,15 @@ class Start(WindowContent):
                              "new",
                              lambda x=None: self.__controller.show_input_forms(
                                  Recipe.NEW_CHAR))
-        new_.config(bg=w.Colors.BG)
+        new_.config(bg="#141311")  # dirty fix
         new_.place(relx=rel_x, rely=rel_y, anchor="e")
 
         ex_ = w.ImageButton(self,
                             "pretrained",
                             lambda x=None: self.__controller.show_input_forms(
                                 Recipe.EXISTING_CHAR))
-        ex_.config(bg=w.Colors.BG)
-        ex_.place(relx=1-rel_x, rely=rel_y, anchor="w")
+        ex_.config(bg="#141311")  # dirty fix
+        ex_.place(relx=1 - rel_x, rely=rel_y, anchor="w")
 
 
 # View Elements
@@ -426,7 +426,8 @@ class Races(InputForm):
         self.__selected = ""  # selected race
 
         self.__sorted_by_type = True
-        self.__sort_button = w.SortButton(self, "Sort alphabetically")
+        self.__sort_button = w.ToggleButton(self, "Sort alphabetically",
+                                            lambda x=None: self.__sort())
         self.__sort_button.pack(anchor="ne", pady=10)
 
         self.__container = self.__build_race_container()
@@ -439,6 +440,7 @@ class Races(InputForm):
     def collect_input(self):
         self.update()
         self.__collector.set_race(self.__selected)  # no try block necessary
+        self.__collector.set_template(self.__selected)
 
     def select(self, selection):
         self.__selected = selection
@@ -447,16 +449,6 @@ class Races(InputForm):
                 race.mark_selected()  # select clicked option
             else:
                 race.mark_unselected()  # deselect all other options
-
-    def sort(self):
-        if self.__sorted_by_type:
-            self.__sort_by_name()
-            self.__sort_button.change_text("Sort by type")
-            self.__sorted_by_type = False
-        else:
-            self.__sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
-            self.__sorted_by_type = True
 
     def __build_headlines(self):
         from inputparser import GameData
@@ -484,6 +476,16 @@ class Races(InputForm):
         for name in GameData.RACE_NAMES:
             races.append(w.Option(self.__container, name, self))
         return races
+
+    def __sort(self):
+        if self.__sorted_by_type:
+            self.__sort_by_name()
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
+        else:
+            self.__sort_by_type()
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
 
     def __sort_by_name(self):
         self.__container.grid_columnconfigure(2, weight=0)  # set column scale
@@ -621,7 +623,9 @@ class Skills(InputForm):
         self.__collector = collector
 
         self.__sorted_by_type = True
-        self.__sort_button = w.SortButton(self, "Sort alphabetically")
+        self.__sort_button = w.ToggleButton(self,
+                                            "Sort alphabetically",
+                                            lambda x=None: self.__sort())
         self.__sort_button.pack(anchor="ne", pady=10)
 
         self.__container = self.__build_skill_container()
@@ -639,17 +643,16 @@ class Skills(InputForm):
                 selected.append(skill.get_label())
         if not self.__sorted_by_type:
             selected = sorted(selected)
+        self.__collector.set_template(None)
         self.__collector.set_selected_skills(selected)
 
-    def sort(self):
-        if self.__sorted_by_type:
-            self.__sort_by_name()
-            self.__sort_button.change_text("Sort by type")
-            self.__sorted_by_type = False
-        else:
-            self.__sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
-            self.__sorted_by_type = True
+    def update(self):
+        if self.__collector.has_template():
+            selection = self.__collector.get_template()
+            self.__deselect_all()
+            for button in self.__skills:
+                if button.get_label() in selection:
+                    button.select()
 
     def __build_headlines(self):
         from inputparser import GameData
@@ -678,6 +681,21 @@ class Skills(InputForm):
         for name in GameData.SKILL_NAMES:
             skills.append(w.MultiSelectable(self.__container, name))
         return skills
+
+    def __deselect_all(self):
+        for skill in self.__skills:
+            if skill.is_selected():
+                skill.select()
+
+    def __sort(self):
+        if self.__sorted_by_type:
+            self.__sort_by_name()
+            self.__sort_button.change_text("Sort by type")
+            self.__sorted_by_type = False
+        else:
+            self.__sort_by_type()
+            self.__sort_button.change_text("Sort alphabetically")
+            self.__sorted_by_type = True
 
     def __sort_by_name(self):
         for headline in self.__headlines:

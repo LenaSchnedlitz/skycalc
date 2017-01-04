@@ -145,58 +145,6 @@ class NavButton(tk.Button):
             self.config(image=self.__alt_image)
 
 
-class StartButton(tk.Button):
-    """Default button layout, mainly used in 'Start'.
-
-    Attributes:
-        parent (Frame): frame that contains this button
-        text_ (str): button text, usually 'NEW' or 'EXISTING'
-        command_: button command
-    """
-
-    def __init__(self, parent, text_, command_):
-        tk.Button.__init__(self, parent, text=text_, command=command_,
-                           activebackground=Colors.MEDIUM,
-                           activeforeground=Colors.LIGHT,
-                           bg=Colors.LIGHT,
-                           borderwidth=0,
-                           cursor="hand2",
-                           fg=Colors.WHITE,
-                           font="-size 13",
-                           pady=7,
-                           relief="flat",
-                           width=12
-                           )
-        self.bind("<Return>", command_)
-
-
-class SortButton(tk.Button):
-    """'Toggle button' used for sorting method selection.
-
-    Attributes:
-        parent (Frame): container frame
-        text_ (str): button text, usually 'alphabetically', 'by category', ...
-    """
-
-    def __init__(self, parent, text_):
-        tk.Button.__init__(self, parent, text=text_,
-                           activebackground=parent.cget("bg"),
-                           activeforeground=Colors.DARK,
-                           bg=parent.cget("bg"),
-                           borderwidth=0,
-                           cursor="hand2",
-                           fg=Colors.DARK,
-                           font="-size 10",
-                           padx=14,
-                           relief="flat"
-                           )
-        self.bind("<Return>", lambda x: parent.sort())
-        self.config(command=lambda: parent.sort())
-
-    def change_text(self, new_text):
-        self.config(text=new_text)
-
-
 class TabButton(tk.Button):
     """Tab index button.
 
@@ -241,6 +189,32 @@ class TabButton(tk.Button):
     def __on_call(self):
         self.__tab.tkraise()
         self.select()
+
+
+class ToggleButton(tk.Button):
+    """'Toggle button' used for sorting method selection.
+
+    Attributes:
+        parent (Frame): container frame
+        text_ (str): button text, usually 'alphabetically', 'by category', ...
+    """
+
+    def __init__(self, parent, text_, command_):
+        tk.Button.__init__(self, parent, text=text_, command=command_,
+                           activebackground=parent.cget("bg"),
+                           activeforeground=Colors.DARK,
+                           bg=parent.cget("bg"),
+                           borderwidth=0,
+                           cursor="hand2",
+                           fg=Colors.DARK,
+                           font="-size 10",
+                           padx=14,
+                           relief="flat"
+                           )
+        self.bind("<Return>", command_)
+
+    def change_text(self, new_text):
+        self.config(text=new_text)
 
 
 # getting user input
