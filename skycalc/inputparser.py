@@ -223,7 +223,7 @@ class GameData:
 
     PLAY_STYLES = {
         "Crafty Merchant": ("Speech", "Alchemy", "Smithing", "Enchanting"),
-        "Basic Criminal": ("Sneak", "Lockpicking", "Pickpocket")
+        "Criminal": ("Sneak", "Lockpicking", "Pickpocket")
     }
 
 

@@ -96,11 +96,10 @@ class ImageButton(tk.Button):
     """
 
     def __init__(self, parent, label, command_):
-        tk.Button.__init__(self, parent,
+        tk.Button.__init__(self, parent, command=command_,
                            activebackground=parent.cget("bg"),
                            bg=parent.cget("bg"),
                            borderwidth=0,
-                           command=command_,
                            cursor="hand2",
                            relief="flat")
 

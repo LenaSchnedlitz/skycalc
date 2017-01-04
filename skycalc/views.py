@@ -435,7 +435,9 @@ class Races(InputForm):
 
         self.__headlines = self.__build_headlines()
         self.__races = self.__build_races()
-        self.__sort_by_type()
+
+        self.__sorter = Sorter(self.__headlines, self.__races,
+                               self.__sort_button, 4)
 
     def collect_input(self):
         self.update()
@@ -478,49 +480,7 @@ class Races(InputForm):
         return races
 
     def __sort(self):
-        if self.__sorted_by_type:
-            self.__sort_by_name()
-            self.__sort_button.change_text("Sort by type")
-            self.__sorted_by_type = False
-        else:
-            self.__sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
-            self.__sorted_by_type = True
-
-    def __sort_by_name(self):
-        self.__container.grid_columnconfigure(2, weight=0)  # set column scale
-
-        for headline in self.__headlines:
-            headline.grid_forget()
-
-        sorted_races = sorted(self.__races, key=lambda x: x.get_label())
-        row_ = 0
-        column_ = 0
-        for race in sorted_races:
-            race.grid(row=row_, column=column_)
-            race.tkraise()  # for keyboard only navigation
-            if row_ == 4:
-                row_ = 0
-                column_ += 1
-            else:
-                row_ += 1
-
-    def __sort_by_type(self):
-        self.__container.grid_columnconfigure(2, weight=1)  # set column scale
-
-        for i in range(len(self.__headlines)):
-            self.__headlines[i].grid(row=0, column=i)
-
-        row_ = 1
-        column_ = 0
-        for race in self.__races:
-            race.grid(row=row_, column=column_)
-            race.tkraise()  # for keyboard only navigation
-            if row_ == 4:
-                row_ = 1
-                column_ += 1
-            else:
-                row_ += 1
+        self.__sorter.sort()
 
 
 class SkillLevels(InputForm):
@@ -622,11 +582,37 @@ class Skills(InputForm):
         InputForm.__init__(self, parent)
         self.__collector = collector
 
-        self.__sorted_by_type = True
         self.__sort_button = w.ToggleButton(self,
                                             "Sort alphabetically",
                                             lambda x=None: self.__sort())
         self.__sort_button.pack(anchor="ne", pady=10)
+
+        self.__template_column = tk.Frame(self, bg=self.cget("bg"),
+                                          width=0, height=400)
+        self.__template_column.pack(anchor="n", side="left")
+        self.__template_column.pack_propagate(False)
+        self.__templates_hidden = True
+        w.ImageButton(self.__template_column, "hide_templates",
+                      lambda x=None: self.__toggle_template_menu()).pack()
+        w.ImageButton(self.__template_column, "warrior",
+                      lambda x=None: self.__set_template("Orc")).pack()
+        w.ImageButton(self.__template_column, "spellsword",
+                      lambda x=None: self.__set_template("Imperial")).pack()
+        w.ImageButton(self.__template_column, "mage",
+                      lambda x=None: self.__set_template("Altmer")).pack()
+        w.ImageButton(self.__template_column, "sneaky_archer",
+                      lambda x=None: self.__set_template("Bosmer")).pack()
+        w.ImageButton(self.__template_column, "criminal",
+                      lambda x=None: self.__set_template("Criminal")).pack()
+        w.ImageButton(self.__template_column, "crafty_merchant",
+                      lambda x=None: self.__set_template(
+                          "Crafty Merchant")).pack()
+        w.ImageButton(self.__template_column, "human",
+                      lambda x=None: self.__set_template("Nord")).pack()
+        w.ImageButton(self.__template_column, "beginner",
+                      lambda x=None: self.__set_template("Redguard")).pack()
+        w.ImageButton(self.__template_column, "clear_selection",
+                      lambda x=None: self.__deselect_all()).pack()
 
         self.__container = self.__build_skill_container()
         self.__container.pack(fill="both", expand=True)
@@ -634,25 +620,28 @@ class Skills(InputForm):
         self.__headlines = self.__build_headlines()
         self.__skills = self.__build_skills()
 
-        self.__sort_by_type()
+        self.__sorter = Sorter(self.__headlines, self.__skills,
+                               self.__sort_button, 6)
+
+        self.__template_button = w.ImageButton(self, "templates",
+                                               lambda
+                                                   x=None:
+                                               self.__toggle_template_menu())
+        self.__template_button.place(anchor="w", relx=0, rely=0.5)
 
     def collect_input(self):
         selected = []
         for skill in self.__skills:
             if skill.is_selected():
                 selected.append(skill.get_label())
-        if not self.__sorted_by_type:
+        if not self.__sorter.sorted_by_type:
             selected = sorted(selected)
         self.__collector.set_template(None)
         self.__collector.set_selected_skills(selected)
 
     def update(self):
         if self.__collector.has_template():
-            selection = self.__collector.get_template()
-            self.__deselect_all()
-            for button in self.__skills:
-                if button.get_label() in selection:
-                    button.select()
+            self.__select_template_skills()
 
     def __build_headlines(self):
         from inputparser import GameData
@@ -687,27 +676,82 @@ class Skills(InputForm):
             if skill.is_selected():
                 skill.select()
 
+    def __select_template_skills(self):
+        self.__deselect_all()
+        selection = self.__collector.get_template()
+
+        for button in self.__skills:
+            if button.get_label() in selection:
+                button.select()
+
+    def __set_template(self, template):
+        self.__collector.set_template(template)
+        self.__select_template_skills()
+
     def __sort(self):
+        self.__sorter.sort()
+
+    def __toggle_template_menu(self):
+        if self.__templates_hidden:
+            self.__template_column.config(width=150)
+            self.__template_button.place_forget()
+        else:
+            self.__template_column.config(width=0)
+            self.__template_button.place(anchor="w", relx=0, rely=0.5)
+        self.__templates_hidden = not self.__templates_hidden
+
+
+# other
+
+class Sorter:
+    """Sorts displayed Selectables by type or name
+
+    Attributes:
+        headlines: List of headline objects (visible when sorted_by_type)
+        selectables: List of Selectables that should be sorted
+        button: sort button
+        max_row (int): maximum number of rows when sorted_by_type
+        sorted_by_type (Boolean)
+    """
+
+    def __init__(self,
+                 headlines,
+                 selectables,
+                 button,
+                 max_row,
+                 sorted_by_type=True):
+
+        self.__headlines = headlines
+        self.__selectables = selectables
+        self.__button = button
+        self.__max_row = max_row
+        self.__sorted_by_type = sorted_by_type
+
+        self.__sort_by_type()
+
+    def sort(self):
         if self.__sorted_by_type:
             self.__sort_by_name()
-            self.__sort_button.change_text("Sort by type")
+            self.__button.change_text("Sort by type")
             self.__sorted_by_type = False
         else:
             self.__sort_by_type()
-            self.__sort_button.change_text("Sort alphabetically")
+            self.__button.change_text("Sort alphabetically")
             self.__sorted_by_type = True
+
+    def sorted_by_type(self):
+        return self.__sorted_by_type
 
     def __sort_by_name(self):
         for headline in self.__headlines:
             headline.grid_forget()
-
-        sorted_skills = sorted(self.__skills, key=lambda x: x.get_label())
+        sorted_skills = sorted(self.__selectables, key=lambda x: x.get_label())
         row_ = 0
         column_ = 0
         for skill in sorted_skills:
             skill.grid(row=row_, column=column_)
             skill.tkraise()  # for tabbing order
-            if row_ == 5:
+            if row_ == self.__max_row - 1:
                 row_ = 0
                 column_ += 1
             else:
@@ -716,20 +760,16 @@ class Skills(InputForm):
     def __sort_by_type(self):
         for i in range(len(self.__headlines)):
             self.__headlines[i].grid(row=0, column=i)
-
         row_ = 1
         column_ = 0
-        for skill in self.__skills:
+        for skill in self.__selectables:
             skill.grid(row=row_, column=column_)
             skill.tkraise()  # for tabbing order
-            if row_ == 6:
+            if row_ == self.__max_row:
                 row_ = 1
                 column_ += 1
             else:
                 row_ += 1
-
-
-# other
 
 
 class Recipe:
