@@ -3,12 +3,16 @@
 </p>
 
 
-# Skyrim Level Calculator
+# SkyCalc
 A small tool for character progress optimization.
 
 
-## What it does
-...
+## How To Use
+To run SkyCalc, you need **Python 3.5** or newer. 
+
+* Download this project
+* Open a terminal and navigate into the skycalc folder
+* Run `python main.py`
 
 ### Modes
 
