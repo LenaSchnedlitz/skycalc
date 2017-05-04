@@ -11,7 +11,7 @@ A small tool for character progress optimization.
 To run SkyCalc, you need **Python 3.5** or newer. 
 
 * Download this project
-* Open a terminal and navigate into the skycalc folder
+* Open a terminal inside the skycalc folder
 * Run `python main.py`
 
 ### Modes
