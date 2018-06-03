@@ -1,10 +1,12 @@
 <p align="center">
-  <img src="https://github.com/Mailea/detailed-skyrim-calculator/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
+  <img src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
 </p>
 
 
 # SkyCalc
-A small tool for character progress optimization.
+A small tool for character progress optimization.  
+
+**Warning:** This was a beginner's project. Do not expect high quality code.
 
 
 ## How To Use
