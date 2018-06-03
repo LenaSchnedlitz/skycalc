@@ -6,7 +6,7 @@
 # SkyCalc
 A small tool for character progress optimization.  
 
-**Warning:** This was a beginner's project. Do not expect high quality code.
+**Warning:** This was a beginner's project. *Do not expect high quality code.*
 
 
 ## How To Use
