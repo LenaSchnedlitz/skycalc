@@ -1,6 +1,9 @@
-appdirs==1.4.3
-olefile==0.44
-packaging==16.8
-Pillow==4.1.1
-pyparsing==2.2.0
-six==1.10.0
+appdirs>=1.4.3
+future>=0.16.0
+olefile>=0.46
+packaging>=20.3
+Pillow>=7.1.1
+pyparsing>=2.4.7
+pypiwin32>=223
+pywin32>=227
+six>=1.14.0
