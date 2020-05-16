@@ -1,12 +1,12 @@
 # SkyCalc  
 
-<p align="center" style="max-width:50px">
-  <img style="max-width:50px;" alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
-</p>
-
 A small tool for character progress optimization.  
 
 ***Warning:** This was a beginner's project.*
+
+<p align="center" style="max-width:50px">
+  <img style="max-width:50px;" alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
+</p>
 
 
 ## How To Use
