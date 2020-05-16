@@ -1,18 +1,19 @@
-<p align="center">
-  <img src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
+<p style="text-align: center">
+  <img alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
 </p>
-
 
 # SkyCalc
 A small tool for character progress optimization.  
 
-**Warning:** This was a beginner's project. *Do not expect high quality code.*
+***Warning:** This was a beginner's project.*
 
 
 ## How To Use
 To run SkyCalc, you need **Python 3.5** or newer. 
 
 * Download this project
+* Install all requirements:  
+`pip install -r requirements.txt`
 * Open a terminal inside the skycalc folder
 * Run `python main.py`
 
@@ -35,3 +36,8 @@ Train all (selected) skills equally. - *for realistically playable progress*
 * Playstyle templates - Select your preferred skills conveniently
 * Player race selection for new characters - Skip the character level form
 * Export your results
+
+<p style="text-align: center">
+  <img alt="logo" src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
+</p>
+
