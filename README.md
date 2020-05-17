@@ -1,10 +1,16 @@
-<p align="center" style="max-width:50px">
-  <img style="max-width:50px;" alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
+<p align="center">
+  <img alt="logo" src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
 </p>
 
 # SkyCalc  
 
 A small tool for character progress optimization.  
+
+&nbsp;
+
+<p align="center">
+  <img alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
+</p>
 
 ***Warning:** This was a beginner's project.*
 
@@ -38,10 +44,3 @@ Train all (selected) skills equally. - *for realistically playable progress*
 * Player race selection for new characters - Skip the character level form
 * Export your results
 
-&nbsp;  
-
-<p align="center">
-  <img alt="logo" src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
-</p>
-
-&nbsp;  
