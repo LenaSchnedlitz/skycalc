@@ -1,6 +1,6 @@
-<p align="center">
-  <img alt="logo" src="https://github.com/Mailea/skycalc/blob/master/skycalc/res/helmet/helmet_in_circle.png"/>
-</p>
+<div align="center">
+  <img alt="logo" src="skycalc/res/helmet/helmet_in_circle.png"/>
+</div>
 
 # SkyCalc
 
@@ -9,7 +9,7 @@ A small tool for character progress optimization.
 &nbsp;
 
 <p align="center">
-  <img alt="preview" src="https://github.com/Mailea/skycalc/blob/master/preview.png"/>
+  <img alt="preview" src="preview.png"/>
 </p>
 
 **\*Warning:** This was a beginner's project.\*
