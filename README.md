@@ -8,11 +8,11 @@ A small tool for character progress optimization.
 
 &nbsp;
 
-<p align="center">
+<div align="center">
   <img alt="preview" src="preview.png"/>
-</p>
+</div>
 
-**\*Warning:** This was a beginner's project.\*
+**Warning:** This was a beginner's project.
 
 ## How To Use
 
